@@ -38,6 +38,15 @@ app.use('/api/v1/blog', blogRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/contact', contactRoutes);
 
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    message: 'TrustLens API',
+    version: '1.0.0',
+    docs: '/api/v1/health',
+  });
+});
+
 app.get('/api/v1/health', (_req, res) => {
   res.json({
     success: true,
