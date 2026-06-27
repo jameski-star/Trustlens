@@ -2,170 +2,93 @@
 
 **Know Before You Click.**
 
-TrustLens is a production-ready web application that helps users determine whether websites, emails, SMS messages, WhatsApp messages, job offers, investment opportunities, crypto platforms, QR codes, or screenshots are safe or potentially fraudulent.
+TrustLens helps you determine whether websites, emails, SMS messages, phone numbers, job offers, investment platforms, QR codes, or screenshots are safe or potentially fraudulent — before you engage.
 
-## Features
+## How It Works
 
-- **URL Scanner** - Check if a website is safe or fraudulent
-- **Email Checker** - Analyze emails for phishing attempts
-- **SMS/Phone Checker** - Verify SMS messages and phone numbers
-- **Screenshot Scanner** - OCR-based screenshot analysis
-- **QR Code Scanner** - Extract and analyze QR code content
-- **Community Reports** - User-submitted scam reports
-- **Scam Alerts** - Real-time cybersecurity threat alerts
-- **AI-Powered Analysis** - Machine learning threat detection
-- **Blog & Knowledge Center** - Cybersecurity education
-- **REST API** - Integrate security analysis into your apps
+**1. Paste or upload** the content you want to check (URL, email, phone number, SMS, screenshot, or QR code).
 
-## Tech Stack
+**2. Our engine analyzes** it across multiple dimensions: SSL validity, domain age, blacklists, WHOIS data, brand impersonation, suspicious patterns, and AI-powered text analysis.
 
-### Frontend
-- React 19, TypeScript, Vite
-- TailwindCSS, Framer Motion
-- TanStack Query, React Router
-- React Hook Form, Zod
-- Lucide Icons
+**3. You get a clear risk score** (0–100) with a detailed report explaining why, including recommendations.
 
-### Backend
-- Node.js, Express.js, TypeScript
-- MongoDB with Mongoose
-- JWT Authentication with bcrypt
-- Helmet, CORS, Rate Limiting
-- Pino Logging
-- Tesseract OCR
-- PDF Generation
+No signup required for basic scans.
+
+## What You Can Check
+
+| Tool | What It Does |
+|------|-------------|
+| **URL Checker** | Scan any website link for phishing, malware, or fraud indicators |
+| **Email Checker** | Analyze email addresses and content for scams |
+| **SMS / Phone Checker** | Verify phone numbers and SMS messages |
+| **Screenshot Scanner** | Upload a screenshot — OCR extracts text for analysis |
+| **QR Code Scanner** | Upload a QR code to decode and analyze the destination |
+| **Community Reports** | Browse what others are reporting to spot new threats |
+| **Scam Alerts** | Stay informed about active, trending scams |
+| **Knowledge Center** | Learn to recognize phishing, crypto scams, job fraud, and more |
 
 ## Getting Started
 
-### Prerequisites
-- Node.js 20+
-- MongoDB (local or Atlas)
-- npm
+Visit **https://trustlens.app** (or run locally — see below).
 
-### Installation
+### Run Locally
 
-1. Clone the repository:
 ```bash
 git clone https://github.com/yourusername/trustlens.git
 cd trustlens
-```
 
-2. Install backend dependencies:
-```bash
+# Start backend
 cd backend
-cp .env.example .env
-# Edit .env with your configuration
+cp .env.example .env   # edit with your MongoDB URI and secrets
 npm install
 npm run dev
-```
 
-3. Install frontend dependencies:
-```bash
+# In another terminal, start frontend
 cd frontend
 cp .env.example .env
 npm install
 npm run dev
 ```
 
-4. Open http://localhost:5173 in your browser.
+Open **http://localhost:5173** in your browser.
 
-## Project Structure
+### Using Docker
 
-```
-trustlens/
-├── shared/              # Shared types, validation, utilities
-├── backend/             # Express API server
-│   ├── src/
-│   │   ├── config/      # Application configuration
-│   │   ├── controllers/ # Route handlers
-│   │   ├── db/          # Database connection
-│   │   ├── middleware/   # Express middleware
-│   │   ├── models/      # Mongoose models
-│   │   ├── routes/      # API routes
-│   │   ├── services/    # Business logic
-│   │   └── utils/       # Utilities
-│   └── uploads/         # File uploads
-├── frontend/            # React SPA
-│   └── src/
-│       ├── api/         # API client
-│       ├── components/  # Reusable components
-│       ├── context/     # React context
-│       ├── hooks/       # Custom hooks
-│       └── pages/       # Page components
-└── docker-compose.yml   # Docker setup
-```
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | /api/v1/scan/url | Analyze a URL |
-| POST | /api/v1/scan/email | Analyze an email |
-| POST | /api/v1/scan/sms | Analyze SMS/phone |
-| GET | /api/v1/scan/report/:shareId | Get report |
-| GET | /api/v1/scan/report/:shareId/pdf | Download PDF |
-| GET | /api/v1/community | Get community reports |
-| GET | /api/v1/blog | Get blog posts |
-| POST | /api/v1/auth/login | User login |
-| POST | /api/v1/auth/register | User registration |
-
-## Deployment
-
-### Docker
 ```bash
 docker-compose up -d
 ```
 
-### Frontend (Vercel)
-1. Connect your GitHub repository to Vercel
-2. Set framework to Vite
-3. Set root directory to `frontend`
-4. Add environment variables
+Then open **http://localhost** in your browser.
 
-### Backend (Render)
-1. Create a new Web Service on Render
-2. Set root directory to `backend`
-3. Build command: `npm install && npm run build`
-4. Start command: `npm start`
-5. Add environment variables from `.env.example`
+## Reading a Report
 
-### Database (MongoDB Atlas)
-1. Create a free MongoDB Atlas cluster
-2. Create a database user
-3. Whitelist your deployment IPs
-4. Copy the connection string to your `.env`
+Every scan produces a report with:
 
-## Environment Variables
+- **Risk Score** — 0 (critical) to 100 (safe), color-coded green/yellow/orange/red
+- **SSL Check** — Is the certificate valid and properly configured?
+- **Domain Age** — How long has the domain existed? (new domains are riskier)
+- **Blacklist Status** — Is the domain listed on known threat databases?
+- **AI Analysis** — Pattern-based detection of phishing, spam, and social engineering
+- **Detected Risks** — Specific findings with severity levels
+- **Recommendations** — Actionable steps based on the results
+- **Confidence Score** — How reliable the analysis is
 
-### Backend
-```
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb+srv://...
-JWT_SECRET=your-secret
-JWT_REFRESH_SECRET=your-refresh-secret
-CORS_ORIGIN=http://localhost:5173
-```
+Reports can be downloaded as PDF and shared via a unique link.
 
-### Frontend
-```
-VITE_API_URL=http://localhost:5000/api/v1
-VITE_APP_URL=http://localhost:5173
-```
+## FAQ
 
-## Security Features
+**Is my data stored?**  
+No personal data is stored unless you create an account. Scan results are saved with an anonymous share ID so you can revisit or share them.
 
-- Helmet middleware for security headers
-- Rate limiting on all endpoints
-- Input sanitization (MongoDB injection prevention)
-- XSS protection
-- CORS configuration
-- JWT with refresh tokens
-- Password hashing with bcrypt
-- File upload validation
-- Comprehensive logging
+**How accurate is the analysis?**  
+Our engine checks SSL certificates, domain registration data, blacklists, brand impersonation patterns, and uses AI-based text analysis. Confidence scores are shown on every report.
 
-## License
+**Do I need an account?**  
+No. Basic scanning is free and requires no registration. Accounts are optional and allow you to track your scan history.
 
-MIT
-# Trustlens
+**Is TrustLens free?**  
+Yes. All core security analysis tools are free to use.
+
+## Questions?
+
+Visit the **[FAQ page](https://trustlens.app/faq)** or **[Contact us](https://trustlens.app/contact)**.

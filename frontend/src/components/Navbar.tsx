@@ -1,0 +1,152 @@
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Shield, Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+
+const navigation = [
+  { name: 'URL Checker', href: '/url-checker' },
+  { name: 'Email Checker', href: '/email-checker' },
+  { name: 'SMS Checker', href: '/sms-checker' },
+  {
+    name: 'More Tools',
+    href: '#',
+    children: [
+      { name: 'Screenshot Scanner', href: '/screenshot-scanner' },
+      { name: 'QR Code Scanner', href: '/qr-scanner' },
+      { name: 'Community Reports', href: '/community-reports' },
+    ],
+  },
+  { name: 'Scam Alerts', href: '/scam-alerts' },
+  { name: 'Blog', href: '/blog' },
+];
+
+export default function Navbar() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+
+  return (
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0]">
+      <nav className="container-page">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 bg-[#2563EB] rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
+              <Shield className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-heading font-800 text-xl text-[#0F172A]">TrustLens</span>
+          </Link>
+
+          <div className="hidden lg:flex items-center gap-1">
+            {navigation.map((item) => (
+              <div key={item.name} className="relative">
+                {item.children ? (
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setToolsOpen(true)}
+                    onMouseLeave={() => setToolsOpen(false)}
+                  >
+                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-[#475569] hover:text-[#2563EB] rounded-xl hover:bg-[#F1F5F9] transition-colors">
+                      {item.name}
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                    {toolsOpen && (
+                      <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-2xl shadow-lg border border-[#E2E8F0] py-2 animate-in">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.name}
+                            to={child.href}
+                            className="block px-4 py-2.5 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] transition-colors"
+                            onClick={() => setToolsOpen(false)}
+                          >
+                            {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to={item.href}
+                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-colors ${
+                      location.pathname === item.href
+                        ? 'text-[#2563EB] bg-[#EFF6FF]'
+                        : 'text-[#475569] hover:text-[#2563EB] hover:bg-[#F1F5F9]'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                )}
+              </div>
+            ))}
+            <Link to="/login" className="ml-3 btn-primary text-sm px-5 py-2">
+              Sign In
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl hover:bg-[#F1F5F9] transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-2 rounded-xl hover:bg-[#F1F5F9] transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl hover:bg-[#F1F5F9] transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {mobileOpen && (
+          <div className="lg:hidden border-t border-[#E2E8F0] py-4 space-y-1">
+            {navigation.map((item) => (
+              item.children ? (
+                item.children.map((child) => (
+                  <Link
+                    key={child.name}
+                    to={child.href}
+                    className="block px-3 py-2.5 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {child.name}
+                  </Link>
+                ))
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="block px-3 py-2.5 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              )
+            ))}
+            <Link
+              to="/login"
+              className="block px-3 py-2.5 text-sm font-semibold text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+              onClick={() => setMobileOpen(false)}
+            >
+              Sign In
+            </Link>
+          </div>
+        )}
+      </nav>
+    </header>
+  );
+}
