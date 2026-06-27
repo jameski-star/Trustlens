@@ -29,7 +29,7 @@ export default function Home() {
 
       <section className="container-page pt-12 pb-8 md:pt-20 md:pb-12">
         <div className="max-w-3xl mx-auto text-center mb-8">
-          <h1 className="font-heading font-800 text-3xl md:text-5xl lg:text-6xl text-[#0F172A] leading-tight mb-4">
+          <h1 className="font-heading font-800 text-[clamp(1.75rem,1.25rem+3vw,3.75rem)] md:text-5xl lg:text-6xl text-[#0F172A] leading-tight mb-4">
             Know Before<br />
             <span className="text-[#2563EB]">You Click</span>
           </h1>
@@ -54,7 +54,7 @@ export default function Home() {
             <Link
               key={url}
               to={`/url-checker?q=${encodeURIComponent(url)}`}
-              className="px-3 py-1.5 text-sm text-[#475569] bg-[#F1F5F9] hover:text-[#2563EB] hover:bg-[#EFF6FF] rounded-xl transition-colors"
+              className="px-3 py-1.5 text-sm text-[#475569] bg-[#F1F5F9] hover:text-[#2563EB] hover:bg-[#EFF6FF] rounded-xl transition-colors truncate max-w-[200px] sm:max-w-none"
             >
               {url}
             </Link>

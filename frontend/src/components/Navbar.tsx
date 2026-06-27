@@ -27,7 +27,7 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0]">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0] safe-area-top">
       <nav className="container-page">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5 group">
@@ -113,37 +113,44 @@ export default function Navbar() {
         </div>
 
         {mobileOpen && (
-          <div className="lg:hidden border-t border-[#E2E8F0] py-4 space-y-1">
+          <div className="lg:hidden border-t border-[#E2E8F0] py-4 px-1 space-y-1">
             {navigation.map((item) => (
               item.children ? (
-                item.children.map((child) => (
-                  <Link
-                    key={child.name}
-                    to={child.href}
-                    className="block px-3 py-2.5 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {child.name}
-                  </Link>
-                ))
+                <div key={item.name} className="space-y-0.5">
+                  <span className="block px-3 py-2 text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
+                    {item.name}
+                  </span>
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.name}
+                      to={child.href}
+                      className="block px-3 py-3 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {child.name}
+                    </Link>
+                  ))}
+                </div>
               ) : (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="block px-3 py-2.5 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                  className="block px-3 py-3 text-sm font-medium text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
                   onClick={() => setMobileOpen(false)}
                 >
                   {item.name}
                 </Link>
               )
             ))}
-            <Link
-              to="/login"
-              className="block px-3 py-2.5 text-sm font-semibold text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
-              onClick={() => setMobileOpen(false)}
-            >
-              Sign In
-            </Link>
+            <div className="pt-3 mt-3 border-t border-[#E2E8F0]">
+              <Link
+                to="/login"
+                className="block px-3 py-3 text-sm font-semibold text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                onClick={() => setMobileOpen(false)}
+              >
+                Sign In
+              </Link>
+            </div>
           </div>
         )}
       </nav>
