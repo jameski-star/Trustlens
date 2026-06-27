@@ -22,7 +22,7 @@ export interface IBlogPostDocument extends Document {
 
 const blogPostSchema = new Schema<IBlogPostDocument>({
   title: { type: String, required: true, maxlength: 200 },
-  slug: { type: String, required: true, unique: true, index: true },
+  slug: { type: String, required: true, unique: true },
   excerpt: { type: String, required: true, maxlength: 500 },
   content: { type: String, required: true },
   coverImage: { type: String, default: '' },
@@ -38,7 +38,6 @@ const blogPostSchema = new Schema<IBlogPostDocument>({
   },
 }, { timestamps: true });
 
-blogPostSchema.index({ slug: 1 });
 blogPostSchema.index({ category: 1, isPublished: 1 });
 blogPostSchema.index({ tags: 1 });
 blogPostSchema.index({ publishedAt: -1 });
