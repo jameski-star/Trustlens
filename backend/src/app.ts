@@ -18,7 +18,12 @@ const app = express();
 
 app.use(helmetMiddleware);
 app.use(cors({
-  origin: config.cors.origin,
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
+    const allowed = config.cors.origin;
+    const match = allowed.includes('*') || allowed.some(a => origin.replace(/\/+$/, '') === a);
+    callback(null, match);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
