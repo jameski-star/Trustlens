@@ -310,7 +310,7 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
     });
 
     const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
-    const recommendations = generateRecommendations(aiResult.riskFactors, finalScore);
+    const recommendations = generateRecommendations(aiResult.riskFactors.map(r => ({ category: 'screenshot', severity: 'medium', description: r })), finalScore);
 
     const report = await Report.create({
       type: 'screenshot',
