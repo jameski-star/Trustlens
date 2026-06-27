@@ -21,7 +21,10 @@ app.use(cors({
   origin(origin, callback) {
     if (!origin) return callback(null, true);
     const allowed = config.cors.origin;
-    const match = allowed.includes('*') || allowed.some(a => origin.replace(/\/+$/, '') === a);
+    if (allowed.includes('*')) return callback(null, true);
+    const cleaned = origin.replace(/\/+$/, '');
+    const match = allowed.includes(cleaned) ||
+      allowed.some(a => cleaned.endsWith('.' + a.replace(/^https?:\/\//, '')) || cleaned === a.replace(/^https?:\/\//, ''));
     callback(null, match);
   },
   credentials: true,
