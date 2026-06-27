@@ -70,6 +70,16 @@ export async function getReport(shareId: string) {
   return data.data.report;
 }
 
+export async function scanScreenshot(input: string) {
+  const { data } = await apiClient.post('/scan/screenshot', { input });
+  return data.data.report;
+}
+
+export async function scanQrcode(input: string) {
+  const { data } = await apiClient.post('/scan/qrcode', { input });
+  return data.data.report;
+}
+
 export async function getRecentSearches() {
   const { data } = await apiClient.get('/scan/recent');
   return data.data.searches;

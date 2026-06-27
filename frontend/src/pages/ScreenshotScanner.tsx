@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Camera, Upload, X, Loader2 } from 'lucide-react';
+import { scanUrl } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -27,12 +28,19 @@ export default function ScreenshotScanner() {
   const handleAnalyze = async () => {
     if (!file) return;
     setAnalyzing(true);
-    await new Promise(r => setTimeout(r, 2000));
-    setResult({
-      text: 'Screenshot text extracted successfully. No suspicious content detected.',
-      risk: 'safe',
-    });
-    setAnalyzing(false);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        const report = await scanUrl(base64);
+        setResult({ text: report.summary || 'Analysis completed successfully.', risk: report.riskLevel });
+        setAnalyzing(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setResult({ text: 'Analysis failed. Please try again.', risk: 'unknown' });
+      setAnalyzing(false);
+    }
   };
 
   return (

@@ -295,3 +295,102 @@ export async function getTrendingScams(_req: Request, res: Response, next: NextF
     next(error);
   }
 }
+
+export async function scanScreenshot(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { input } = req.body;
+    const aiResult = await performAIAnalysis(input || 'screenshot uploaded for analysis', 'screenshot');
+
+    const finalScore = calculateFinalScore({
+      ssl: 0,
+      domainAge: 0,
+      blacklists: 0,
+      aiAnalysis: aiResult.confidence,
+      communityReports: 50,
+    });
+
+    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const recommendations = generateRecommendations(aiResult.riskFactors, finalScore);
+
+    const report = await Report.create({
+      type: 'screenshot',
+      input: (input || 'uploaded screenshot').substring(0, 500),
+      riskScore: finalScore,
+      riskLevel,
+      status: 'completed',
+      summary: aiResult.summary,
+      details: {
+        ssl: null,
+        domainAge: null,
+        whois: null,
+        blacklists: [],
+        aiAnalysis: {
+          summary: aiResult.summary,
+          riskFactors: aiResult.riskFactors,
+          confidence: aiResult.confidence,
+          modelVersion: aiResult.modelVersion,
+        },
+        communityReports: 0,
+        detectedRisks: aiResult.riskFactors,
+      },
+      recommendations,
+      confidenceScore: aiResult.confidence,
+      shareId: generateShareId(),
+    });
+
+    res.json({ success: true, data: { report } });
+  } catch (error) {
+    logger.error({ err: error }, 'Scan screenshot error');
+    next(error);
+  }
+}
+
+export async function scanQrcode(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { input } = req.body;
+    const analysis = analyzeUrl(input);
+    const aiResult = await performAIAnalysis(input, 'url');
+
+    const finalScore = calculateFinalScore({
+      ssl: analysis.ssl ? 80 : 30,
+      domainAge: 60,
+      blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
+      aiAnalysis: aiResult.confidence,
+      communityReports: 70,
+    });
+
+    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+
+    const report = await Report.create({
+      type: 'qrcode',
+      input: input.substring(0, 500),
+      riskScore: finalScore,
+      riskLevel,
+      status: 'completed',
+      summary: `QR code leads to: ${analysis.summary}`,
+      details: {
+        ssl: analysis.ssl,
+        domainAge: analysis.domainAge,
+        whois: analysis.whois,
+        blacklists: analysis.blacklists,
+        aiAnalysis: {
+          summary: aiResult.summary,
+          riskFactors: aiResult.riskFactors,
+          confidence: aiResult.confidence,
+          modelVersion: aiResult.modelVersion,
+        },
+        communityReports: 0,
+        detectedRisks: analysis.detectedRisks,
+      },
+      recommendations,
+      confidenceScore: aiResult.confidence,
+      shareId: generateShareId(),
+    });
+
+    res.json({ success: true, data: { report } });
+  } catch (error) {
+    logger.error({ err: error }, 'Scan QR code error');
+    next(error);
+  }
+}

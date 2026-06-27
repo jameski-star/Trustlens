@@ -124,7 +124,7 @@ export default function Home() {
           '@type': 'WebApplication',
           name: 'TrustLens',
           description: 'Free security analysis tool for websites, emails, SMS messages, and more.',
-          url: 'https://trustlens.website',
+          url: window.location.origin,
           applicationCategory: 'Security Application',
           operatingSystem: 'All',
         }),

@@ -1,18 +1,40 @@
+import { useState, useEffect } from 'react';
 import { AlertTriangle, Shield, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getCommunityReports } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { ReportSkeleton } from '../components/Skeleton';
 
-const alerts = [
-  { title: 'Fake PayPal Security Login Pages Surge', severity: 'Critical', date: 'Dec 20, 2024', desc: 'Multiple phishing sites impersonating PayPal security pages have been detected this month.' },
-  { title: 'Crypto Investment Scam Targeting WhatsApp Users', severity: 'High', date: 'Dec 18, 2024', desc: 'Scammers are using WhatsApp groups to promote fake crypto investment platforms.' },
-  { title: 'New SMS Phishing Campaign: "Package Delivery Failed"', severity: 'High', date: 'Dec 15, 2024', desc: 'Fake delivery notification texts contain links to malware-hosting websites.' },
-  { title: 'Job Offer Scams on Telegram and Signal', severity: 'Medium', date: 'Dec 12, 2024', desc: 'Fake remote job offers on messaging apps are stealing personal information.' },
-  { title: 'QR Code Phishing in Parking Meters', severity: 'Medium', date: 'Dec 10, 2024', desc: 'Fake QR codes on parking meters redirect to payment phishing sites.' },
-];
+const severityMap: Record<string, string> = {
+  investment: 'Critical',
+  crypto: 'High',
+  whatsapp: 'High',
+  url: 'Medium',
+  email: 'Medium',
+  phone: 'Low',
+};
 
 export default function ScamAlerts() {
+  const [alerts, setAlerts] = useState<Array<{ title: string; severity: string; createdAt: string; description: string }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getCommunityReports({ page: 1 })
+      .then(data => {
+        const reports = data?.reports || [];
+        setAlerts(reports.map((r: { title: string; description: string; type: string; createdAt: string }) => ({
+          title: r.title,
+          severity: severityMap[r.type] || 'Medium',
+          createdAt: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          description: r.description,
+        })));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <>
       <SEOHead title="Scam Alerts - Latest Cybersecurity Threats" description="Stay informed about the latest scams, phishing campaigns, and cybersecurity threats. Real-time scam alerts from TrustLens." />
@@ -25,23 +47,31 @@ export default function ScamAlerts() {
           </div>
           <p className="text-[#475569] mb-8">Stay informed about the latest scams and cybersecurity threats targeting users worldwide.</p>
 
-          <div className="space-y-4">
-            {alerts.map((alert) => (
-              <Card key={alert.title} hover>
-                <div className="flex items-start gap-4">
-                  <span className={`px-2 py-1 text-xs font-semibold rounded-lg flex-shrink-0 mt-0.5 ${
-                    alert.severity === 'Critical' ? 'bg-[#FEF2F2] text-[#DC2626]' :
-                    alert.severity === 'High' ? 'bg-[#FFFBEB] text-[#D97706]' : 'bg-[#F0FDF4] text-[#16A34A]'
-                  }`}>{alert.severity}</span>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-[#0F172A]">{alert.title}</h3>
-                    <p className="text-sm text-[#475569] mt-1">{alert.desc}</p>
-                    <span className="text-xs text-[#475569] mt-2 block">{alert.date}</span>
+          {loading && <ReportSkeleton />}
+
+          {!loading && alerts.length === 0 && (
+            <p className="text-center text-[#475569] py-12">No scam alerts yet.</p>
+          )}
+
+          {!loading && alerts.length > 0 && (
+            <div className="space-y-4">
+              {alerts.map((alert, idx) => (
+                <Card key={idx} hover>
+                  <div className="flex items-start gap-4">
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-lg flex-shrink-0 mt-0.5 ${
+                      alert.severity === 'Critical' ? 'bg-[#FEF2F2] text-[#DC2626]' :
+                      alert.severity === 'High' ? 'bg-[#FFFBEB] text-[#D97706]' : 'bg-[#F0FDF4] text-[#16A34A]'
+                    }`}>{alert.severity}</span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-[#0F172A]">{alert.title}</h3>
+                      <p className="text-sm text-[#475569] mt-1">{alert.description}</p>
+                      <span className="text-xs text-[#475569] mt-2 block">{alert.createdAt}</span>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -25,6 +25,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import AdminLogin from './pages/AdminLogin';
+import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminUsers from './admin/AdminUsers';
 import AdminReports from './admin/AdminReports';
@@ -37,11 +38,11 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
-        <Route path="/admin/reports" element={<AdminReports />} />
-        <Route path="/admin/blog" element={<AdminBlog />} />
-        <Route path="/admin/analytics" element={<AdminAnalytics />} />
+        <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+        <Route path="/admin/users" element={<ProtectedRoute requireAdmin><AdminUsers /></ProtectedRoute>} />
+        <Route path="/admin/reports" element={<ProtectedRoute requireAdmin><AdminReports /></ProtectedRoute>} />
+        <Route path="/admin/blog" element={<ProtectedRoute requireAdmin><AdminBlog /></ProtectedRoute>} />
+        <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AdminAnalytics /></ProtectedRoute>} />
         <Route path="*" element={<Layout><NotFound /></Layout>} />
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/result/:shareId" element={<Layout><Result /></Layout>} />
