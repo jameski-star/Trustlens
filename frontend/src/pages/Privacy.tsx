@@ -4,7 +4,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 export default function Privacy() {
   return (
     <>
-      <SEOHead title="Privacy Policy" description="TrustLens privacy policy. Learn how we protect your data and what information we collect when you use our security analysis tools." canonical="https://trustlens.app/privacy" />
+      <SEOHead title="Privacy Policy" description="TrustLens privacy policy. Learn how we protect your data and what information we collect when you use our security analysis tools." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Privacy Policy' }]} />
         <div className="max-w-3xl mx-auto prose prose-gray text-[#475569]">

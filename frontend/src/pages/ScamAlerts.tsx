@@ -15,7 +15,7 @@ const alerts = [
 export default function ScamAlerts() {
   return (
     <>
-      <SEOHead title="Scam Alerts - Latest Cybersecurity Threats" description="Stay informed about the latest scams, phishing campaigns, and cybersecurity threats. Real-time scam alerts from TrustLens." canonical="https://trustlens.app/scam-alerts" />
+      <SEOHead title="Scam Alerts - Latest Cybersecurity Threats" description="Stay informed about the latest scams, phishing campaigns, and cybersecurity threats. Real-time scam alerts from TrustLens." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Scam Alerts' }]} />
         <div className="max-w-4xl mx-auto">

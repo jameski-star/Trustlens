@@ -37,7 +37,7 @@ export default function ScreenshotScanner() {
 
   return (
     <>
-      <SEOHead title="Screenshot Scanner - Analyze Images for Threats" description="Upload screenshots to scan for phishing attempts, scam content, and security threats using OCR technology." canonical="https://trustlens.app/screenshot-scanner" />
+      <SEOHead title="Screenshot Scanner - Analyze Images for Threats" description="Upload screenshots to scan for phishing attempts, scam content, and security threats using OCR technology." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Screenshot Scanner' }]} />
         <div className="max-w-3xl mx-auto">

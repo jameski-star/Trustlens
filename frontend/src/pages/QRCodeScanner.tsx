@@ -17,7 +17,7 @@ export default function QRCodeScanner() {
 
   return (
     <>
-      <SEOHead title="QR Code Scanner - Check QR Codes Before Scanning" description="Scan QR codes for security threats before opening them. Free QR code security analysis." canonical="https://trustlens.app/qr-scanner" />
+      <SEOHead title="QR Code Scanner - Check QR Codes Before Scanning" description="Scan QR codes for security threats before opening them. Free QR code security analysis." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'QR Code Scanner' }]} />
         <div className="max-w-3xl mx-auto">

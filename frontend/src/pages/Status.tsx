@@ -17,7 +17,7 @@ const services = [
 export default function Status() {
   return (
     <>
-      <SEOHead title="System Status" description="TrustLens system status page. Check the current operational status of all TrustLens services." canonical="https://trustlens.app/status" />
+      <SEOHead title="System Status" description="TrustLens system status page. Check the current operational status of all TrustLens services." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Status' }]} />
         <div className="max-w-2xl mx-auto">

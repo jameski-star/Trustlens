@@ -4,7 +4,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 export default function Terms() {
   return (
     <>
-      <SEOHead title="Terms of Service" description="TrustLens terms of service. By using our security analysis tools, you agree to these terms and conditions." canonical="https://trustlens.app/terms" />
+      <SEOHead title="Terms of Service" description="TrustLens terms of service. By using our security analysis tools, you agree to these terms and conditions." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Terms of Service' }]} />
         <div className="max-w-3xl mx-auto prose prose-gray text-[#475569]">

@@ -21,7 +21,7 @@ export default function BlogPostPage() {
       <SEOHead
         title={post?.seo?.metaTitle || post?.title || 'Blog Post'}
         description={post?.seo?.metaDescription || post?.excerpt || ''}
-        canonical={post?.seo?.canonicalUrl || `https://trustlens.app/blog/${slug}`}
+        canonical={post?.seo?.canonicalUrl || `https://trustlens.website/blog/${slug}`}
       />
       <div className="container-page py-8">
         <Breadcrumbs items={[

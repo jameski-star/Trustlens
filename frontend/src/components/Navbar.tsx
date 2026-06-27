@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
+import { Shield, Menu, X, Moon, Sun, ChevronDown, User, LogOut } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../hooks/useAuth';
 
 const navigation = [
   { name: 'URL Checker', href: '/url-checker' },
@@ -23,7 +24,9 @@ const navigation = [
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
 
   return (
@@ -79,9 +82,43 @@ export default function Navbar() {
                 )}
               </div>
             ))}
-            <Link to="/login" className="ml-3 btn-primary text-sm px-5 py-2">
-              Sign In
-            </Link>
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="ml-3 flex items-center gap-2 px-3 py-2 text-sm font-medium text-[#475569] hover:text-[#2563EB] rounded-xl hover:bg-[#F1F5F9] transition-colors"
+                >
+                  <div className="w-8 h-8 bg-[#EFF6FF] rounded-lg flex items-center justify-center">
+                    <User className="w-4 h-4 text-[#2563EB]" />
+                  </div>
+                  <span className="max-w-[120px] truncate">{user?.name}</span>
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-lg border border-[#E2E8F0] py-2">
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        className="block px-4 py-2.5 text-sm text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => { logout(); setUserMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-[#DC2626] hover:bg-[#FEF2F2] rounded-xl transition-colors flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to="/login" className="ml-3 btn-primary text-sm px-5 py-2">
+                Sign In
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center gap-2 lg:hidden">
@@ -143,13 +180,38 @@ export default function Navbar() {
               )
             ))}
             <div className="pt-3 mt-3 border-t border-[#E2E8F0]">
-              <Link
-                to="/login"
-                className="block px-3 py-3 text-sm font-semibold text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign In
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <div className="px-3 py-2 flex items-center gap-2 text-sm text-[#475569]">
+                    <User className="w-4 h-4" />
+                    <span className="truncate">{user?.name}</span>
+                  </div>
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      className="block px-3 py-3 text-sm font-medium text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => { logout(); setMobileOpen(false); }}
+                    className="w-full text-left px-3 py-3 text-sm font-medium text-[#DC2626] hover:bg-[#FEF2F2] rounded-xl flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="block px-3 py-3 text-sm font-semibold text-[#2563EB] hover:bg-[#F8FAFC] rounded-xl"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         )}

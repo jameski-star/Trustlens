@@ -21,6 +21,15 @@ export const contactSchema = z.object({
   message: z.string().min(10, 'Message must be at least 10 characters').max(5000),
 });
 
+export const communityReportSchema = z.object({
+  type: z.enum(['url', 'email', 'phone', 'whatsapp', 'crypto', 'investment']),
+  target: z.string().min(1, 'Target is required').max(500),
+  title: z.string().min(3, 'Title is required').max(200),
+  description: z.string().min(10, 'Description is required').max(5000),
+  category: z.string().min(1, 'Category is required'),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;
+export type CommunityReportInput = z.infer<typeof communityReportSchema>;

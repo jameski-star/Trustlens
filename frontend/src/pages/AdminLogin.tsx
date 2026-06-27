@@ -47,7 +47,7 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-card border border-[#E2E8F0] p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-[#0F172A] mb-1">Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input-field" placeholder="admin@trustlens.app" required />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input-field" placeholder="admin@trustlens.website" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-[#0F172A] mb-1">Password</label>

@@ -30,7 +30,7 @@ export default function Contact() {
 
   return (
     <>
-      <SEOHead title="Contact Us" description="Get in touch with TrustLens. Contact our team for support, partnership inquiries, or report an issue." canonical="https://trustlens.app/contact" />
+      <SEOHead title="Contact Us" description="Get in touch with TrustLens. Contact our team for support, partnership inquiries, or report an issue." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Contact' }]} />
         <div className="max-w-2xl mx-auto">

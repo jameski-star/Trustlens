@@ -19,7 +19,7 @@ export default function Blog() {
 
   return (
     <>
-      <SEOHead title="Blog - Cybersecurity News & Scam Alerts" description="Latest cybersecurity news, scam alerts, phishing warnings, and tips to stay safe online. Updated regularly by TrustLens security experts." canonical="https://trustlens.app/blog" />
+      <SEOHead title="Blog - Cybersecurity News & Scam Alerts" description="Latest cybersecurity news, scam alerts, phishing warnings, and tips to stay safe online. Updated regularly by TrustLens security experts." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Blog' }]} />
         <div className="max-w-5xl mx-auto">

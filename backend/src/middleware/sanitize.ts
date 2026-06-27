@@ -12,7 +12,7 @@ export const helmetMiddleware = helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://api.trustlens.app'],
+      connectSrc: ["'self'"],
     },
   },
   crossOriginEmbedderPolicy: false,

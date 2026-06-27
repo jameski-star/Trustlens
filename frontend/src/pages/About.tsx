@@ -13,7 +13,7 @@ const values = [
 export default function About() {
   return (
     <>
-      <SEOHead title="About TrustLens - Our Mission" description="TrustLens helps users determine whether online content is safe or fraudulent. Free security analysis for everyone." canonical="https://trustlens.app/about" />
+      <SEOHead title="About TrustLens - Our Mission" description="TrustLens helps users determine whether online content is safe or fraudulent. Free security analysis for everyone." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'About' }]} />
         <div className="max-w-3xl mx-auto">

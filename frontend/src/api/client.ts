@@ -85,6 +85,17 @@ export async function getCommunityReports(params?: { page?: number; type?: strin
   return data.data;
 }
 
+export async function createCommunityReport(formData: {
+  type: string;
+  target: string;
+  title: string;
+  description: string;
+  category: string;
+}) {
+  const { data } = await apiClient.post('/community', formData);
+  return data.data;
+}
+
 export async function submitContact(formData: { name: string; email: string; subject: string; message: string }) {
   const { data } = await apiClient.post('/contact', formData);
   return data;

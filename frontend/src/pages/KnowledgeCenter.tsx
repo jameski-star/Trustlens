@@ -18,7 +18,7 @@ const categories = [
 export default function KnowledgeCenter() {
   return (
     <>
-      <SEOHead title="Knowledge Center - Cybersecurity Education" description="Learn how to protect yourself from online scams, phishing, identity theft, and cybersecurity threats. Free educational resources." canonical="https://trustlens.app/knowledge-center" />
+      <SEOHead title="Knowledge Center - Cybersecurity Education" description="Learn how to protect yourself from online scams, phishing, identity theft, and cybersecurity threats. Free educational resources." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Knowledge Center' }]} />
         <div className="max-w-4xl mx-auto">

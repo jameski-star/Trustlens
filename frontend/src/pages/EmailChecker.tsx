@@ -29,7 +29,6 @@ export default function EmailChecker() {
       <SEOHead
         title="Email Checker - Is This Email a Scam?"
         description="Analyze email addresses for phishing and scam indicators. Free email security analysis with AI-powered detection."
-        canonical="https://trustlens.app/email-checker"
       />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Email Checker' }]} />

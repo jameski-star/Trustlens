@@ -29,7 +29,6 @@ export default function SMSChecker() {
       <SEOHead
         title="SMS Checker - Is This Text a Scam?"
         description="Check if an SMS message or phone number is associated with known scams. Free SMS security analysis."
-        canonical="https://trustlens.app/sms-checker"
       />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'SMS Checker' }]} />

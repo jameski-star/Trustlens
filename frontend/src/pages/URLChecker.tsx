@@ -31,7 +31,6 @@ export default function URLChecker() {
       <SEOHead
         title="URL Checker - Is This Website Safe?"
         description="Check if a website is safe or fraudulent. Free URL security analysis with detailed risk assessment, SSL check, domain age, and more."
-        canonical="https://trustlens.app/url-checker"
       />
 
       <div className="container-page py-8">

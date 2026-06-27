@@ -20,7 +20,7 @@ export default function FAQ() {
 
   return (
     <>
-      <SEOHead title="Frequently Asked Questions" description="Find answers to common questions about TrustLens, our security analysis tools, privacy practices, and how to stay safe online." canonical="https://trustlens.app/faq" />
+      <SEOHead title="Frequently Asked Questions" description="Find answers to common questions about TrustLens, our security analysis tools, privacy practices, and how to stay safe online." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'FAQ' }]} />
         <div className="max-w-3xl mx-auto">

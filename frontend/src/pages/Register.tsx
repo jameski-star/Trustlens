@@ -22,8 +22,8 @@ export default function Register() {
     setIsLoading(true);
     try {
       await registerUser(data.name, data.email, data.password);
-      toast.success('Account created successfully!');
-      navigate('/');
+      toast.success('Account created successfully! Please sign in.');
+      navigate('/login');
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Registration failed');
     } finally {

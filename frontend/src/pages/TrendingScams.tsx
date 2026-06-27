@@ -13,7 +13,7 @@ const trends = [
 export default function TrendingScams() {
   return (
     <>
-      <SEOHead title="Trending Scams - Current Cybersecurity Threats" description="See the latest trending scams and cybersecurity threats being reported. Real-time scam trend data from TrustLens analysis." canonical="https://trustlens.app/trending-scams" />
+      <SEOHead title="Trending Scams - Current Cybersecurity Threats" description="See the latest trending scams and cybersecurity threats being reported. Real-time scam trend data from TrustLens analysis." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Trending Scams' }]} />
         <div className="max-w-4xl mx-auto">

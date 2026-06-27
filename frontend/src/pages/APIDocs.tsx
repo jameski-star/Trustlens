@@ -15,7 +15,7 @@ const endpoints = [
 export default function APIDocs() {
   return (
     <>
-      <SEOHead title="API Documentation" description="TrustLens API documentation. Integrate security analysis into your applications with our RESTful API." canonical="https://trustlens.app/api-docs" />
+      <SEOHead title="API Documentation" description="TrustLens API documentation. Integrate security analysis into your applications with our RESTful API." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'API Documentation' }]} />
         <div className="max-w-4xl mx-auto">
