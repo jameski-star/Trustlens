@@ -48,7 +48,7 @@ export default function SearchBar({
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className={`relative flex items-center ${large ? 'bg-white' : 'bg-[#FAFBFC]'} border border-[#E2E8F0] rounded-2xl shadow-search transition-all duration-200 focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.1)]`}>
+      <div className={`relative flex items-center ${large ? 'bg-white' : 'bg-[#FAFBFC]'} border border-[#E2E8F0] rounded-2xl shadow-search transition-shadow duration-150 focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.1)]`}>
         <div className={`${large ? 'pl-6' : 'pl-4'}`}>
           <Search className={`${large ? 'w-6 h-6' : 'w-5 h-5'} text-[#475569]`} />
         </div>

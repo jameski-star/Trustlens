@@ -68,7 +68,7 @@ export default function Home() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tools.map((tool) => (
-            <Link key={tool.href} to={tool.href} className="card hover:shadow-card-hover transition-all duration-200 group">
+            <Link key={tool.href} to={tool.href} className="card hover:shadow-card-hover transition-shadow duration-150 group">
               <div className={`w-10 h-10 ${tool.color} rounded-xl flex items-center justify-center mb-3`}>
                 <tool.icon className="w-5 h-5" />
               </div>

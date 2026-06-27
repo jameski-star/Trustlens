@@ -30,11 +30,11 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0] safe-area-top">
+    <header className="sticky top-0 z-50 bg-white border-b border-[#E2E8F0] safe-area-top">
       <nav className="container-page">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-[#2563EB] rounded-xl flex items-center justify-center transition-transform group-hover:scale-105">
+            <div className="w-9 h-9 bg-[#2563EB] rounded-xl flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
               <Shield className="w-5 h-5 text-white" />
             </div>
             <span className="font-heading font-800 text-xl text-[#0F172A]">TrustLens</span>
@@ -49,7 +49,7 @@ export default function Navbar() {
                     onMouseEnter={() => setToolsOpen(true)}
                     onMouseLeave={() => setToolsOpen(false)}
                   >
-                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-[#475569] hover:text-[#2563EB] rounded-xl hover:bg-[#F1F5F9] transition-colors">
+                    <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-[#475569] hover:text-[#2563EB] rounded-xl hover:bg-[#F1F5F9] transition-colors duration-150">
                       {item.name}
                       <ChevronDown className="w-3.5 h-3.5" />
                     </button>
