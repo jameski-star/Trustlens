@@ -14,12 +14,12 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
   try {
     const { input } = req.body;
 
-    const analysis = analyzeUrl(input);
+    const analysis = await analyzeUrl(input);
     const aiResult = await performAIAnalysis(input, 'url');
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
-      domainAge: 60,
+      domainAge: analysis.domainAge ? 60 : 30,
       blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
       aiAnalysis: aiResult.confidence,
       communityReports: 70,
@@ -348,12 +348,12 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
 export async function scanQrcode(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { input } = req.body;
-    const analysis = analyzeUrl(input);
+    const analysis = await analyzeUrl(input);
     const aiResult = await performAIAnalysis(input, 'url');
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
-      domainAge: 60,
+      domainAge: analysis.domainAge ? 60 : 30,
       blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
       aiAnalysis: aiResult.confidence,
       communityReports: 70,

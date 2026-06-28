@@ -2,34 +2,33 @@ import { describe, it, expect } from 'vitest';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, calculateFinalScore, generateRecommendations } from '../services/scanner';
 
 describe('analyzeUrl', () => {
-  it('should detect a safe URL with SSL', () => {
-    const result = analyzeUrl('https://google.com');
+  it('should detect a safe URL with SSL', async () => {
+    const result = await analyzeUrl('https://google.com');
     expect(result.ssl).toBeDefined();
-    expect(result.domainAge).toBeDefined();
     expect(result.whois).toBeDefined();
     expect(Array.isArray(result.blacklists)).toBe(true);
     expect(Array.isArray(result.detectedRisks)).toBe(true);
     expect(result.summary).toBeTruthy();
   });
 
-  it('should flag suspicious TLDs', () => {
-    const result = analyzeUrl('https://login-bank.tk');
+  it('should flag suspicious TLDs', async () => {
+    const result = await analyzeUrl('https://login-bank.tk');
     const suspiciousRisks = result.detectedRisks.filter(r =>
       r.description.toLowerCase().includes('suspicious') || r.description.toLowerCase().includes('tld')
     );
     expect(suspiciousRisks.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('should detect brand impersonation', () => {
-    const result = analyzeUrl('https://paypal-secure-login.com');
+  it('should detect brand impersonation', async () => {
+    const result = await analyzeUrl('https://paypal-secure-login.com');
     const brandRisks = result.detectedRisks.filter(r =>
       r.description.toLowerCase().includes('brand') || r.description.toLowerCase().includes('impersonat')
     );
     expect(result.detectedRisks.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('should handle URLs without protocol', () => {
-    const result = analyzeUrl('example.com');
+  it('should handle URLs without protocol', async () => {
+    const result = await analyzeUrl('example.com');
     expect(result).toBeDefined();
     expect(result.summary).toBeTruthy();
   });

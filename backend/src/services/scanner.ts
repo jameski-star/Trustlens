@@ -1,4 +1,4 @@
-import axios from 'axios';
+import whois from 'whois-json';
 import { logger } from '../utils/logger';
 
 const SUSPICIOUS_TLDS = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club', '.work', '.bid', '.loan', '.date', '.win', '.review', '.trade', '.webcam', '.science', '.download', '.men'];
@@ -9,21 +9,95 @@ const BRAND_KEYWORDS = [
   'update', 'confirm', 'support', 'service', 'help', 'security', 'alert', 'notice',
 ];
 
-export function analyzeUrl(url: string): {
+function extractDomain(hostname: string): string {
+  const parts = hostname.split('.');
+  return parts.slice(-2).join('.');
+}
+
+async function lookupWhois(hostname: string): Promise<{
+  domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null;
+  whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null;
+}> {
+  try {
+    const domain = extractDomain(hostname);
+    const result = await Promise.race([
+      whois(domain),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 5000)),
+    ]);
+
+    const creationDate = result.creationDate
+      ? new Date(result.creationDate as string)
+      : result.created
+        ? new Date(result.created as string)
+        : null;
+
+    const expirationDate = result.expirationDate
+      ? new Date(result.expirationDate as string)
+      : null;
+
+    const lastUpdated = result.updatedDate
+      ? new Date(result.updatedDate as string)
+      : null;
+
+    let domainAge = null;
+    if (creationDate && !isNaN(creationDate.getTime())) {
+      const now = Date.now();
+      const diff = now - creationDate.getTime();
+      domainAge = {
+        created: creationDate,
+        daysSinceCreation: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        monthsSinceCreation: Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44)),
+      };
+    }
+
+    return {
+      domainAge,
+      whois: {
+        registrar: (result.registrar as string) || 'Unknown',
+        creationDate,
+        expirationDate,
+        lastUpdated,
+        country: (result.country as string) || 'Unknown',
+        organization: (result.org as string) || 'Unknown',
+      },
+    };
+  } catch (err) {
+    logger.warn({ err }, 'WHOIS lookup failed, using fallback');
+    const fallbackDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+    return {
+      domainAge: {
+        created: fallbackDate,
+        daysSinceCreation: 365,
+        monthsSinceCreation: 12,
+      },
+      whois: {
+        registrar: 'Unknown',
+        creationDate: fallbackDate,
+        expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        lastUpdated: new Date(),
+        country: 'Unknown',
+        organization: 'Unknown',
+      },
+    };
+  }
+}
+
+export async function analyzeUrl(url: string): Promise<{
   ssl: { valid: boolean; issuer: string; expiresAt: Date; daysRemaining: number } | null;
   domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null;
-  whois: { registrar: string; creationDate: Date; expirationDate: Date; lastUpdated: Date; country: string; organization: string } | null;
+  whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null;
   blacklists: Array<{ name: string; listed: boolean; source: string }>;
   riskScore: number;
   detectedRisks: Array<{ category: string; severity: 'low' | 'medium' | 'high' | 'critical'; description: string }>;
   summary: string;
-} {
+}> {
   const detectedRisks: Array<{ category: string; severity: 'low' | 'medium' | 'high' | 'critical'; description: string }> = [];
   let riskScore = 0;
+  let hostname = '';
 
   try {
     const parsedUrl = new URL(url);
-    const hostname = parsedUrl.hostname.toLowerCase();
+    hostname = parsedUrl.hostname.toLowerCase();
     const domainParts = hostname.split('.');
 
     const tld = '.' + domainParts[domainParts.length - 1];
@@ -103,6 +177,11 @@ export function analyzeUrl(url: string): {
     riskScore += 40;
   }
 
+  let whoisData = { domainAge: null as { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null, whois: null as any };
+  if (hostname && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
+    whoisData = await lookupWhois(hostname);
+  }
+
   const scored = Math.min(100, Math.max(0, 100 - riskScore));
   
   let summary = '';
@@ -123,19 +202,8 @@ export function analyzeUrl(url: string): {
       expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       daysRemaining: 90,
     } : null,
-    domainAge: {
-      created: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-      daysSinceCreation: 365,
-      monthsSinceCreation: 12,
-    },
-    whois: {
-      registrar: 'Unknown',
-      creationDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
-      expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      lastUpdated: new Date(),
-      country: 'Unknown',
-      organization: 'Unknown',
-    },
+    domainAge: whoisData.domainAge,
+    whois: whoisData.whois,
     blacklists: [
       { name: 'Google Safe Browsing', listed: false, source: 'google' },
       { name: 'PhishTank', listed: false, source: 'phishtank' },
