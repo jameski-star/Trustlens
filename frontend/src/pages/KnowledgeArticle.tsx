@@ -22,7 +22,7 @@ export default function KnowledgeArticle() {
   return (
     <>
       <SEOHead
-        title={(article?.title || 'Knowledge Article') + ' - TrustLens'}
+        title={article?.title || 'Knowledge Article'}
         description={article?.excerpt || ''}
       />
       <div className="container-page py-8">
