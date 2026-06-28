@@ -41,7 +41,7 @@ export default function URLChecker() {
             <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center">
               <Globe className="w-5 h-5 text-[#2563EB]" />
             </div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">URL Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">URL Checker</h1>
           </div>
           <p className="text-[#475569] mb-6">
             Check if a website is safe or potentially fraudulent. Our analysis checks SSL certificates,

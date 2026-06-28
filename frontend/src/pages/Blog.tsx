@@ -23,7 +23,7 @@ export default function Blog() {
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Blog' }]} />
         <div className="max-w-5xl mx-auto">
-          <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A] mb-2">Blog</h1>
+          <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A] mb-2">Blog</h1>
           <p className="text-[#475569] mb-6">Cybersecurity news, scam alerts, and tips to stay safe online.</p>
 
           <div className="mb-8">

@@ -29,7 +29,7 @@ export default function TrendingScams() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center"><TrendingUp className="w-5 h-5 text-[#2563EB]" /></div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Trending Scams</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Trending Scams</h1>
           </div>
           <p className="text-[#475569] mb-8">Current trending scams and threats based on community reports and analysis data.</p>
 

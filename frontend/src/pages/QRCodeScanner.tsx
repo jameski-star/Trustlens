@@ -46,7 +46,7 @@ export default function QRCodeScanner() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#F5F3FF] rounded-xl flex items-center justify-center"><QrCode className="w-5 h-5 text-[#7C3AED]" /></div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">QR Code Scanner</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">QR Code Scanner</h1>
           </div>
           <p className="text-[#475569] mb-6">Upload a QR code image to extract and analyze the embedded URL or content before you scan it.</p>
 

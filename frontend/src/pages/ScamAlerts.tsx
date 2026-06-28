@@ -31,7 +31,7 @@ export default function ScamAlerts() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center"><Bell className="w-5 h-5 text-[#DC2626]" /></div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Scam Alerts</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Scam Alerts</h1>
           </div>
           <p className="text-[#475569] mb-8">Community-verified scam alerts. Only reports with 5+ upvotes are shown here.</p>
 

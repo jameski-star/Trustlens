@@ -8,7 +8,7 @@ export default function Privacy() {
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Privacy Policy' }]} />
         <div className="max-w-3xl mx-auto prose prose-gray text-[#475569]">
-          <h1 className="font-heading font-700 text-2xl md:text-4xl text-[#0F172A]">Privacy Policy</h1>
+          <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A]">Privacy Policy</h1>
           <p className="text-sm">Last updated: January 1, 2025</p>
 
           <h2>Information We Collect</h2>

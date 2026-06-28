@@ -37,7 +37,7 @@ export default function EmailChecker() {
             <div className="w-10 h-10 bg-[#F0FDF4] rounded-xl flex items-center justify-center">
               <Mail className="w-5 h-5 text-[#16A34A]" />
             </div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Email Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Email Checker</h1>
           </div>
           <p className="text-[#475569] mb-6">
             Check if an email address or email message is part of a phishing attempt or scam campaign.

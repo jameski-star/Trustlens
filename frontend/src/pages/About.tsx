@@ -17,7 +17,7 @@ export default function About() {
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'About' }]} />
         <div className="max-w-3xl mx-auto">
-          <h1 className="font-heading font-700 text-2xl md:text-4xl text-[#0F172A] mb-4">About TrustLens</h1>
+          <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A] mb-4">About TrustLens</h1>
           <p className="text-lg text-[#475569] mb-8">
             TrustLens is a free cybersecurity analysis platform that helps you determine if websites, emails, SMS messages, and online offers are safe or potentially fraudulent.
           </p>

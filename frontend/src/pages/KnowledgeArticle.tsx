@@ -45,7 +45,7 @@ export default function KnowledgeArticle() {
 
         {article && (
           <article className="max-w-3xl mx-auto">
-            <h1 className="font-heading font-700 text-2xl md:text-4xl text-[#0F172A] mb-4">{article.title}</h1>
+            <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A] mb-4">{article.title}</h1>
             <p className="text-lg text-[#475569] mb-8">{article.excerpt}</p>
 
             <Card className="mb-8">

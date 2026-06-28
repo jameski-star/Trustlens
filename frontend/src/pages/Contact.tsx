@@ -36,7 +36,7 @@ export default function Contact() {
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center"><MessageSquare className="w-5 h-5 text-[#2563EB]" /></div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Contact Us</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Contact Us</h1>
           </div>
           <p className="text-[#475569] mb-8">Have a question, suggestion, or need help? Send us a message and we will get back to you within 24 hours.</p>
 

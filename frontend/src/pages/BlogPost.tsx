@@ -42,7 +42,7 @@ export default function BlogPostPage() {
 
         {post && (
           <article className="max-w-3xl mx-auto">
-            <h1 className="font-heading font-700 text-2xl md:text-4xl text-[#0F172A] mb-4">{post.title}</h1>
+            <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A] mb-4">{post.title}</h1>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-[#475569] mb-2">
               <span className="flex items-center gap-1.5">

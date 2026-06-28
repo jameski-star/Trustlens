@@ -19,7 +19,7 @@ export default function APIDocs() {
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'API Documentation' }]} />
         <div className="max-w-4xl mx-auto">
-          <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A] mb-2">API Documentation</h1>
+          <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A] mb-2">API Documentation</h1>
           <p className="text-[#475569] mb-8">Integrate TrustLens security analysis into your applications using our RESTful API.</p>
 
           <div className="space-y-3 mb-8">

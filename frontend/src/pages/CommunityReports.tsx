@@ -140,7 +140,7 @@ export default function CommunityReports() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-2">
             <div>
-              <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Community Reports</h1>
+              <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Community Reports</h1>
               <p className="text-[#475569] mt-1">Browse reports submitted by the community about suspicious websites, emails, phone numbers, and more.</p>
             </div>
             <button onClick={() => setShowForm(true)} className="btn-primary text-sm whitespace-nowrap shrink-0">

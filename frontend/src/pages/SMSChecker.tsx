@@ -37,7 +37,7 @@ export default function SMSChecker() {
             <div className="w-10 h-10 bg-[#FFFBEB] rounded-xl flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-[#D97706]" />
             </div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">SMS & Phone Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">SMS & Phone Checker</h1>
           </div>
           <p className="text-[#475569] mb-6">
             Check if an SMS message, phone number, or WhatsApp message is part of a scam campaign.

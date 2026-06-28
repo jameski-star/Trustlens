@@ -40,7 +40,7 @@ export default function Login() {
             <div className="w-12 h-12 bg-[#2563EB] rounded-xl flex items-center justify-center mx-auto mb-4">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h1 className="font-heading font-700 text-2xl text-[#0F172A]">Welcome Back</h1>
+            <h1 className="font-heading font-700 text-xl md:text-2xl text-[#0F172A]">Welcome Back</h1>
             <p className="text-[#475569] mt-1">Sign in to your TrustLens account</p>
           </div>
 

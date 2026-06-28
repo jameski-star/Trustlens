@@ -51,7 +51,7 @@ export default function ScreenshotScanner() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center"><Camera className="w-5 h-5 text-[#DC2626]" /></div>
-            <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Screenshot Scanner</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Screenshot Scanner</h1>
           </div>
           <p className="text-[#475569] mb-6">Upload a screenshot to scan for phishing attempts, scam content, and suspicious text using OCR technology.</p>
 

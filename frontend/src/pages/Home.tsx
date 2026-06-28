@@ -100,7 +100,7 @@ export default function Home() {
       <section className="bg-[#F8FAFC] border-t border-[#E2E8F0]">
         <div className="container-page py-16">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A] mb-4">
+            <h2 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A] mb-4">
               Join the Community
             </h2>
             <p className="text-[#475569] mb-8 max-w-xl mx-auto">
