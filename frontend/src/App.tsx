@@ -12,6 +12,7 @@ import CommunityReports from './pages/CommunityReports';
 import ScamAlerts from './pages/ScamAlerts';
 import TrendingScams from './pages/TrendingScams';
 import KnowledgeCenter from './pages/KnowledgeCenter';
+import KnowledgeArticle from './pages/KnowledgeArticle';
 import Blog from './pages/Blog';
 import BlogPostPage from './pages/BlogPost';
 import About from './pages/About';
@@ -55,6 +56,7 @@ export default function App() {
         <Route path="/scam-alerts" element={<Layout><ScamAlerts /></Layout>} />
         <Route path="/trending-scams" element={<Layout><TrendingScams /></Layout>} />
         <Route path="/knowledge-center" element={<Layout><KnowledgeCenter /></Layout>} />
+        <Route path="/knowledge-center/:slug" element={<Layout><KnowledgeArticle /></Layout>} />
         <Route path="/blog" element={<Layout><Blog /></Layout>} />
         <Route path="/blog/:slug" element={<Layout><BlogPostPage /></Layout>} />
         <Route path="/about" element={<Layout><About /></Layout>} />

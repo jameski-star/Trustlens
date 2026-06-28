@@ -26,16 +26,27 @@ export default function Blog() {
           <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A] mb-2">Blog</h1>
           <p className="text-[#475569] mb-6">Cybersecurity news, scam alerts, and tips to stay safe online.</p>
 
-          <div className="flex flex-wrap gap-2 mb-8">
-            {categories.map((cat) => (
-              <button key={cat} onClick={() => setCategory(cat)}
-                className={`px-3 py-1.5 text-sm rounded-xl transition-colors ${
-                  category === cat ? 'bg-[#2563EB] text-white' : 'bg-[#F1F5F9] text-[#475569] hover:text-[#2563EB]'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="mb-8">
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="input-field sm:hidden"
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            <div className="hidden sm:flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button key={cat} onClick={() => setCategory(cat)}
+                  className={`px-3 py-1.5 text-sm rounded-xl transition-colors ${
+                    category === cat ? 'bg-[#2563EB] text-white' : 'bg-[#F1F5F9] text-[#475569] hover:text-[#2563EB]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           {isLoading && <BlogSkeleton />}

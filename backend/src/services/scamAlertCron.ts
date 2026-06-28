@@ -3,11 +3,19 @@ import RssParser from 'rss-parser';
 import { BlogPost } from '../models/BlogPost';
 import { logger } from '../utils/logger';
 
-const parser = new RssParser();
+const parser = new RssParser({
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (compatible; TrustLensBot/1.0; +https://trustlens.website)',
+    'Accept': 'application/rss+xml, application/xml, text/xml',
+  },
+  timeout: 10000,
+});
 
 const FEEDS: { url: string; category: string }[] = [
-  { url: 'https://feeds.feedburner.com/TheHackerNews', category: 'Phishing' },
-  { url: 'https://krebsonsecurity.com/feed/', category: 'Online Safety' },
+  { url: 'https://thehackernews.com/feeds/posts/default', category: 'Phishing' },
+  { url: 'https://krebsonsecurity.com/feed/', category: 'Cyber Crime' },
+  { url: 'https://www.bleepingcomputer.com/feed/', category: 'Online Safety' },
+  { url: 'https://socialcatfish.com/scamfish/feed/', category: 'Social Media Scams' },
 ];
 
 function slugify(text: string): string {
@@ -39,6 +47,7 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
 
     const excerpt = (item.contentSnippet || item.content || '').substring(0, 500);
     const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
+    const coverImage = item.enclosure?.url || item['media:thumbnail']?.$.url || '';
 
     try {
       await BlogPost.create({
@@ -46,7 +55,7 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
         slug,
         excerpt: excerpt || 'No excerpt available.',
         content: item.content || item.contentSnippet || excerpt || '',
-        coverImage: '',
+        coverImage,
         category: 'Scam Alert',
         tags: [feed.category],
         author: 'TrustLens Security Team',

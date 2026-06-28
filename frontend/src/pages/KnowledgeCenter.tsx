@@ -5,14 +5,14 @@ import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const categories = [
-  { icon: Shield, title: 'Phishing', desc: 'How to identify and avoid phishing attacks', href: '/blog?category=phishing' },
-  { icon: CreditCard, title: 'Crypto Scams', desc: 'Cryptocurrency investment fraud awareness', href: '/blog?category=crypto' },
-  { icon: Briefcase, title: 'Job Scams', desc: 'Fake job offers and employment fraud', href: '/blog?category=job-scams' },
-  { icon: MessageSquare, title: 'SMS Scams', desc: 'Text message and WhatsApp fraud', href: '/blog?category=sms-scams' },
-  { icon: Heart, title: 'Romance Scams', desc: 'Dating and relationship fraud', href: '/blog?category=romance-scams' },
-  { icon: Globe, title: 'Investment Fraud', desc: 'Ponzi schemes and fake investments', href: '/blog?category=investment' },
-  { icon: Users, title: 'Identity Theft', desc: 'Protecting your personal information', href: '/blog?category=identity-theft' },
-  { icon: Shield, title: 'Online Safety', desc: 'General cybersecurity best practices', href: '/blog?category=online-safety' },
+  { icon: Shield, title: 'Phishing', desc: 'How to identify and avoid phishing attacks', href: '/knowledge-center/phishing-attacks' },
+  { icon: CreditCard, title: 'Crypto Scams', desc: 'Cryptocurrency investment fraud awareness', href: '/knowledge-center/crypto-scams' },
+  { icon: Briefcase, title: 'Job Scams', desc: 'Fake job offers and employment fraud', href: '/knowledge-center/job-scams' },
+  { icon: MessageSquare, title: 'SMS Scams', desc: 'Text message and WhatsApp fraud', href: '/knowledge-center/sms-scams' },
+  { icon: Heart, title: 'Romance Scams', desc: 'Dating and relationship fraud', href: '/knowledge-center/romance-scams' },
+  { icon: Globe, title: 'Investment Fraud', desc: 'Ponzi schemes and fake investments', href: '/knowledge-center/investment-fraud' },
+  { icon: Users, title: 'Identity Theft', desc: 'Protecting your personal information', href: '/knowledge-center/identity-theft' },
+  { icon: Shield, title: 'Online Safety', desc: 'General cybersecurity best practices', href: '/knowledge-center/online-safety' },
 ];
 
 export default function KnowledgeCenter() {

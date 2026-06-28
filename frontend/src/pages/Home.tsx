@@ -106,11 +106,11 @@ export default function Home() {
             <p className="text-[#475569] mb-8 max-w-xl mx-auto">
               Help protect others by reporting suspicious websites, emails, and messages you encounter.
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <Link to="/community-reports" className="btn-primary">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/community-reports" className="btn-primary w-full sm:w-auto">
                 Start Reporting
               </Link>
-              <Link to="/about" className="btn-secondary">
+              <Link to="/about" className="btn-secondary w-full sm:w-auto">
                 Learn More
               </Link>
             </div>

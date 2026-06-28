@@ -182,6 +182,16 @@ export async function getAdminAnalytics() {
   return data.data;
 }
 
+export async function getKnowledgeArticles() {
+  const { data } = await apiClient.get('/knowledge');
+  return data.data.articles;
+}
+
+export async function getKnowledgeArticle(slug: string) {
+  const { data } = await apiClient.get(`/knowledge/${slug}`);
+  return data.data.article;
+}
+
 export async function getProfile() {
   const { data } = await apiClient.get('/auth/profile');
   return data.data;

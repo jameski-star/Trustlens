@@ -9,3 +9,4 @@ export { SearchHistory } from './SearchHistory';
 export { APIKey } from './APIKey';
 export { BlogPost } from './BlogPost';
 export { Comment } from './Comment';
+export { KnowledgeArticle } from './KnowledgeArticle';

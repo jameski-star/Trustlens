@@ -5,7 +5,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
-import { Flag, Plus, X, Loader2, ThumbsUp, Image as ImageIcon, Upload, ShieldCheck } from 'lucide-react';
+import { Flag, Plus, X, Loader2, ThumbsUp, Image as ImageIcon, Upload, ShieldCheck, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const reportTypes = [
@@ -34,12 +34,13 @@ export default function CommunityReports() {
   const [showForm, setShowForm] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([]);
+  const [category, setCategory] = useState('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['community-reports'],
-    queryFn: () => getCommunityReports({ page: 1 }),
+    queryKey: ['community-reports', category],
+    queryFn: () => getCommunityReports({ page: 1, category: category === 'All' ? undefined : category }),
   });
 
   const handleUpvote = async (id: string) => {
@@ -137,7 +138,7 @@ export default function CommunityReports() {
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Community Reports' }]} />
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-start justify-between gap-4 mb-2">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-2">
             <div>
               <h1 className="font-heading font-700 text-2xl md:text-3xl text-[#0F172A]">Community Reports</h1>
               <p className="text-[#475569] mt-1">Browse reports submitted by the community about suspicious websites, emails, phone numbers, and more.</p>
@@ -148,10 +149,33 @@ export default function CommunityReports() {
             </button>
           </div>
 
+          <div className="my-6">
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              className="input-field sm:hidden"
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            <div className="hidden sm:flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button key={cat} onClick={() => setCategory(cat)}
+                  className={`px-3 py-1.5 text-sm rounded-xl transition-colors ${
+                    category === cat ? 'bg-[#2563EB] text-white' : 'bg-[#F1F5F9] text-[#475569] hover:text-[#2563EB]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {showForm && (
             <div className="fixed inset-0 z-50 flex items-start justify-center pt-4 sm:pt-12 px-4 pb-4">
               <div className="fixed inset-0 bg-black/40" onClick={() => setShowForm(false)} />
-              <div className="relative bg-white rounded-2xl shadow-xl border border-[#E2E8F0] p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <div className="relative bg-white rounded-2xl shadow-xl border border-[#E2E8F0] p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-heading font-700 text-lg text-[#0F172A]">Report a Scam</h2>
                   <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-[#F1F5F9]">
