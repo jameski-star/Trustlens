@@ -31,6 +31,7 @@ export default function AdminReports() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-reports'] });
+      queryClient.invalidateQueries({ queryKey: ['community-reports'] });
       toast.success('Report status updated');
     },
     onError: () => toast.error('Failed to update report'),
@@ -64,7 +65,7 @@ export default function AdminReports() {
                   <span className="text-xs font-medium uppercase text-[#475569]">{report.type}</span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                     report.status === 'pending' ? 'bg-[#FFFBEB] text-[#D97706]' :
-                    report.status === 'approved' ? 'bg-[#F0FDF4] text-[#16A34A]' : 'bg-[#FEF2F2] text-[#DC2626]'
+                    report.status === 'published' ? 'bg-[#F0FDF4] text-[#16A34A]' : 'bg-[#FEF2F2] text-[#DC2626]'
                   }`}>
                     {report.status}
                   </span>
@@ -74,7 +75,7 @@ export default function AdminReports() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button
-                  onClick={() => updateMutation.mutate({ id: report._id, status: 'approved' })}
+                  onClick={() => updateMutation.mutate({ id: report._id, status: 'published' })}
                   disabled={updateMutation.isPending}
                   className="p-2 rounded-lg text-[#16A34A] hover:bg-[#F0FDF4] transition-colors"
                   title="Approve"
