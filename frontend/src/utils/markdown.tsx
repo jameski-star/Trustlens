@@ -42,7 +42,7 @@ export function renderMarkdown(text: string): string {
       result.push(`<li class="text-[#475569]">${content}</li>`);
     } else if (line.trim() === '') {
       if (inList) { result.push(`</${listType}>`); inList = false; }
-      result.push('<div class="h-3" />');
+      result.push('<div class="h-3"></div>');
     } else {
       if (inList) { result.push(`</${listType}>`); inList = false; }
       result.push(`<p class="text-[#475569] mb-3 leading-relaxed">${line}</p>`);
