@@ -6,10 +6,10 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="grow">
+      <main>
         {children}
       </main>
-      <Footer />
+      <div className="mt-auto"><Footer /></div>
     </div>
   );
 }
