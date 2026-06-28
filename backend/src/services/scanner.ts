@@ -284,7 +284,9 @@ export function analyzeEmail(email: string): {
   riskScore = Math.max(0, Math.min(100, riskScore));
 
   let summary = '';
-  if (riskScore >= 80) {
+  if (detectedRisks.length === 0) {
+    summary = 'No specific risk indicators were detected for this email.';
+  } else if (riskScore >= 80) {
     summary = 'This email appears to be from a legitimate source with standard security indicators.';
   } else if (riskScore >= 60) {
     summary = 'This email shows some minor concerns but generally appears legitimate.';
