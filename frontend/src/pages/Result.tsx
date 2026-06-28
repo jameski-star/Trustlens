@@ -39,7 +39,7 @@ export default function Result() {
   return (
     <>
       <SEOHead
-        title={report ? `Analysis Report: ${report.input.substring(0, 50)}` : 'Security Analysis Report'}
+        title={report?.input ? `Analysis Report: ${report.input.substring(0, 50)}` : 'Security Analysis Report'}
         description="Detailed security analysis report with risk score, SSL check, domain information, and recommendations."
       />
       <div className="container-page py-8">
@@ -57,7 +57,7 @@ export default function Result() {
               <div>
                 <h1 className="font-heading font-700 text-2xl text-[#0F172A] mb-1">Security Analysis Report</h1>
                 <p className="text-sm text-[#475569]">
-                  Analyzed: {report.input} &middot; {new Date(report.createdAt).toLocaleString()}
+                  Analyzed: {report.input || 'N/A'} &middot; {new Date(report.createdAt).toLocaleString()}
                 </p>
               </div>
               <button onClick={handleDownloadPdf} className="btn-secondary text-sm">

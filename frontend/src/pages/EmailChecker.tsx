@@ -49,6 +49,12 @@ export default function EmailChecker() {
           <div className="max-w-3xl mx-auto"><ReportSkeleton /></div>
         )}
 
+        {mutation.isError && (
+          <div className="max-w-3xl mx-auto">
+            <Card><p className="text-[#DC2626]">Analysis failed. Please try again.</p></Card>
+          </div>
+        )}
+
         {report && (
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
@@ -58,7 +64,7 @@ export default function EmailChecker() {
                 <p className="text-[#475569] mb-4">{report.summary}</p>
                 <div className="flex flex-wrap gap-3">
                   <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
-                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Input: {report.input.substring(0, 50)}</span>
+                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Input: {(report.input || '').substring(0, 50)}</span>
                 </div>
               </div>
             </div>

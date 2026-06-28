@@ -1,16 +1,16 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogPost } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Calendar, User, Tag } from 'lucide-react';
+import { Calendar, User, Tag, ArrowLeft } from 'lucide-react';
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data: post, isLoading } = useQuery({
+  const { data: post, isLoading, error } = useQuery({
     queryKey: ['blog-post', slug],
     queryFn: () => getBlogPost(slug!),
     enabled: !!slug,
@@ -30,6 +30,15 @@ export default function BlogPostPage() {
         ]} />
 
         {isLoading && <ReportSkeleton />}
+
+        {error && (
+          <Card className="max-w-lg mx-auto text-center py-12">
+            <p className="text-[#475569] mb-4">Post not found</p>
+            <Link to="/blog" className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] flex items-center justify-center gap-1">
+              <ArrowLeft className="w-4 h-4" /> Back to Blog
+            </Link>
+          </Card>
+        )}
 
         {post && (
           <article className="max-w-3xl mx-auto">

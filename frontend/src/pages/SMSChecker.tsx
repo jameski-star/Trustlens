@@ -47,6 +47,12 @@ export default function SMSChecker() {
 
         {mutation.isPending && <div className="max-w-3xl mx-auto"><ReportSkeleton /></div>}
 
+        {mutation.isError && (
+          <div className="max-w-3xl mx-auto">
+            <Card><p className="text-[#DC2626]">Analysis failed. Please try again.</p></Card>
+          </div>
+        )}
+
         {report && (
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
