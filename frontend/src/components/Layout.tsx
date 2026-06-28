@@ -4,9 +4,9 @@ import Footer from './Footer';
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen grid grid-rows-[auto_1fr_auto]">
       <Navbar />
-      <main className="flex-auto">
+      <main>
         {children}
       </main>
       <Footer />
