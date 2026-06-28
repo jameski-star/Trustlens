@@ -4,22 +4,20 @@
 
 @layer base {
   html {
+    overflow-x: hidden;
+    overflow-y: auto;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-[#FAFBFC] text-[#0F172A] font-body leading-relaxed overflow-x-hidden;
+    @apply bg-[#FAFBFC] text-[#0F172A] font-body leading-relaxed;
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
-  }
-
-  a, button, input, select, textarea, [role="button"] {
-    touch-action: manipulation;
   }
 
   .dark body {
