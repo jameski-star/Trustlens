@@ -11,10 +11,12 @@ import { renderMarkdown } from '../utils/markdown';
 export default function KnowledgeArticle() {
   const { slug } = useParams<{ slug: string }>();
 
-  const { data: article, isLoading, error } = useQuery({
+  const { data: article, isLoading, error, refetch } = useQuery({
     queryKey: ['knowledge-article', slug],
     queryFn: () => getKnowledgeArticle(slug!),
     enabled: !!slug,
+    retry: 2,
+    staleTime: 30000,
   });
 
   return (
@@ -36,10 +38,16 @@ export default function KnowledgeArticle() {
             <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-6 h-6 text-red-500" />
             </div>
-            <p className="text-[#475569] mb-4">Article not found</p>
-            <Link to="/knowledge-center" className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] flex items-center justify-center gap-1">
-              <ArrowLeft className="w-4 h-4" /> Back to Knowledge Center
-            </Link>
+            <p className="text-[#475569] mb-2">Could not load article</p>
+            <p className="text-sm text-[#94A3B8] mb-4">The article may not exist or the server is unreachable.</p>
+            <div className="flex items-center justify-center gap-3">
+              <button onClick={() => refetch()} className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] transition-colors">
+                Try again
+              </button>
+              <Link to="/knowledge-center" className="text-sm font-medium text-[#475569] hover:text-[#0F172A] flex items-center gap-1 transition-colors">
+                <ArrowLeft className="w-4 h-4" /> Knowledge Center
+              </Link>
+            </div>
           </Card>
         )}
 

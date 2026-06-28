@@ -184,7 +184,7 @@ export async function getAdminAnalytics() {
 
 export async function getKnowledgeArticles() {
   const { data } = await apiClient.get('/knowledge');
-  return data.data.articles;
+  return data.data.items;
 }
 
 export async function getKnowledgeArticle(slug: string) {
