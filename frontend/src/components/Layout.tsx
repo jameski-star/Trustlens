@@ -9,7 +9,8 @@ export default function Layout({ children }: { children: ReactNode }) {
       <main>
         {children}
       </main>
-      <div className="mt-auto"><Footer /></div>
+      <div className="flex-1" />
+      <Footer />
     </div>
   );
 }
