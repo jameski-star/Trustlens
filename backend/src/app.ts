@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import { config } from './config';
 import { helmetMiddleware, sanitizeMiddleware, xssClean } from './middleware/sanitize';
 import { generalLimiter } from './middleware/rateLimiter';
@@ -38,6 +39,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(sanitizeMiddleware);
 app.use(xssClean);
 app.use(generalLimiter);
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/v1/scan', scanRoutes);
 app.use('/api/v1/auth', authRoutes);

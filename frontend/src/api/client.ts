@@ -100,15 +100,16 @@ export async function upvoteCommunityReport(id: string) {
   return data.data;
 }
 
-export async function createCommunityReport(formData: {
-  type: string;
-  target: string;
-  title: string;
-  description: string;
-  category: string;
-}) {
-  const { data } = await apiClient.post('/community', formData);
+export async function createCommunityReport(formData: FormData) {
+  const { data } = await apiClient.post('/community', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return data.data;
+}
+
+export async function getCommunityReportById(id: string) {
+  const { data } = await apiClient.get(`/community/${id}`);
+  return data.data.report;
 }
 
 export async function submitContact(formData: { name: string; email: string; subject: string; message: string }) {
@@ -154,6 +155,11 @@ export async function getAdminReports() {
 export async function updateReportStatus(id: string, status: string) {
   const { data } = await apiClient.patch(`/admin/reports/${id}/status`, { status });
   return data;
+}
+
+export async function getAdminReportDetail(id: string) {
+  const { data } = await apiClient.get(`/admin/reports/${id}`);
+  return data.data.report;
 }
 
 export async function getAdminBlogPosts() {

@@ -4,7 +4,13 @@ import { logger } from '../utils/logger';
 
 export async function createReport(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const report = await CommunityReport.create(req.body);
+    const screenshots: string[] = [];
+    if (req.files && Array.isArray(req.files)) {
+      for (const file of req.files) {
+        screenshots.push(`/uploads/${file.filename}`);
+      }
+    }
+    const report = await CommunityReport.create({ ...req.body, screenshots });
     res.status(201).json({ success: true, data: { report } });
   } catch (error) {
     next(error);
@@ -54,6 +60,19 @@ export async function upvoteReport(req: Request, res: Response, next: NextFuncti
       { $inc: { reports: 1 } },
       { new: true }
     );
+    if (!report) {
+      res.status(404).json({ success: false, error: 'Report not found' });
+      return;
+    }
+    res.json({ success: true, data: { report } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getReportById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const report = await CommunityReport.findById(req.params.id);
     if (!report) {
       res.status(404).json({ success: false, error: 'Report not found' });
       return;

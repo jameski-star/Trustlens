@@ -48,6 +48,20 @@ export async function getUsers(req: Request, res: Response, next: NextFunction):
   }
 }
 
+export async function getReportDetail(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { id } = req.params;
+    const report = await CommunityReport.findById(id);
+    if (!report) {
+      res.status(404).json({ success: false, error: 'Report not found' });
+      return;
+    }
+    res.json({ success: true, data: { report } });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function moderateReports(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const page = parseInt(req.query.page as string) || 1;

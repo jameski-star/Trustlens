@@ -72,7 +72,6 @@ export default function BlogPostPage() {
             )}
 
             <Card className="mb-8">
-              <p className="text-[#475569] mb-4">{post.excerpt}</p>
               <div className="prose prose-sm max-w-none text-[#475569] whitespace-pre-line">
                 {post.content}
               </div>

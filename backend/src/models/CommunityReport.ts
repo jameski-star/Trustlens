@@ -9,6 +9,7 @@ export interface ICommunityReportDocument extends Document {
   reports: number;
   isVerified: boolean;
   status: 'published' | 'pending' | 'rejected';
+  screenshots: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +30,10 @@ const communityReportSchema = new Schema<ICommunityReportDocument>({
     type: String,
     enum: ['published', 'pending', 'rejected'],
     default: 'pending',
+  },
+  screenshots: {
+    type: [String],
+    default: [],
   },
 }, {
   timestamps: true,

@@ -85,6 +85,7 @@ export interface ICommunityReport {
   reports: number;
   isVerified: boolean;
   status: 'published' | 'pending' | 'rejected';
+  screenshots: string[];
   createdAt: Date;
   updatedAt: Date;
 }
