@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Search, FileText, MessageSquare, Camera, QrCode, TrendingUp, BookOpen, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Shield, Search, FileText, MessageSquare, Camera, QrCode, TrendingUp, BookOpen, Flag } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import TrustIndicators from '../components/TrustIndicators';
@@ -10,7 +10,7 @@ const tools = [
   { icon: FileText, title: 'SMS Checker', desc: 'Verify SMS messages for scams', href: '/sms-checker', color: 'bg-[#FFFBEB] text-[#D97706]' },
   { icon: Camera, title: 'Screenshot Scanner', desc: 'Scan screenshots for threats', href: '/screenshot-scanner', color: 'bg-[#FEF2F2] text-[#DC2626]' },
   { icon: QrCode, title: 'QR Code Scanner', desc: 'Analyze QR codes before scanning', href: '/qr-scanner', color: 'bg-[#F5F3FF] text-[#7C3AED]' },
-  { icon: AlertTriangle, title: 'Community Reports', desc: 'See what others are reporting', href: '/community-reports', color: 'bg-[#ECFEFF] text-[#0891B2]' },
+  { icon: Flag, title: 'Community Reports', desc: 'See what others are reporting', href: '/community-reports', color: 'bg-[#ECFEFF] text-[#0891B2]' },
 ];
 
 const articles = [

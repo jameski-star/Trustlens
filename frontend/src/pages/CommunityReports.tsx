@@ -8,7 +8,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
-import { AlertTriangle, Plus, X, Loader2, ThumbsUp } from 'lucide-react';
+import { Flag, Plus, X, Loader2, ThumbsUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const reportTypes = [
@@ -146,8 +146,8 @@ export default function CommunityReports() {
             {data?.items?.map((report: any) => (
               <Card key={report._id}>
                 <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">
-                    <AlertTriangle className="w-5 h-5 text-[#DC2626]" />
+                    <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Flag className="w-5 h-5 text-[#DC2626]" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-[#0F172A]">{report.title}</h3>

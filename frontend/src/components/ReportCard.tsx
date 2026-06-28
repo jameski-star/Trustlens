@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertTriangle, CheckCircle, Info, Shield, ExternalLink } from 'lucide-react';
+import { AlertCircle, CheckCircle, Info, Shield, ExternalLink } from 'lucide-react';
 
 interface ReportCardProps {
   report: {
@@ -27,7 +27,7 @@ export default function ReportCard({ report }: ReportCardProps) {
       case 'safe': return <CheckCircle className="w-5 h-5 text-[#16A34A]" />;
       case 'low': return <CheckCircle className="w-5 h-5 text-[#22C55E]" />;
       case 'medium': return <Info className="w-5 h-5 text-[#D97706]" />;
-      default: return <AlertTriangle className="w-5 h-5 text-[#DC2626]" />;
+      default: return <AlertCircle className="w-5 h-5 text-[#DC2626]" />;
     }
   };
 

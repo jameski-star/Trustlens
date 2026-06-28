@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Shield, AlertTriangle, CreditCard, Users, Globe, MessageSquare, QrCode, Briefcase, Heart } from 'lucide-react';
+import { BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, QrCode, Briefcase, Heart } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const categories = [
-  { icon: AlertTriangle, title: 'Phishing', desc: 'How to identify and avoid phishing attacks', href: '/blog?category=phishing' },
+  { icon: Shield, title: 'Phishing', desc: 'How to identify and avoid phishing attacks', href: '/blog?category=phishing' },
   { icon: CreditCard, title: 'Crypto Scams', desc: 'Cryptocurrency investment fraud awareness', href: '/blog?category=crypto' },
   { icon: Briefcase, title: 'Job Scams', desc: 'Fake job offers and employment fraud', href: '/blog?category=job-scams' },
   { icon: MessageSquare, title: 'SMS Scams', desc: 'Text message and WhatsApp fraud', href: '/blog?category=sms-scams' },
