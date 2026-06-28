@@ -1,10 +1,56 @@
 import { Request, Response, NextFunction } from 'express';
 import { Report } from '../models/Report';
 import { SearchHistory } from '../models/SearchHistory';
+import { CommunityReport } from '../models/CommunityReport';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, calculateFinalScore, generateRecommendations } from '../services/scanner';
 import { performAIAnalysis } from '../services/aiAnalysis';
 import { generatePDF } from '../services/pdfGenerator';
 import { logger } from '../utils/logger';
+
+const communityTypeMap: Record<string, string[]> = {
+  url: ['url'],
+  email: ['email'],
+  sms: ['phone', 'whatsapp'],
+  phone: ['phone'],
+  screenshot: [],
+  qrcode: ['url'],
+};
+
+function communityTarget(input: string, scanType: string): string {
+  const trimmed = input.trim().toLowerCase();
+  if (scanType === 'url' || scanType === 'qrcode') {
+    try {
+      return new URL(trimmed).hostname.replace(/^www\./, '');
+    } catch {
+      return trimmed;
+    }
+  }
+  if (scanType === 'email') {
+    const parts = trimmed.split('@');
+    return parts.length > 1 ? parts[1] : trimmed;
+  }
+  return trimmed.replace(/[\s\-\(\)\.\+]/g, '');
+}
+
+async function getCommunityScore(input: string, scanType: string): Promise<{ score: number; count: number }> {
+  try {
+    const types = communityTypeMap[scanType] || [];
+    if (types.length === 0) return { score: 70, count: 0 };
+
+    const target = communityTarget(input, scanType);
+    const count = await CommunityReport.countDocuments({
+      target: { $regex: target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' },
+      type: { $in: types },
+      status: 'published',
+    });
+    if (count >= 5) return { score: 15, count };
+    if (count >= 3) return { score: 30, count };
+    if (count >= 1) return { score: 45, count };
+    return { score: 85, count: 0 };
+  } catch {
+    return { score: 70, count: 0 };
+  }
+}
 
 function generateShareId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -16,18 +62,27 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
 
     const analysis = await analyzeUrl(input);
     const aiResult = await performAIAnalysis(input, 'url');
+    const community = await getCommunityScore(input, 'url');
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
       domainAge: analysis.domainAge ? 60 : 30,
       blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
       aiAnalysis: aiResult.confidence,
-      communityReports: 70,
+      communityReports: community.score,
     });
 
     const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
 
-    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    if (community.count > 0) {
+      analysis.detectedRisks.push({
+        category: 'Community Reports',
+        severity: community.count >= 3 ? 'high' : 'medium',
+        description: `This URL has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
+      });
+    }
+
+    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'url',
@@ -47,7 +102,7 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
           confidence: aiResult.confidence,
           modelVersion: aiResult.modelVersion,
         },
-        communityReports: 0,
+        communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
       },
       recommendations,
@@ -74,18 +129,27 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
 
     const analysis = analyzeEmail(input);
     const aiResult = await performAIAnalysis(input, 'email');
+    const community = await getCommunityScore(input, 'email');
 
     const finalScore = calculateFinalScore({
       ssl: 0,
       domainAge: 0,
       blacklists: 0,
       aiAnalysis: aiResult.confidence,
-      communityReports: analysis.riskScore,
+      communityReports: community.score,
     });
 
     const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
 
-    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    if (community.count > 0) {
+      analysis.detectedRisks.push({
+        category: 'Community Reports',
+        severity: community.count >= 3 ? 'high' : 'medium',
+        description: `This email has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
+      });
+    }
+
+    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'email',
@@ -105,7 +169,7 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
           confidence: aiResult.confidence,
           modelVersion: aiResult.modelVersion,
         },
-        communityReports: 0,
+        communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
       },
       recommendations,
@@ -132,18 +196,27 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
 
     const phoneAnalysis = analyzePhoneNumber(input);
     const aiResult = await performAIAnalysis(input, 'sms');
+    const community = await getCommunityScore(input, 'sms');
 
     const finalScore = calculateFinalScore({
       ssl: 0,
       domainAge: 0,
       blacklists: 0,
       aiAnalysis: aiResult.confidence,
-      communityReports: phoneAnalysis.riskScore,
+      communityReports: community.score,
     });
 
     const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
 
-    const recommendations = generateRecommendations(phoneAnalysis.detectedRisks, finalScore);
+    if (community.count > 0) {
+      phoneAnalysis.detectedRisks.push({
+        category: 'Community Reports',
+        severity: community.count >= 3 ? 'high' : 'medium',
+        description: `This SMS number has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
+      });
+    }
+
+    let recommendations = generateRecommendations(phoneAnalysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'sms',
@@ -163,7 +236,7 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
           confidence: aiResult.confidence,
           modelVersion: aiResult.modelVersion,
         },
-        communityReports: 0,
+        communityReports: community.count,
         detectedRisks: phoneAnalysis.detectedRisks,
       },
       recommendations,
@@ -188,11 +261,20 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
   try {
     const { input } = req.body;
     const analysis = analyzePhoneNumber(input);
+    const community = await getCommunityScore(input, 'phone');
 
-    const finalScore = analysis.riskScore;
+    const finalScore = Math.round(analysis.riskScore * 0.7 + community.score * 0.3);
     const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
 
-    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    if (community.count > 0) {
+      analysis.detectedRisks.push({
+        category: 'Community Reports',
+        severity: community.count >= 3 ? 'high' : 'medium',
+        description: `This phone number has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
+      });
+    }
+
+    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'phone',
@@ -207,7 +289,7 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
         whois: null,
         blacklists: [],
         aiAnalysis: null,
-        communityReports: 0,
+        communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
       },
       recommendations,
@@ -350,17 +432,27 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
     const { input } = req.body;
     const analysis = await analyzeUrl(input);
     const aiResult = await performAIAnalysis(input, 'url');
+    const community = await getCommunityScore(input, 'qrcode');
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
       domainAge: analysis.domainAge ? 60 : 30,
       blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
       aiAnalysis: aiResult.confidence,
-      communityReports: 70,
+      communityReports: community.score,
     });
 
     const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
-    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+
+    if (community.count > 0) {
+      analysis.detectedRisks.push({
+        category: 'Community Reports',
+        severity: community.count >= 3 ? 'high' : 'medium',
+        description: `This URL (from QR code) has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
+      });
+    }
+
+    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'qrcode',
@@ -380,12 +472,18 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
           confidence: aiResult.confidence,
           modelVersion: aiResult.modelVersion,
         },
-        communityReports: 0,
+        communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
       },
       recommendations,
       confidenceScore: aiResult.confidence,
       shareId: generateShareId(),
+    });
+
+    await SearchHistory.create({
+      query: input.substring(0, 200),
+      type: 'qrcode',
+      resultId: report._id,
     });
 
     res.json({ success: true, data: { report } });

@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getCommunityReports, createCommunityReport } from '../api/client';
+import { getCommunityReports, createCommunityReport, upvoteCommunityReport } from '../api/client';
 import { communityReportSchema, CommunityReportInput } from '../validation/schemas';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
-import { AlertTriangle, Plus, X, Loader2 } from 'lucide-react';
+import { AlertTriangle, Plus, X, Loader2, ThumbsUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const reportTypes = [
@@ -41,6 +41,16 @@ export default function CommunityReports() {
     queryKey: ['community-reports'],
     queryFn: () => getCommunityReports({ page: 1 }),
   });
+
+  const handleUpvote = async (id: string) => {
+    try {
+      await upvoteCommunityReport(id);
+      queryClient.invalidateQueries({ queryKey: ['community-reports'] });
+      toast.success('Upvoted!');
+    } catch {
+      toast.error('Failed to upvote');
+    }
+  };
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<CommunityReportInput>({
     resolver: zodResolver(communityReportSchema),
@@ -146,6 +156,13 @@ export default function CommunityReports() {
                       <span className="text-xs font-mono bg-[#F1F5F9] px-2 py-1 rounded-lg">{report.type}</span>
                       <span className="text-xs text-[#475569]">{report.reports} reports</span>
                       {report.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
+                      <button
+                        onClick={() => handleUpvote(report._id)}
+                        className="flex items-center gap-1 text-xs font-medium text-[#475569] hover:text-[#2563EB] transition-colors"
+                      >
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                        Upvote
+                      </button>
                     </div>
                   </div>
                 </div>

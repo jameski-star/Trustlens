@@ -21,6 +21,7 @@ export async function getReports(req: Request, res: Response, next: NextFunction
     const filter: any = { status: 'published' };
     if (type) filter.type = type;
     if (category) filter.category = category;
+    if (req.query.minReports) filter.reports = { $gte: parseInt(req.query.minReports as string) };
 
     const [items, total] = await Promise.all([
       CommunityReport.find(filter)

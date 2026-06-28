@@ -90,8 +90,13 @@ export async function getTrendingScams() {
   return data.data.trends;
 }
 
-export async function getCommunityReports(params?: { page?: number; type?: string; category?: string }) {
+export async function getCommunityReports(params?: { page?: number; limit?: number; type?: string; category?: string; minReports?: number }) {
   const { data } = await apiClient.get('/community', { params });
+  return data.data;
+}
+
+export async function upvoteCommunityReport(id: string) {
+  const { data } = await apiClient.patch(`/community/${id}/upvote`);
   return data.data;
 }
 
