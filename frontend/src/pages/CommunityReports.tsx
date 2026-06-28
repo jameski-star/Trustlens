@@ -151,6 +151,9 @@ export default function CommunityReports() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-[#0F172A]">{report.title}</h3>
+                    {report.target && (
+                      <p className="text-xs font-mono text-[#475569] mt-1 truncate">{report.target}</p>
+                    )}
                     <p className="text-sm text-[#475569] mt-1">{report.description.substring(0, 200)}</p>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
                       <span className="text-xs font-mono bg-[#F1F5F9] px-2 py-1 rounded-lg">{report.type}</span>
