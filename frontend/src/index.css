@@ -10,7 +10,7 @@
   }
 
   body {
-    @apply bg-[#FAFBFC] text-[#0F172A] font-body leading-relaxed;
+    @apply bg-[#FAFBFC] text-[#0F172A] font-body leading-relaxed overflow-x-hidden;
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
   }
 

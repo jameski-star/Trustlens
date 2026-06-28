@@ -49,7 +49,7 @@ export default function SearchBar({
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className={`relative flex items-center ${large ? 'bg-white' : 'bg-[#FAFBFC]'} border border-[#E2E8F0] rounded-2xl shadow-search transition-shadow duration-150 focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_3px_rgba(37,99,235,0.1)]`}>
-        <div className={`${large ? 'pl-6' : 'pl-4'}`}>
+        <div className={`flex-shrink-0 ${large ? 'pl-6' : 'pl-4'}`}>
           <Search className={`${large ? 'w-6 h-6' : 'w-5 h-5'} text-[#475569]`} />
         </div>
         <input
@@ -57,17 +57,17 @@ export default function SearchBar({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={placeholder}
-          className={`flex-1 bg-transparent border-0 outline-none text-[#0F172A] placeholder:text-[#475569] ${
+          className={`flex-1 min-w-0 bg-transparent border-0 outline-none text-[#0F172A] placeholder:text-[#475569] ${
             large ? 'px-4 py-5 text-lg' : 'px-3 py-3.5 text-base'
           }`}
           disabled={isLoading}
           autoFocus={large}
         />
-        <div className={`${large ? 'pr-3' : 'pr-2'}`}>
+        <div className={`flex-shrink-0 ${large ? 'pr-3' : 'pr-2'}`}>
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="btn-primary gap-1.5 px-4 sm:px-6"
+            className="btn-primary gap-1.5 px-3 sm:px-6"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
