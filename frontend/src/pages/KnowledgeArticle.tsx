@@ -6,6 +6,7 @@ import Card from '../components/Card';
 import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { ArrowLeft, BookOpen } from 'lucide-react';
+import { renderMarkdown } from '../utils/markdown';
 
 export default function KnowledgeArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -48,29 +49,7 @@ export default function KnowledgeArticle() {
             <p className="text-lg text-[#475569] mb-8">{article.excerpt}</p>
 
             <Card className="mb-8">
-              <div className="prose prose-sm md:prose-base max-w-none text-[#475569]">
-                {article.content.split('\n').map((line: string, i: number) => {
-                  if (line.startsWith('## ')) {
-                    return <h2 key={i} className="text-xl font-semibold text-[#0F172A] mt-8 mb-4">{line.slice(3)}</h2>;
-                  }
-                  if (line.startsWith('### ')) {
-                    return <h3 key={i} className="text-lg font-semibold text-[#0F172A] mt-6 mb-3">{line.slice(4)}</h3>;
-                  }
-                  if (line.startsWith('**') && line.endsWith('**')) {
-                    return <p key={i} className="font-semibold text-[#0F172A] mt-4 mb-2">{line.slice(2, -2)}</p>;
-                  }
-                  if (line.startsWith('- ')) {
-                    return <li key={i} className="ml-6 text-[#475569] list-disc">{line.slice(2)}</li>;
-                  }
-                  if (line.startsWith('1. ')) {
-                    return <li key={i} className="ml-6 text-[#475569] list-decimal">{line.slice(3)}</li>;
-                  }
-                  if (line.trim() === '') {
-                    return <div key={i} className="h-4" />;
-                  }
-                  return <p key={i} className="text-[#475569] mb-3 leading-relaxed">{line}</p>;
-                })}
-              </div>
+              <div className="prose prose-sm md:prose-base max-w-none text-[#475569]" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }} />
             </Card>
 
             <div className="text-center py-8 border-t border-[#E2E8F0]">

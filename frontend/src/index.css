@@ -4,11 +4,10 @@
 
 @layer base {
   html {
-    overflow-x: hidden;
-    overflow-y: auto;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-y: scroll;
   }
 
   body {
