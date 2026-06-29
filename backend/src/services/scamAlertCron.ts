@@ -26,6 +26,25 @@ function slugify(text: string): string {
     .substring(0, 200);
 }
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&[^;]+;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function cleanRssContent(html: string): string {
+  return html
+    .replace(/<div class=['"]yarpp[\s\S]*?<\/div>/gi, '')
+    .replace(/<div id=['"]yarpp[\s\S]*?<\/div>/gi, '')
+    .replace(/<h3>Related posts:<\/h3>\s*<ol>[\s\S]*?<\/ol>/gi, '')
+    .replace(/The post <a[\s\S]*?appeared first on <a[\s\S]*?<\/a>\./gi, '')
+    .replace(/from <a[\s\S]*?<\/a>/gi, '')
+    .replace(/<p>\s*<\/p>/gi, '')
+    .trim();
+}
+
 async function processFeed(feed: { url: string; category: string }): Promise<void> {
   let feedResult;
   try {
@@ -42,7 +61,10 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
     if (!title) continue;
 
     const slug = slugify(title);
-    const excerpt = (item.contentSnippet || item.content || '').substring(0, 500);
+    const rawContent = item.content || item.contentSnippet || '';
+    const cleanedHtml = cleanRssContent(rawContent);
+    const plainText = stripHtml(cleanedHtml);
+    const excerpt = plainText.substring(0, 500);
     const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
     const coverImage = item.enclosure?.url || item['media:thumbnail']?.$.url || '';
 
@@ -53,7 +75,7 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
           title: title.substring(0, 200),
           slug,
           excerpt: excerpt || 'No excerpt available.',
-          content: item.content || item.contentSnippet || excerpt || '',
+          content: cleanedHtml || plainText || '',
           coverImage,
           category: 'Scam Alert',
           tags: [feed.category],

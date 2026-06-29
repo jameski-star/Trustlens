@@ -72,9 +72,7 @@ export default function BlogPostPage() {
             )}
 
             <Card className="mb-8">
-              <div className="prose prose-sm max-w-none text-[var(--text-secondary)] whitespace-pre-line">
-                {post.content}
-              </div>
+              <div className="prose prose-sm max-w-none text-[var(--text-secondary)] leading-relaxed" dangerouslySetInnerHTML={{ __html: post.content }} />
             </Card>
 
             <script type="application/ld+json" dangerouslySetInnerHTML={{

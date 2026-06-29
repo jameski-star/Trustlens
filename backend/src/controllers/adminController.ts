@@ -132,7 +132,9 @@ export async function updateBlogPost(req: Request, res: Response, next: NextFunc
 
 export async function getAdminBlogPosts(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const posts = await BlogPost.find().sort({ createdAt: -1 });
+    const posts = await BlogPost.find()
+      .select('title slug excerpt category tags author isPublished publishedAt coverImage createdAt updatedAt')
+      .sort({ createdAt: -1 });
     res.json({ success: true, data: { items: posts } });
   } catch (error) {
     next(error);
