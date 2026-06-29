@@ -55,7 +55,7 @@ async function lookupWhois(hostname: string): Promise<{
     const domain = extractDomain(hostname);
     const result = await Promise.race([
       whois(domain),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 3000)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 15000)),
     ]);
 
     whoisFailureCount = 0;
@@ -104,7 +104,7 @@ async function lookupWhois(hostname: string): Promise<{
       whoisDisabled = true;
       logger.warn('WHOIS circuit breaker opened — skipping future lookups');
     } else {
-      logger.warn({ err }, 'WHOIS lookup failed, using fallback');
+      logger.debug({ err }, 'WHOIS lookup failed, using fallback');
     }
     return fallbackWhoisData();
   }

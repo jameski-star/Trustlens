@@ -1,4 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('whois-json', () => ({
+  default: vi.fn().mockResolvedValue({
+    domainName: 'google.com',
+    registrar: 'MarkMonitor Inc.',
+    creationDate: '1997-09-15T00:00:00.000Z',
+    expirationDate: '2028-09-14T00:00:00.000Z',
+    updatedDate: '2023-09-19T00:00:00.000Z',
+    country: 'US',
+    org: 'Google LLC',
+  }),
+}));
+
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, calculateFinalScore, generateRecommendations } from '../services/scanner';
 
 describe('analyzeUrl', () => {
