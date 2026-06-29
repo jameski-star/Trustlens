@@ -15,6 +15,9 @@ let mistralRateLimitReset = 0;
 let mistralConsecutive429s = 0;
 let last429LogTime = 0;
 
+let nvidiaDisabled = false;
+let lastNvidiaLogTime = 0;
+
 async function throttleMistral(): Promise<void> {
   if (mistralRateLimited) {
     if (Date.now() < mistralRateLimitReset) {
@@ -112,6 +115,10 @@ async function callMistral(type: string, input: string): Promise<string> {
 }
 
 async function callNvidia(type: string, input: string): Promise<string> {
+  if (nvidiaDisabled) {
+    throw new Error('nvidia_disabled');
+  }
+
   try {
     return await callAIProvider(
       config.nvidia.apiKey,
@@ -123,7 +130,12 @@ async function callNvidia(type: string, input: string): Promise<string> {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    logger.debug('NVIDIA AI unavailable: %s', message);
+    nvidiaDisabled = true;
+    const now = Date.now();
+    if (now - lastNvidiaLogTime > 60000) {
+      logger.warn('NVIDIA AI unavailable (%s) — disabling fallback', message);
+      lastNvidiaLogTime = now;
+    }
     throw err;
   }
 }

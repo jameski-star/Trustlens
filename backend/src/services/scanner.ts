@@ -6,6 +6,7 @@ import { config } from '../config';
 let whoisDisabled = false;
 let whoisFailureCount = 0;
 let whoisLastFailureTime = 0;
+let whoisInProgress = false;
 
 const RDAP_BOOTSTRAP = 'https://data.iana.org/rdap/dns.json';
 
@@ -58,6 +59,10 @@ async function lookupWhois(hostname: string): Promise<{
   domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null;
   whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null;
 }> {
+  if (whoisInProgress) {
+    return fallbackWhoisData();
+  }
+
   if (whoisDisabled) {
     const elapsed = Date.now() - whoisLastFailureTime;
     if (elapsed < config.whois.retryIntervalMs) {
@@ -66,6 +71,8 @@ async function lookupWhois(hostname: string): Promise<{
     whoisDisabled = false;
     whoisFailureCount = 0;
   }
+
+  whoisInProgress = true;
 
   try {
     const domain = extractDomain(hostname);
@@ -130,6 +137,7 @@ async function lookupWhois(hostname: string): Promise<{
 
     whoisFailureCount = 0;
     whoisDisabled = false;
+    whoisInProgress = false;
 
     let domainAge = null;
     if (creationDate && !isNaN(creationDate.getTime())) {
@@ -149,6 +157,7 @@ async function lookupWhois(hostname: string): Promise<{
   } catch (err) {
     whoisFailureCount++;
     whoisLastFailureTime = Date.now();
+    whoisInProgress = false;
     if (whoisFailureCount >= config.whois.maxFailures) {
       whoisDisabled = true;
       logger.warn({ hostname, failures: whoisFailureCount, error: err instanceof Error ? err.message : String(err) }, 'WHOIS lookup disabled after failures');
