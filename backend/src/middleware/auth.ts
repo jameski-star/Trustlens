@@ -1,37 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken } from '../utils/jwt';
-import { AppError } from './errorHandler';
+import jwt from 'jsonwebtoken';
+import { config } from '../config';
 
 export interface AuthRequest extends Request {
   userId?: string;
   userRole?: string;
 }
 
-export function authenticate(req: AuthRequest, _res: Response, next: NextFunction): void {
+export function authenticate(req: AuthRequest, res: Response, next: NextFunction): void {
+  const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    res.status(401).json({ success: false, error: 'Authentication required' });
+    return;
+  }
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
-      throw new AppError(401, 'Authentication required');
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = verifyAccessToken(token);
-    
+    const decoded = jwt.verify(token, config.jwt.secret) as { userId: string; role: string };
     req.userId = decoded.userId;
     req.userRole = decoded.role;
     next();
-  } catch (error) {
-    if (error instanceof AppError) {
-      next(error);
-    } else {
-      next(new AppError(401, 'Invalid or expired token'));
-    }
+  } catch {
+    res.status(401).json({ success: false, error: 'Invalid token' });
   }
 }
 
-export function requireAdmin(req: AuthRequest, _res: Response, next: NextFunction): void {
+export function requireAdmin(req: AuthRequest, res: Response, next: NextFunction): void {
   if (req.userRole !== 'admin') {
-    next(new AppError(403, 'Admin access required'));
+    res.status(403).json({ success: false, error: 'Admin access required' });
     return;
   }
   next();

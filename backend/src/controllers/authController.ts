@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
+
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { name, email, password } = req.body;

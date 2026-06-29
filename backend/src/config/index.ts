@@ -4,15 +4,15 @@ dotenv.config();
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
-  mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/trustlens',
+  mongodbUri: process.env.MONGODB_URI || '',
   jwt: {
-    secret: process.env.JWT_SECRET || 'dev-jwt-secret-change-in-production',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret-change-in-production',
+    secret: process.env.JWT_SECRET || 'dev-secret',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
     expiresIn: process.env.JWT_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
   cors: {
-    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173,https://www.trustlens.website,https://trustlens.website').split(',').map(s => s.trim().replace(/\/+$/, '')),
+    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(s => s.trim()),
   },
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
@@ -32,9 +32,9 @@ export const config = {
     bootstrapTimeoutMs: parseInt(process.env.WHOIS_BOOTSTRAP_TIMEOUT_MS || '4000', 10),
   },
   mistral: {
-    timeoutMs: parseInt(process.env.MISTRAL_TIMEOUT_MS || '15000', 10),
     apiKey: process.env.MISTRAL_API_KEY || '',
     model: process.env.MISTRAL_MODEL || 'open-mistral-nemo',
+    timeoutMs: parseInt(process.env.MISTRAL_TIMEOUT_MS || '15000', 10),
     maxTokens: parseInt(process.env.MISTRAL_MAX_TOKENS || '200', 10),
     rateLimitIntervalMs: parseInt(process.env.MISTRAL_RATE_LIMIT_INTERVAL_MS || '60000', 10),
   },
@@ -44,4 +44,22 @@ export const config = {
     timeoutMs: parseInt(process.env.NVIDIA_TIMEOUT_MS || '15000', 10),
     maxTokens: parseInt(process.env.NVIDIA_MAX_TOKENS || '200', 10),
   },
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || '',
+    model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+    timeoutMs: parseInt(process.env.GEMINI_TIMEOUT_MS || '15000', 10),
+    maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS || '300', 10),
+  },
+  upload: {
+    maxFileSize: parseInt(process.env.UPLOAD_MAX_FILE_SIZE || '5242880', 10),
+    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+  },
+  rssFeeds: (() => {
+    try {
+      const raw = process.env.RSS_FEEDS;
+      return raw ? JSON.parse(raw) as { url: string; category: string }[] : [];
+    } catch {
+      return [];
+    }
+  })(),
 };

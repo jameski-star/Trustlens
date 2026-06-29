@@ -1,10 +1,13 @@
 import pino from 'pino';
+import { config } from '../config';
 
 export const logger = pino({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-  transport: process.env.NODE_ENV !== 'production' ? {
-    target: 'pino-pretty',
-    options: { colorize: true, translateTime: true },
-  } : undefined,
+  level: config.env === 'production' ? 'info' : 'debug',
+  ...(config.env !== 'production' && {
+    transport: {
+      target: 'pino-pretty',
+      options: { colorize: true, translateTime: 'SYS:standard' },
+    },
+  }),
   redact: ['req.headers.authorization', 'req.body.password'],
 });

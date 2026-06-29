@@ -6,14 +6,17 @@ export async function connectDatabase(): Promise<void> {
   mongoose.connection.on('error', (err) => {
     logger.error({ err }, 'MongoDB error');
   });
-
   mongoose.connection.on('disconnected', () => {
     logger.warn('MongoDB disconnected');
   });
-
   mongoose.connection.on('reconnected', () => {
     logger.info('MongoDB reconnected');
   });
+
+  if (!config.mongodbUri || config.mongodbUri.includes('<username>')) {
+    logger.warn('MongoDB URI not configured — running without database');
+    return;
+  }
 
   try {
     await mongoose.connect(config.mongodbUri, {
@@ -27,6 +30,8 @@ export async function connectDatabase(): Promise<void> {
     logger.info('Connected to MongoDB');
   } catch (error) {
     logger.error({ err: error }, 'MongoDB connection error');
-    process.exit(1);
+    if (config.env === 'production') {
+      process.exit(1);
+    }
   }
 }

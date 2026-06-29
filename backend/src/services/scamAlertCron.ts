@@ -2,6 +2,8 @@ import cron from 'node-cron';
 import RssParser from 'rss-parser';
 import { BlogPost } from '../models/BlogPost';
 import { logger } from '../utils/logger';
+import { scrapeArticle } from './contentScraper';
+import { config } from '../config';
 
 const parser = new RssParser({
   headers: {
@@ -11,12 +13,18 @@ const parser = new RssParser({
   timeout: 10000,
 });
 
-const FEEDS: { url: string; category: string }[] = [
+const DEFAULT_FEEDS: { url: string; category: string }[] = [
   { url: 'https://thehackernews.com/feeds/posts/default', category: 'Phishing' },
   { url: 'https://krebsonsecurity.com/feed/', category: 'Cyber Crime' },
   { url: 'https://www.bleepingcomputer.com/feed/', category: 'Online Safety' },
   { url: 'https://socialcatfish.com/scamfish/feed/', category: 'Social Media Scams' },
+  { url: 'https://www.scamwatch.gov.au/rss/scamwatch-alerts', category: 'Scam Alert' },
+  { url: 'https://www.fbi.gov/feeds/ecrime-alerts', category: 'Cyber Crime' },
+  { url: 'https://us-cert.cisa.gov/ncas/alerts.xml', category: 'Security Advisory' },
+  { url: 'https://www.welivesecurity.com/feed/', category: 'Online Safety' },
 ];
+
+const MIN_CONTENT_LENGTH = 300;
 
 function slugify(text: string): string {
   return text
@@ -55,19 +63,11 @@ function cleanRssContent(raw: string): string {
 }
 
 function toPlainText(html: string): string {
-  let text = html
+  return html
     .replace(/<[^>]*>/g, ' ')
     .replace(/&[^;]+;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  text = text
-    .replace(/The post\s.*?appeared first on\s.*?from\s.*?\./g, '')
-    .replace(/Last Updated on\s.*?by\s.*?\s/g, '')
-    .replace(/Related posts:[\s\S]*$/, '')
-    .replace(/YARPP[\s\S]*$/, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-  return text;
 }
 
 async function processFeed(feed: { url: string; category: string }): Promise<void> {
@@ -89,9 +89,30 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
     const rawContent = item.content || item.contentSnippet || '';
     const cleanedHtml = cleanRssContent(rawContent);
     const plainText = toPlainText(cleanedHtml);
-    const excerpt = plainText.substring(0, 500);
     const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
-    const coverImage = item.enclosure?.url || item['media:thumbnail']?.$.url || '';
+    const itemLink = item.link || '';
+
+    let finalContent = cleanedHtml || plainText;
+    let finalExcerpt = plainText.substring(0, 500);
+    const rawItem = item as Record<string, unknown>;
+    const mediaThumbnail = rawItem['media:thumbnail'];
+    const thumbnailUrl = mediaThumbnail && typeof mediaThumbnail === 'object'
+      ? (mediaThumbnail as { $?: { url?: string } })['$']?.url || '' : '';
+    let coverImage = item.enclosure?.url || thumbnailUrl || '';
+
+    if (plainText.length < MIN_CONTENT_LENGTH && itemLink) {
+      const scraped = await scrapeArticle(itemLink);
+      if (scraped) {
+        finalContent = scraped.content || finalContent;
+        finalExcerpt = scraped.excerpt || finalExcerpt;
+        if (scraped.title && scraped.title.length > title.length) {
+          logger.debug({ slug }, 'Scraped longer title for article');
+        }
+        if (scraped.coverImage && !coverImage) {
+          coverImage = scraped.coverImage;
+        }
+      }
+    }
 
     try {
       await BlogPost.findOneAndUpdate(
@@ -99,18 +120,18 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
         {
           title: title.substring(0, 200),
           slug,
-          excerpt: excerpt || 'No excerpt available.',
-          content: cleanedHtml || plainText || '',
+          excerpt: finalExcerpt || 'No excerpt available.',
+          content: finalContent,
+          category: feed.category,
           coverImage,
-          category: 'Scam Alert',
           tags: [feed.category],
           author: 'TrustLens Security Team',
-          isPublished: true,
+          published: true,
           publishedAt: pubDate,
           seo: {
             metaTitle: title.substring(0, 60),
-            metaDescription: excerpt.substring(0, 160),
-            canonicalUrl: item.link || '',
+            metaDescription: finalExcerpt.substring(0, 160),
+            canonicalUrl: itemLink,
           },
         },
         { upsert: true, new: true },
@@ -123,12 +144,14 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
 }
 
 export function startScamAlertCron(): void {
+  const feeds = config.rssFeeds?.length ? config.rssFeeds : DEFAULT_FEEDS;
+
   cron.schedule('0 */6 * * *', async () => {
-    logger.info('Running scam alert RSS cron');
-    for (const feed of FEEDS) {
+    logger.info({ feedCount: feeds.length }, 'Running scam alert RSS cron');
+    for (const feed of feeds) {
       await processFeed(feed);
     }
   });
 
-  logger.info('Scam alert cron scheduled (every 6 hours)');
+  logger.info({ feedCount: feeds.length }, 'Scam alert cron scheduled (every 6 hours)');
 }

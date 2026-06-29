@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
+import { config } from '../config';
 
 export class AppError extends Error {
   constructor(
@@ -20,11 +21,9 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
     });
     return;
   }
-
   logger.error({ err }, 'Unhandled error');
-
   res.status(500).json({
     success: false,
-    error: 'An unexpected error occurred. Please try again later.',
+    error: config.env === 'production' ? 'Internal server error' : err.message,
   });
 }

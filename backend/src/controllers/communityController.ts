@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CommunityReport } from '../models/CommunityReport';
+
 export async function createReport(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const screenshots: string[] = [];
@@ -25,7 +26,6 @@ export async function getReports(req: Request, res: Response, next: NextFunction
     const filter: Record<string, unknown> = { status: 'published' };
     if (type) filter.type = type;
     if (category) filter.category = category;
-    if (req.query.minReports) filter.reports = { $gte: parseInt(req.query.minReports as string) };
 
     const [items, total] = await Promise.all([
       CommunityReport.find(filter)
@@ -55,7 +55,25 @@ export async function upvoteReport(req: Request, res: Response, next: NextFuncti
     const { id } = req.params;
     const report = await CommunityReport.findByIdAndUpdate(
       id,
-      { $inc: { reports: 1 } },
+      { $inc: { upvotes: 1 } },
+      { new: true }
+    );
+    if (!report) {
+      res.status(404).json({ success: false, error: 'Report not found' });
+      return;
+    }
+    res.json({ success: true, data: { report } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function downvoteReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const { id } = req.params;
+    const report = await CommunityReport.findByIdAndUpdate(
+      id,
+      { $inc: { downvotes: 1 } },
       { new: true }
     );
     if (!report) {

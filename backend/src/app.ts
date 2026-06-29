@@ -7,13 +7,8 @@ import { config } from './config';
 import { helmetMiddleware, sanitizeMiddleware, xssClean } from './middleware/sanitize';
 import { generalLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
-import scanRoutes from './routes/scan';
-import authRoutes from './routes/auth';
-import communityRoutes from './routes/community';
-import blogRoutes from './routes/blog';
-import adminRoutes from './routes/admin';
-import contactRoutes from './routes/contact';
-import knowledgeRoutes from './routes/knowledge';
+import apiRoutes from './routes/index';
+
 const app = express();
 
 app.set('trust proxy', 1);
@@ -42,13 +37,7 @@ app.use(generalLimiter);
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-app.use('/api/v1/scan', scanRoutes);
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/community', communityRoutes);
-app.use('/api/v1/blog', blogRoutes);
-app.use('/api/v1/admin', adminRoutes);
-app.use('/api/v1/contact', contactRoutes);
-app.use('/api/v1/knowledge', knowledgeRoutes);
+app.use('/api/v1', apiRoutes);
 
 app.get('/', (_req, res) => {
   res.json({

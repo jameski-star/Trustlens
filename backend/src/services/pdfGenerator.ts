@@ -45,9 +45,9 @@ export function generatePDF(res: Response, report: ReportData): void {
   doc.font('Helvetica-Bold').fontSize(16).fillColor(textColor)
     .text('Analysis Result', 50, 135);
 
-  const riskColor = report.riskScore >= 80 ? '#16A34A' : 
-                    report.riskScore >= 60 ? '#D97706' : 
-                    report.riskScore >= 40 ? '#DC2626' : '#991B1B';
+  const riskColor = report.riskScore >= 80 ? '#16A34A' :
+    report.riskScore >= 60 ? '#D97706' :
+    report.riskScore >= 40 ? '#DC2626' : '#991B1B';
 
   doc.font('Helvetica-Bold').fontSize(12).fillColor(textColor)
     .text('Risk Score:', 50, 165);

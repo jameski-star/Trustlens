@@ -2,9 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { Report } from '../models/Report';
 import { SearchHistory } from '../models/SearchHistory';
 import { CommunityReport } from '../models/CommunityReport';
-import { analyzeUrl, analyzeEmail, analyzePhoneNumber, calculateFinalScore, generateRecommendations } from '../services/scanner';
-import { performAIAnalysis } from '../services/aiAnalysis';
-import { generatePDF } from '../services/pdfGenerator';
+import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent, calculateFinalScore, generateRecommendations } from '../services/scanner';
+import { performAIAnalysis, type AnalysisContext } from '../services/aiAnalysis';
 import { logger } from '../utils/logger';
 
 const communityTypeMap: Record<string, string[]> = {
@@ -32,23 +31,33 @@ function communityTarget(input: string, scanType: string): string {
   return trimmed.replace(/[\s\-().+]/g, '');
 }
 
-async function getCommunityScore(input: string, scanType: string): Promise<{ score: number; count: number }> {
+async function getCommunityScore(input: string, scanType: string): Promise<{ score: number; count: number; malicious: number; safe: number }> {
   try {
     const types = communityTypeMap[scanType] || [];
-    if (types.length === 0) return { score: 70, count: 0 };
+    if (types.length === 0) return { score: 70, count: 0, malicious: 0, safe: 0 };
 
     const target = communityTarget(input, scanType);
-    const count = await CommunityReport.countDocuments({
-      target: { $regex: target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' },
-      type: { $in: types },
-      status: 'published',
-    });
-    if (count >= 5) return { score: 15, count };
-    if (count >= 3) return { score: 30, count };
-    if (count >= 1) return { score: 45, count };
-    return { score: 85, count: 0 };
+    const escaped = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const filter = { target: { $regex: escaped, $options: 'i' }, type: { $in: types }, status: 'published' };
+
+    const [total, malicious, safe] = await Promise.all([
+      CommunityReport.countDocuments(filter),
+      CommunityReport.countDocuments({ ...filter, category: 'malicious' }),
+      CommunityReport.countDocuments({ ...filter, category: 'safe' }),
+    ]);
+
+    let score: number;
+    if (malicious >= 3) score = 5;
+    else if (malicious >= 1) score = 15;
+    else if (safe >= 3) score = 85;
+    else if (total >= 5) score = 30;
+    else if (total >= 3) score = 40;
+    else if (total >= 1) score = 55;
+    else score = 85;
+
+    return { score, count: total, malicious, safe };
   } catch {
-    return { score: 70, count: 0 };
+    return { score: 70, count: 0, malicious: 0, safe: 0 };
   }
 }
 
@@ -56,15 +65,40 @@ function generateShareId(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
+function getRiskLevel(finalScore: number): 'safe' | 'low' | 'medium' | 'high' | 'critical' {
+  if (finalScore >= 80) return 'safe';
+  if (finalScore >= 60) return 'low';
+  if (finalScore >= 40) return 'medium';
+  if (finalScore >= 20) return 'high';
+  return 'critical';
+}
+
 export async function scanUrl(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { input } = req.body;
 
-    const [analysis, aiResult, community] = await Promise.all([
+    const [analysis, community] = await Promise.all([
       analyzeUrl(input),
-      performAIAnalysis(input, 'url'),
       getCommunityScore(input, 'url'),
     ]);
+
+    const aiContext: AnalysisContext = {
+      siteTitle: analysis.siteScrape?.title,
+      siteDescription: analysis.siteScrape?.description,
+      hasForms: analysis.siteScrape?.hasForms,
+      hasPasswordField: analysis.siteScrape?.hasPasswordField,
+      hasPrivacyPolicy: analysis.siteScrape?.hasPrivacyPolicy,
+      hasContactPage: analysis.siteScrape?.hasContactPage,
+      contentLength: analysis.siteScrape?.contentLength,
+      siteRisks: analysis.detectedRisks.filter(r => r.category === 'Site Content').map(r => r.description),
+      domainAgeDays: analysis.domainAge?.daysSinceCreation,
+      whoisCountry: analysis.whois?.country,
+      whoisOrg: analysis.whois?.organization,
+      blacklistedSources: analysis.blacklists.filter(b => b.listed).map(b => b.source),
+      communityReports: community,
+    };
+
+    const aiResult = await performAIAnalysis(input, 'url', aiContext);
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
@@ -74,7 +108,7 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
       communityReports: community.score,
     });
 
-    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const riskLevel = getRiskLevel(finalScore);
 
     if (community.count > 0) {
       analysis.detectedRisks.push({
@@ -98,13 +132,14 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
         domainAge: analysis.domainAge,
         whois: analysis.whois,
         blacklists: analysis.blacklists,
+        communityReports: community,
+        siteScrape: analysis.siteScrape,
         aiAnalysis: {
           summary: aiResult.summary,
           riskFactors: aiResult.riskFactors,
           confidence: aiResult.confidence,
           modelVersion: aiResult.modelVersion,
         },
-        communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
       },
       recommendations,
@@ -129,11 +164,18 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
   try {
     const { input } = req.body;
 
-    const [aiResult, community] = await Promise.all([
-      performAIAnalysis(input, 'email'),
+    const [community] = await Promise.all([
       getCommunityScore(input, 'email'),
     ]);
     const analysis = analyzeEmail(input);
+
+    const aiContext: AnalysisContext = {
+      detectedRisks: analysis.detectedRisks.map(r => r.description),
+      scamTemplates: analysis.detectedRisks.filter(r => r.category === 'Brand Impersonation').map(r => r.description),
+      communityReports: community,
+    };
+
+    const aiResult = await performAIAnalysis(input, 'email', aiContext);
 
     const finalScore = calculateFinalScore({
       ssl: 0,
@@ -143,7 +185,7 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
       communityReports: community.score,
     });
 
-    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const riskLevel = getRiskLevel(finalScore);
 
     if (community.count > 0) {
       analysis.detectedRisks.push({
@@ -198,31 +240,34 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
   try {
     const { input } = req.body;
 
-    const [aiResult, community] = await Promise.all([
-      performAIAnalysis(input, 'sms'),
+    const [community] = await Promise.all([
       getCommunityScore(input, 'sms'),
     ]);
-    const phoneAnalysis = analyzePhoneNumber(input);
+    const smsAnalysis = analyzeSmsContent(input);
 
-    const finalScore = calculateFinalScore({
-      ssl: 0,
-      domainAge: 0,
-      blacklists: 0,
-      aiAnalysis: aiResult.confidence,
-      communityReports: community.score,
-    });
+    const aiContext: AnalysisContext = {
+      detectedRisks: smsAnalysis.detectedRisks.map(r => r.description),
+      scamTemplates: smsAnalysis.detectedRisks.filter(r => r.category === 'Scam Pattern').map(r => r.description),
+      communityReports: community,
+    };
 
-    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const aiResult = await performAIAnalysis(input, 'sms', aiContext);
+
+    const finalScore = Math.round(
+      smsAnalysis.riskScore * 0.50 + community.score * 0.25 + aiResult.confidence * 0.25
+    );
+
+    const riskLevel = getRiskLevel(finalScore);
 
     if (community.count > 0) {
-      phoneAnalysis.detectedRisks.push({
+      smsAnalysis.detectedRisks.push({
         category: 'Community Reports',
         severity: community.count >= 3 ? 'high' : 'medium',
-        description: `This SMS number has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
+        description: `This content has been reported ${community.count} time${community.count > 1 ? 's' : ''} by the community as suspicious.`,
       });
     }
 
-    const recommendations = generateRecommendations(phoneAnalysis.detectedRisks, finalScore);
+    const recommendations = generateRecommendations(smsAnalysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'sms',
@@ -230,7 +275,7 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
       riskScore: finalScore,
       riskLevel,
       status: 'completed',
-      summary: phoneAnalysis.summary,
+      summary: smsAnalysis.summary,
       details: {
         ssl: null,
         domainAge: null,
@@ -243,7 +288,8 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
           modelVersion: aiResult.modelVersion,
         },
         communityReports: community.count,
-        detectedRisks: phoneAnalysis.detectedRisks,
+        detectedRisks: smsAnalysis.detectedRisks,
+        scamPatterns: smsAnalysis.detectedRisks.filter(r => r.category === 'Scam Pattern').map(r => r.description),
       },
       recommendations,
       confidenceScore: aiResult.confidence,
@@ -269,8 +315,15 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
     const analysis = analyzePhoneNumber(input);
     const community = await getCommunityScore(input, 'phone');
 
-    const finalScore = Math.round(analysis.riskScore * 0.7 + community.score * 0.3);
-    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const aiContext: AnalysisContext = {
+      detectedRisks: analysis.detectedRisks.map(r => r.description),
+      communityReports: community,
+    };
+
+    const aiResult = await performAIAnalysis(input, 'phone', aiContext);
+
+    const finalScore = Math.round(analysis.riskScore * 0.4 + community.score * 0.3 + aiResult.confidence * 0.3);
+    const riskLevel = getRiskLevel(finalScore);
 
     if (community.count > 0) {
       analysis.detectedRisks.push({
@@ -294,12 +347,17 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
         domainAge: null,
         whois: null,
         blacklists: [],
-        aiAnalysis: null,
+        aiAnalysis: {
+          summary: aiResult.summary,
+          riskFactors: aiResult.riskFactors,
+          confidence: aiResult.confidence,
+          modelVersion: aiResult.modelVersion,
+        },
         communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
       },
       recommendations,
-      confidenceScore: 70,
+      confidenceScore: aiResult.confidence,
       shareId: generateShareId(),
     });
 
@@ -312,47 +370,6 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
     res.json({ success: true, data: { report } });
   } catch (error) {
     logger.error({ err: error }, 'Scan phone error');
-    next(error);
-  }
-}
-
-export async function getReport(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { shareId } = req.params;
-    const report = await Report.findOne({ shareId });
-
-    if (!report) {
-      res.status(404).json({ success: false, error: 'Report not found' });
-      return;
-    }
-
-    res.json({ success: true, data: { report } });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function downloadPdf(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { shareId } = req.params;
-    const report = await Report.findOne({ shareId });
-
-    if (!report) {
-      res.status(404).json({ success: false, error: 'Report not found' });
-      return;
-    }
-
-    generatePDF(res, {
-      input: report.input,
-      type: report.type,
-      riskScore: report.riskScore,
-      riskLevel: report.riskLevel,
-      summary: report.summary,
-      recommendations: report.recommendations,
-      confidenceScore: report.confidenceScore,
-      createdAt: report.createdAt,
-    });
-  } catch (error) {
     next(error);
   }
 }
@@ -397,8 +414,8 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
       communityReports: 50,
     });
 
-    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
-    const recommendations = generateRecommendations(aiResult.riskFactors.map(r => ({ category: 'screenshot', severity: 'medium', description: r })), finalScore);
+    const riskLevel = getRiskLevel(finalScore);
+    const recommendations = generateRecommendations(aiResult.riskFactors.map(r => ({ category: 'screenshot', severity: 'medium' as const, description: r })), finalScore);
 
     const report = await Report.create({
       type: 'screenshot',
@@ -436,11 +453,28 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
 export async function scanQrcode(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { input } = req.body;
-    const [analysis, aiResult, community] = await Promise.all([
+    const [analysis, community] = await Promise.all([
       analyzeUrl(input),
-      performAIAnalysis(input, 'url'),
       getCommunityScore(input, 'qrcode'),
     ]);
+
+    const aiContext: AnalysisContext = {
+      siteTitle: analysis.siteScrape?.title,
+      siteDescription: analysis.siteScrape?.description,
+      hasForms: analysis.siteScrape?.hasForms,
+      hasPasswordField: analysis.siteScrape?.hasPasswordField,
+      hasPrivacyPolicy: analysis.siteScrape?.hasPrivacyPolicy,
+      hasContactPage: analysis.siteScrape?.hasContactPage,
+      contentLength: analysis.siteScrape?.contentLength,
+      siteRisks: analysis.detectedRisks.filter(r => r.category === 'Site Content').map(r => r.description),
+      domainAgeDays: analysis.domainAge?.daysSinceCreation,
+      whoisCountry: analysis.whois?.country,
+      whoisOrg: analysis.whois?.organization,
+      blacklistedSources: analysis.blacklists.filter(b => b.listed).map(b => b.source),
+      communityReports: community,
+    };
+
+    const aiResult = await performAIAnalysis(input, 'url', aiContext);
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
@@ -450,7 +484,7 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
       communityReports: community.score,
     });
 
-    const riskLevel = finalScore >= 80 ? 'safe' : finalScore >= 60 ? 'low' : finalScore >= 40 ? 'medium' : finalScore >= 20 ? 'high' : 'critical';
+    const riskLevel = getRiskLevel(finalScore);
 
     if (community.count > 0) {
       analysis.detectedRisks.push({

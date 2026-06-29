@@ -3,14 +3,14 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IBlogPostDocument extends Document {
   title: string;
   slug: string;
-  excerpt: string;
   content: string;
-  coverImage: string;
+  excerpt: string;
   category: string;
-  tags: string[];
   author: string;
-  isPublished: boolean;
-  publishedAt: Date | null;
+  tags: string[];
+  published: boolean;
+  coverImage: string;
+  publishedAt: Date;
   seo: {
     metaTitle: string;
     metaDescription: string;
@@ -22,24 +22,24 @@ export interface IBlogPostDocument extends Document {
 
 const blogPostSchema = new Schema<IBlogPostDocument>({
   title: { type: String, required: true, maxlength: 200 },
-  slug: { type: String, required: true, unique: true },
-  excerpt: { type: String, required: true, maxlength: 500 },
+  slug: { type: String, required: true, unique: true, index: true },
   content: { type: String, required: true },
-  coverImage: { type: String, default: '' },
-  category: { type: String, required: true },
-  tags: { type: [String], default: [] },
+  excerpt: { type: String, required: true, maxlength: 500 },
+  category: { type: String, default: 'General' },
   author: { type: String, default: 'TrustLens Team' },
-  isPublished: { type: Boolean, default: false },
-  publishedAt: { type: Date, default: null },
+  tags: { type: [String], default: [] },
+  published: { type: Boolean, default: false },
+  coverImage: { type: String, default: '' },
+  publishedAt: { type: Date, default: Date.now },
   seo: {
-    metaTitle: { type: String, required: true },
-    metaDescription: { type: String, required: true },
+    metaTitle: { type: String, default: '' },
+    metaDescription: { type: String, default: '' },
     canonicalUrl: { type: String, default: '' },
   },
 }, { timestamps: true });
 
-blogPostSchema.index({ category: 1, isPublished: 1 });
+blogPostSchema.index({ published: 1, createdAt: -1 });
 blogPostSchema.index({ tags: 1 });
-blogPostSchema.index({ publishedAt: -1 });
+blogPostSchema.index({ category: 1 });
 
 export const BlogPost = mongoose.model<IBlogPostDocument>('BlogPost', blogPostSchema);

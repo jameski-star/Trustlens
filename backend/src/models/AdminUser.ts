@@ -1,19 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export interface IUserDocument extends Document {
+export interface IAdminUserDocument extends Document {
   email: string;
   password: string;
   name: string;
-  role: 'user' | 'admin';
-  isVerified: boolean;
-  refreshToken?: string;
+  role: 'admin' | 'superadmin';
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const userSchema = new Schema<IUserDocument>({
+const adminUserSchema = new Schema<IAdminUserDocument>({
   email: {
     type: String,
     required: [true, 'Email is required'],
@@ -36,24 +34,19 @@ const userSchema = new Schema<IUserDocument>({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
+    enum: ['admin', 'superadmin'],
+    default: 'admin',
   },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  refreshToken: String,
 }, { timestamps: true });
 
-userSchema.pre('save', async function (next) {
+adminUserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+adminUserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export const User = mongoose.model<IUserDocument>('User', userSchema);
+export const AdminUser = mongoose.model<IAdminUserDocument>('AdminUser', adminUserSchema);

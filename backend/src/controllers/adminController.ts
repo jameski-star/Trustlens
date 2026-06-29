@@ -4,6 +4,7 @@ import { Report } from '../models/Report';
 import { CommunityReport } from '../models/CommunityReport';
 import { BlogPost } from '../models/BlogPost';
 import { SearchHistory } from '../models/SearchHistory';
+
 export async function getDashboard(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const [totalUsers, totalScans, totalReports, totalPosts, scansToday] = await Promise.all([
@@ -102,7 +103,7 @@ export async function createBlogPost(req: Request, res: Response, next: NextFunc
   try {
     const post = await BlogPost.create({
       ...req.body,
-      publishedAt: req.body.isPublished ? new Date() : null,
+      publishedAt: req.body.published ? new Date() : null,
     });
     res.status(201).json({ success: true, data: { post } });
   } catch (error) {
@@ -114,7 +115,7 @@ export async function updateBlogPost(req: Request, res: Response, next: NextFunc
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
-    if (updateData.isPublished && !updateData.publishedAt) {
+    if (updateData.published && !updateData.publishedAt) {
       updateData.publishedAt = new Date();
     }
     const post = await BlogPost.findByIdAndUpdate(id, updateData, { new: true });
@@ -131,7 +132,7 @@ export async function updateBlogPost(req: Request, res: Response, next: NextFunc
 export async function getAdminBlogPosts(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const posts = await BlogPost.find()
-      .select('title slug excerpt category tags author isPublished publishedAt coverImage createdAt updatedAt')
+      .select('title slug excerpt category tags author published publishedAt imageUrl createdAt updatedAt')
       .sort({ createdAt: -1 });
     res.json({ success: true, data: { items: posts } });
   } catch (error) {
