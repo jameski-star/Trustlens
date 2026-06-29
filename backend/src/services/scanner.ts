@@ -1,4 +1,5 @@
 import axios from 'axios';
+import https from 'https';
 import { logger } from '../utils/logger';
 import { config } from '../config';
 
@@ -49,6 +50,8 @@ function fallbackWhoisData() {
 const rdapClient = axios.create({
   timeout: config.whois.rdapTimeoutMs,
   headers: { Accept: 'application/json' },
+  transitional: { clarifyTimeoutError: true },
+  httpsAgent: new https.Agent({ keepAlive: false, rejectUnauthorized: true }),
 });
 
 async function lookupWhois(hostname: string): Promise<{

@@ -38,4 +38,10 @@ export const config = {
     maxTokens: parseInt(process.env.MISTRAL_MAX_TOKENS || '200', 10),
     rateLimitIntervalMs: parseInt(process.env.MISTRAL_RATE_LIMIT_INTERVAL_MS || '60000', 10),
   },
+  nvidia: {
+    apiKey: process.env.NVIDIA_API_KEY || '',
+    model: process.env.NVIDIA_MODEL || 'nvidia/llama-3.1-nemotron-70b-instruct',
+    timeoutMs: parseInt(process.env.NVIDIA_TIMEOUT_MS || '15000', 10),
+    maxTokens: parseInt(process.env.NVIDIA_MAX_TOKENS || '200', 10),
+  },
 };

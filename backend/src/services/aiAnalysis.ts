@@ -32,6 +32,102 @@ async function throttleMistral(): Promise<void> {
   mistralCallInProgress = true;
 }
 
+async function callAIProvider(
+  apiKey: string,
+  url: string,
+  model: string,
+  type: string,
+  input: string,
+  timeoutMs: number,
+  maxTokens: number,
+): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: 'You are a cybersecurity analysis AI. Analyze the following content for scam/fraud indicators. Provide a brief, factual analysis in 1-3 sentences.' },
+          { role: 'user', content: `Analyze this ${type} for security risks: ${input.substring(0, 2000)}` },
+        ],
+        max_tokens: maxTokens,
+      }),
+      signal: controller.signal,
+    });
+    if (response.ok) {
+      const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+      return data.choices?.[0]?.message?.content || '';
+    }
+    const body = await response.text().catch(() => '');
+    throw new Error(`HTTP ${response.status}: ${body.substring(0, 200)}`);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function callMistral(type: string, input: string): Promise<string> {
+  await throttleMistral();
+  try {
+    const summary = await callAIProvider(
+      config.mistral.apiKey,
+      'https://api.mistral.ai/v1/chat/completions',
+      config.mistral.model,
+      type, input,
+      config.mistral.timeoutMs,
+      config.mistral.maxTokens,
+    );
+    mistralRateLimited = false;
+    mistralConsecutive429s = 0;
+    return summary;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.startsWith('HTTP 429')) {
+      mistralConsecutive429s++;
+      const backoff = Math.min(60 * Math.pow(2, mistralConsecutive429s - 1), 600);
+      mistralRateLimited = true;
+      mistralRateLimitReset = Date.now() + backoff * 1000;
+      const now = Date.now();
+      if (now - last429LogTime > 60000) {
+        logger.warn('Mistral AI rate limited (429), backing off %ds (consecutive: %d)', backoff, mistralConsecutive429s);
+        last429LogTime = now;
+      } else {
+        logger.debug('Mistral AI rate limited (429), backing off %ds (consecutive: %d)', backoff, mistralConsecutive429s);
+      }
+    } else if (message.startsWith('HTTP 401')) {
+      logger.warn('Mistral AI API key is invalid or unauthorized');
+    } else {
+      logger.debug('Mistral AI unavailable: %s', message);
+    }
+    throw err;
+  } finally {
+    lastMistralCall = Date.now();
+    mistralCallInProgress = false;
+  }
+}
+
+async function callNvidia(type: string, input: string): Promise<string> {
+  try {
+    return await callAIProvider(
+      config.nvidia.apiKey,
+      'https://integrate.api.nvidia.com/v1/chat/completions',
+      config.nvidia.model,
+      type, input,
+      config.nvidia.timeoutMs,
+      config.nvidia.maxTokens,
+    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    logger.debug('NVIDIA AI unavailable: %s', message);
+    throw err;
+  }
+}
+
 export async function performAIAnalysis(input: string, type: string): Promise<AIAnalysisResult> {
   const riskFactors: string[] = [];
   let confidence = 75;
@@ -82,62 +178,20 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
   }
 
   let aiSummary = '';
-  try {
-    if (config.mistral.apiKey) {
-      await throttleMistral();
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), config.mistral.timeoutMs);
-      try {
-        const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.mistral.apiKey}`,
-          },
-          body: JSON.stringify({
-            model: config.mistral.model,
-            messages: [
-              { role: 'system', content: 'You are a cybersecurity analysis AI. Analyze the following content for scam/fraud indicators. Provide a brief, factual analysis in 1-3 sentences.' },
-              { role: 'user', content: `Analyze this ${type} for security risks: ${input.substring(0, 2000)}` },
-            ],
-            max_tokens: config.mistral.maxTokens,
-          }),
-          signal: controller.signal,
-        });
-        if (response.ok) {
-          mistralRateLimited = false;
-          mistralConsecutive429s = 0;
-          const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
-          aiSummary = data.choices?.[0]?.message?.content || '';
-        } else if (response.status === 401) {
-          logger.warn('Mistral AI API key is invalid or unauthorized');
-        } else if (response.status === 429) {
-          mistralConsecutive429s++;
-          const retryAfter = parseInt(response.headers.get('retry-after') || '60', 10);
-          const backoff = Math.min(retryAfter * Math.pow(2, mistralConsecutive429s - 1), 600);
-          mistralRateLimited = true;
-          mistralRateLimitReset = Date.now() + backoff * 1000;
-          const now = Date.now();
-          if (now - last429LogTime > 60000) {
-            logger.warn('Mistral AI rate limited (429), backing off %ds (consecutive: %d)', backoff, mistralConsecutive429s);
-            last429LogTime = now;
-          } else {
-            logger.debug('Mistral AI rate limited (429), backing off %ds (consecutive: %d)', backoff, mistralConsecutive429s);
-          }
-        } else {
-          logger.debug('Mistral AI returned HTTP %d for %s analysis', response.status, type);
-        }
-      } finally {
-        clearTimeout(timeoutId);
-        lastMistralCall = Date.now();
-        mistralCallInProgress = false;
-      }
+
+  if (config.mistral.apiKey) {
+    try {
+      aiSummary = await callMistral(type, input);
+    } catch {
+      // Mistral failed — try fallback
     }
-  } catch (err) {
-    if (err instanceof Error && err.message === 'rate_limited') {
-      logger.debug('Skipping Mistral AI — rate limited');
-    } else {
-      logger.debug('Mistral AI unavailable for %s: %s', type, err instanceof Error ? err.message : String(err));
+  }
+
+  if (!aiSummary && config.nvidia.apiKey) {
+    try {
+      aiSummary = await callNvidia(type, input);
+    } catch {
+      // Both failed — fall back to rule-based
     }
   }
 
