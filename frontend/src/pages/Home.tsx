@@ -5,7 +5,7 @@ import SearchBar from '../components/SearchBar';
 import TrustIndicators from '../components/TrustIndicators';
 
 const tools = [
-  { icon: Search, title: 'URL Checker', desc: 'Check if a website is safe or fraudulent', href: '/url-checker', color: 'bg-[#EFF6FF] text-[#2563EB]' },
+  { icon: Search, title: 'URL Checker', desc: 'Check if a website is safe or fraudulent', href: '/url-checker', color: 'bg-[var(--bg-accent)] text-[var(--text-accent)]' },
   { icon: MessageSquare, title: 'Email Checker', desc: 'Analyze emails for phishing attempts', href: '/email-checker', color: 'bg-[#F0FDF4] text-[#16A34A]' },
   { icon: FileText, title: 'SMS Checker', desc: 'Verify SMS messages for scams', href: '/sms-checker', color: 'bg-[#FFFBEB] text-[#D97706]' },
   { icon: Camera, title: 'Screenshot Scanner', desc: 'Scan screenshots for threats', href: '/screenshot-scanner', color: 'bg-[#FEF2F2] text-[#DC2626]' },
@@ -29,11 +29,11 @@ export default function Home() {
 
       <section className="container-page pt-12 pb-8 md:pt-20 md:pb-12">
         <div className="max-w-3xl mx-auto text-center mb-8">
-          <h1 className="font-heading font-800 text-[clamp(1.75rem,1.25rem+3vw,3.75rem)] md:text-5xl lg:text-6xl text-[#0F172A] leading-tight mb-4">
+          <h1 className="font-heading font-800 text-[clamp(1.75rem,1.25rem+3vw,3.75rem)] md:text-5xl lg:text-6xl text-[var(--text-primary)] leading-tight mb-4">
             Know Before<br />
-            <span className="text-[#2563EB]">You Click</span>
+            <span className="text-[var(--text-accent)]">You Click</span>
           </h1>
-          <p className="text-lg md:text-xl text-[#475569] max-w-2xl mx-auto mb-8">
+          <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-8">
             Free security analysis for websites, emails, SMS messages, and more.
             Protect yourself from scams and phishing attempts.
           </p>
@@ -48,13 +48,13 @@ export default function Home() {
       </section>
 
       <section className="container-page pb-12">
-        <h2 className="font-heading font-700 text-2xl text-[#0F172A] mb-6">Popular Searches</h2>
+        <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)] mb-6">Popular Searches</h2>
         <div className="flex flex-wrap gap-2">
           {['paypal-security.com', 'bank-verify.net', 'amazon-support.xyz', 'netflix-login.tk', 'apple-id-verify.com', 'secure-update.ga'].map((url) => (
             <Link
               key={url}
               to={`/url-checker?q=${encodeURIComponent(url)}`}
-              className="px-3 py-1.5 text-sm text-[#475569] bg-[#F1F5F9] hover:text-[#2563EB] hover:bg-[#EFF6FF] rounded-xl transition-colors truncate max-w-[200px] sm:max-w-none"
+              className="px-3 py-1.5 text-sm text-[var(--text-secondary)] bg-[var(--bg-subtle)] hover:text-[var(--text-accent)] hover:bg-[var(--bg-accent)] rounded-xl transition-colors truncate max-w-[200px] sm:max-w-none"
             >
               {url}
             </Link>
@@ -64,7 +64,7 @@ export default function Home() {
 
       <section className="container-page pb-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="font-heading font-700 text-2xl text-[#0F172A]">Security Tools</h2>
+          <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)]">Security Tools</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tools.map((tool) => (
@@ -72,8 +72,8 @@ export default function Home() {
               <div className={`w-10 h-10 ${tool.color} rounded-xl flex items-center justify-center mb-3`}>
                 <tool.icon className="w-5 h-5" />
               </div>
-              <h3 className="font-semibold text-[#0F172A] mb-1 group-hover:text-[#2563EB] transition-colors">{tool.title}</h3>
-              <p className="text-sm text-[#475569]">{tool.desc}</p>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-1 group-hover:text-[var(--text-accent)] transition-colors">{tool.title}</h3>
+              <p className="text-sm text-[var(--text-secondary)]">{tool.desc}</p>
             </Link>
           ))}
         </div>
@@ -81,29 +81,29 @@ export default function Home() {
 
       <section className="container-page pb-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="font-heading font-700 text-2xl text-[#0F172A]">Latest Security Insights</h2>
-          <Link to="/blog" className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1">
+          <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)]">Latest Security Insights</h2>
+          <Link to="/blog" className="text-sm font-medium text-[var(--text-accent)] hover:text-[#1D4ED8] flex items-center gap-1">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {articles.map((article) => (
             <Link key={article.title} to={article.href} className="card hover:shadow-card-hover transition-all duration-200">
-              <span className="text-xs font-medium text-[#2563EB]">{article.category}</span>
-              <h3 className="font-semibold text-[#0F172A] mt-1 mb-2">{article.title}</h3>
-              <span className="text-sm text-[#475569]">{article.date}</span>
+              <span className="text-xs font-medium text-[var(--text-accent)]">{article.category}</span>
+              <h3 className="font-semibold text-[var(--text-primary)] mt-1 mb-2">{article.title}</h3>
+              <span className="text-sm text-[var(--text-secondary)]">{article.date}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="bg-[#F8FAFC] border-t border-[#E2E8F0]">
+      <section className="bg-[var(--bg-muted)] border-t border-[var(--border)]">
         <div className="container-page py-16">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A] mb-4">
+            <h2 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)] mb-4">
               Join the Community
             </h2>
-            <p className="text-[#475569] mb-8 max-w-xl mx-auto">
+            <p className="text-[var(--text-secondary)] mb-8 max-w-xl mx-auto">
               Help protect others by reporting suspicious websites, emails, and messages you encounter.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

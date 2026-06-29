@@ -7,8 +7,8 @@ export default function Privacy() {
       <SEOHead title="Privacy Policy" description="TrustLens privacy policy. Learn how we protect your data and what information we collect when you use our security analysis tools." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Privacy Policy' }]} />
-        <div className="max-w-3xl mx-auto prose prose-gray text-[#475569]">
-          <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A]">Privacy Policy</h1>
+        <div className="max-w-3xl mx-auto prose prose-gray text-[var(--text-secondary)]">
+          <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)]">Privacy Policy</h1>
           <p className="text-sm">Last updated: January 1, 2025</p>
 
           <h2>Information We Collect</h2>
@@ -36,7 +36,7 @@ export default function Privacy() {
           <p>You have the right to request deletion of your data at any time by contacting us. We will respond within 30 days.</p>
 
           <h2>Contact</h2>
-          <p>For privacy-related inquiries, contact us through our <a href="/contact" className="text-[#2563EB]">contact page</a>.</p>
+          <p>For privacy-related inquiries, contact us through our <a href="/contact" className="text-[var(--text-accent)]">contact page</a>.</p>
         </div>
       </div>
     </>

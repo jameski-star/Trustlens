@@ -21,8 +21,10 @@ export default function Button({
 
   const variants = {
     primary: 'bg-[#2563EB] text-white hover:bg-[#1D4ED8] focus:ring-[#2563EB]',
-    secondary: 'border-2 border-[#E2E8F0] text-[#0F172A] hover:border-[#2563EB] hover:text-[#2563EB] focus:ring-[#2563EB]',
-    ghost: 'text-[#475569] hover:text-[#2563EB] hover:bg-[#F1F5F9] focus:ring-[#2563EB]',
+    secondary: 'border-2 hover:border-[var(--text-accent)] hover:text-[var(--text-accent)] focus:ring-[#2563EB]' +
+      ' border-[var(--border)] text-[var(--text-primary)]',
+    ghost: 'hover:text-[var(--text-accent)] hover:bg-[var(--bg-subtle)] focus:ring-[#2563EB]' +
+      ' text-[var(--text-secondary)]',
   };
 
   const sizes = {

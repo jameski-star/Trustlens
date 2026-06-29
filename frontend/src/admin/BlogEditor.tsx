@@ -84,19 +84,19 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/20 flex items-start justify-center overflow-y-auto pt-8 pb-8">
-      <div className="bg-white rounded-2xl shadow-xl border border-[#E2E8F0] w-full max-w-3xl mx-4">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
-          <h2 className="font-heading font-700 text-lg text-[#0F172A]">
+      <div className="bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border)] w-full max-w-3xl mx-4">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+          <h2 className="font-heading font-700 text-lg text-[var(--text-primary)]">
             {isEdit ? 'Edit Post' : 'New Blog Post'}
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#F1F5F9] transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-1">Title</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Title</label>
             <input
               value={form.title}
               onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
@@ -106,7 +106,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-1">Slug</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Slug</label>
             <div className="flex gap-2">
               <input
                 value={form.slug}
@@ -118,7 +118,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
               <button
                 type="button"
                 onClick={() => setForm(f => ({ ...f, slug: generateSlug(f.title) }))}
-                className="px-3 py-2 text-sm text-[#2563EB] hover:bg-[#EFF6FF] rounded-xl transition-colors"
+                className="px-3 py-2 text-sm text-[var(--text-accent)] hover:bg-[var(--bg-accent)] rounded-xl transition-colors"
               >
                 Generate
               </button>
@@ -126,7 +126,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-1">Excerpt</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Excerpt</label>
             <textarea
               value={form.excerpt}
               onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
@@ -137,7 +137,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-1">Content (Markdown)</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Content (Markdown)</label>
             <textarea
               value={form.content}
               onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
@@ -149,7 +149,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-[#0F172A] mb-1">Category</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Category</label>
               <select
                 value={form.category}
                 onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
@@ -163,7 +163,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#0F172A] mb-1">Cover Image URL</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Cover Image URL</label>
               <input
                 value={form.coverImage}
                 onChange={e => setForm(f => ({ ...f, coverImage: e.target.value }))}
@@ -174,7 +174,7 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#0F172A] mb-1">Tags (comma separated)</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Tags (comma separated)</label>
             <input
               value={form.tags}
               onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
@@ -188,9 +188,9 @@ export default function BlogEditor({ post, onClose }: BlogEditorProps) {
               type="checkbox"
               checked={form.isPublished}
               onChange={e => setForm(f => ({ ...f, isPublished: e.target.checked }))}
-              className="w-4 h-4 rounded border-[#E2E8F0] text-[#2563EB] focus:ring-[#2563EB]"
+              className="w-4 h-4 rounded border-[var(--border)] text-[var(--text-accent)] focus:ring-[#2563EB]"
             />
-            <span className="text-sm text-[#0F172A]">Publish immediately</span>
+            <span className="text-sm text-[var(--text-primary)]">Publish immediately</span>
           </label>
 
           <div className="flex items-center justify-end gap-3 pt-2">

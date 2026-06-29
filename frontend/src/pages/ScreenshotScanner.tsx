@@ -51,26 +51,26 @@ export default function ScreenshotScanner() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center"><Camera className="w-5 h-5 text-[#DC2626]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Screenshot Scanner</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Screenshot Scanner</h1>
           </div>
-          <p className="text-[#475569] mb-6">Upload a screenshot to scan for phishing attempts, scam content, and suspicious text using OCR technology.</p>
+          <p className="text-[var(--text-secondary)] mb-6">Upload a screenshot to scan for phishing attempts, scam content, and suspicious text using OCR technology.</p>
 
           <div
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            className="border-2 border-dashed border-[#E2E8F0] rounded-2xl p-12 text-center hover:border-[#2563EB] transition-colors cursor-pointer"
+            className="border-2 border-dashed border-[var(--border)] rounded-2xl p-12 text-center hover:border-[var(--border-accent)] transition-colors cursor-pointer"
             onClick={() => inputRef.current?.click()}
           >
             {preview ? (
               <div className="relative">
                 <img src={preview} alt="Preview" className="max-h-80 mx-auto rounded-xl" />
-                <button onClick={() => { setFile(null); setPreview(null); setResult(null); }} className="absolute top-2 right-2 p-1 bg-white rounded-full shadow"><X className="w-4 h-4" /></button>
+                <button onClick={() => { setFile(null); setPreview(null); setResult(null); }} className="absolute top-2 right-2 p-1 bg-[var(--bg-surface)] rounded-full shadow"><X className="w-4 h-4" /></button>
               </div>
             ) : (
               <div>
-                <Upload className="w-12 h-12 text-[#475569] mx-auto mb-4" />
-                <p className="text-[#475569] font-medium">Drop screenshot here or click to upload</p>
-                <p className="text-sm text-[#475569] mt-1">PNG, JPG, WEBP (max 10MB)</p>
+                <Upload className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
+                <p className="text-[var(--text-secondary)] font-medium">Drop screenshot here or click to upload</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">PNG, JPG, WEBP (max 10MB)</p>
               </div>
             )}
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
@@ -86,7 +86,7 @@ export default function ScreenshotScanner() {
           {result && (
             <Card className="mt-6">
               <h3 className="font-semibold mb-2">Analysis Result</h3>
-              <p className="text-sm text-[#475569]">{result.text}</p>
+              <p className="text-sm text-[var(--text-secondary)]">{result.text}</p>
               {result.risk === 'safe' && <span className="inline-block mt-2 text-xs font-medium text-[#16A34A] bg-[#F0FDF4] px-2 py-1 rounded-lg">No threats detected</span>}
             </Card>
           )}

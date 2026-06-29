@@ -33,8 +33,8 @@ export default function BlogPostPage() {
 
         {error && (
           <Card className="max-w-lg mx-auto text-center py-12">
-            <p className="text-[#475569] mb-4">Post not found</p>
-            <Link to="/blog" className="text-sm font-medium text-[#2563EB] hover:text-[#1D4ED8] flex items-center justify-center gap-1">
+            <p className="text-[var(--text-secondary)] mb-4">Post not found</p>
+            <Link to="/blog" className="text-sm font-medium text-[var(--text-accent)] hover:text-[#1D4ED8] flex items-center justify-center gap-1">
               <ArrowLeft className="w-4 h-4" /> Back to Blog
             </Link>
           </Card>
@@ -42,9 +42,9 @@ export default function BlogPostPage() {
 
         {post && (
           <article className="max-w-3xl mx-auto">
-            <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A] mb-4">{post.title}</h1>
+            <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)] mb-4">{post.title}</h1>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[#475569] mb-2">
+            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-secondary)] mb-2">
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
                 {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unpublished'}
@@ -62,7 +62,7 @@ export default function BlogPostPage() {
             {post.tags?.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-8">
                 {post.tags.map((tag: string) => (
-                  <span key={tag} className="text-xs bg-[#F1F5F9] px-2 py-1 rounded-lg text-[#475569]">{tag}</span>
+                  <span key={tag} className="text-xs bg-[var(--bg-subtle)] px-2 py-1 rounded-lg text-[var(--text-secondary)]">{tag}</span>
                 ))}
               </div>
             )}
@@ -72,7 +72,7 @@ export default function BlogPostPage() {
             )}
 
             <Card className="mb-8">
-              <div className="prose prose-sm max-w-none text-[#475569] whitespace-pre-line">
+              <div className="prose prose-sm max-w-none text-[var(--text-secondary)] whitespace-pre-line">
                 {post.content}
               </div>
             </Card>

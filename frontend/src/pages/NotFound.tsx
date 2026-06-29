@@ -8,11 +8,11 @@ export default function NotFound() {
       <SEOHead title="Page Not Found" description="The page you are looking for does not exist." />
       <div className="container-page py-20">
         <div className="max-w-md mx-auto text-center">
-          <div className="w-16 h-16 bg-[#F1F5F9] rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Shield className="w-8 h-8 text-[#475569]" />
+          <div className="w-16 h-16 bg-[var(--bg-subtle)] rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <Shield className="w-8 h-8 text-[var(--text-secondary)]" />
           </div>
-          <h1 className="font-heading font-800 text-4xl text-[#0F172A] mb-2">404</h1>
-          <p className="text-lg text-[#475569] mb-8">
+          <h1 className="font-heading font-800 text-4xl text-[var(--text-primary)] mb-2">404</h1>
+          <p className="text-lg text-[var(--text-secondary)] mb-8">
             This page could not be found. The link may be broken or the page may have been removed.
           </p>
           <Link to="/" className="btn-primary gap-2">

@@ -38,12 +38,12 @@ export default function URLChecker() {
 
         <div className="max-w-3xl mx-auto mb-10">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center">
-              <Globe className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center">
+              <Globe className="w-5 h-5 text-[var(--text-accent)]" />
             </div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">URL Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">URL Checker</h1>
           </div>
-          <p className="text-[#475569] mb-6">
+          <p className="text-[var(--text-secondary)] mb-6">
             Check if a website is safe or potentially fraudulent. Our analysis checks SSL certificates,
             domain age, blacklists, and more.
           </p>
@@ -75,12 +75,12 @@ export default function URLChecker() {
                 <RiskScore score={report.riskScore} size="lg" />
               </div>
               <div className="flex-1">
-                <h2 className="font-heading font-700 text-xl text-[#0F172A] mb-2">Analysis Result</h2>
-                <p className="text-[#475569] mb-4">{report.summary}</p>
+                <h2 className="font-heading font-700 text-xl text-[var(--text-primary)] mb-2">Analysis Result</h2>
+                <p className="text-[var(--text-secondary)] mb-4">{report.summary}</p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
-                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Type: {report.type}</span>
-                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Score: {report.riskScore}/100</span>
+                  <span className="text-xs font-mono text-[var(--text-secondary)] bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
+                  <span className="text-xs font-mono text-[var(--text-secondary)] bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Type: {report.type}</span>
+                  <span className="text-xs font-mono text-[var(--text-secondary)] bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Score: {report.riskScore}/100</span>
                 </div>
               </div>
             </div>
@@ -88,8 +88,8 @@ export default function URLChecker() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {report.details?.ssl && (
                 <Card>
-                  <h3 className="font-semibold text-[#0F172A] mb-2">SSL Certificate</h3>
-                  <div className="space-y-1 text-sm text-[#475569]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-2">SSL Certificate</h3>
+                  <div className="space-y-1 text-sm text-[var(--text-secondary)]">
                     <p>Status: {report.details.ssl.valid ? 'Valid' : 'Invalid'}</p>
                     <p>Issuer: {report.details.ssl.issuer}</p>
                     <p>Days remaining: {report.details.ssl.daysRemaining}</p>
@@ -99,8 +99,8 @@ export default function URLChecker() {
 
               {report.details?.domainAge && (
                 <Card>
-                  <h3 className="font-semibold text-[#0F172A] mb-2">Domain Age</h3>
-                  <div className="space-y-1 text-sm text-[#475569]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-2">Domain Age</h3>
+                  <div className="space-y-1 text-sm text-[var(--text-secondary)]">
                     <p>Created: {new Date(report.details.domainAge.created).toLocaleDateString()}</p>
                     <p>Age: {report.details.domainAge.daysSinceCreation} days</p>
                     <p>Months: {report.details.domainAge.monthsSinceCreation}</p>
@@ -109,11 +109,11 @@ export default function URLChecker() {
               )}
 
               <Card>
-                <h3 className="font-semibold text-[#0F172A] mb-2">Blacklist Status</h3>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-2">Blacklist Status</h3>
                 <div className="space-y-2">
                   {report.details?.blacklists?.map((b: any) => (
                     <div key={b.name} className="flex items-center justify-between text-sm">
-                      <span className="text-[#475569]">{b.name}</span>
+                      <span className="text-[var(--text-secondary)]">{b.name}</span>
                       <span className={b.listed ? 'text-[#DC2626]' : 'text-[#16A34A]'}>
                         {b.listed ? 'Listed' : 'Clear'}
                       </span>
@@ -123,11 +123,11 @@ export default function URLChecker() {
               </Card>
 
               <Card>
-                <h3 className="font-semibold text-[#0F172A] mb-2">Detected Risks</h3>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-2">Detected Risks</h3>
                 {report.details?.detectedRisks?.length > 0 ? (
                   <ul className="space-y-2">
                     {report.details.detectedRisks.map((risk: any, i: number) => (
-                      <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
+                      <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
                           risk.severity === 'critical' ? 'bg-[#991B1B]' :
                           risk.severity === 'high' ? 'bg-[#DC2626]' :
@@ -144,11 +144,11 @@ export default function URLChecker() {
             </div>
 
             <Card className="mb-8">
-              <h3 className="font-semibold text-[#0F172A] mb-3">Recommendations</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">Recommendations</h3>
               <ul className="space-y-2">
                 {report.recommendations?.map((rec: string, i: number) => (
-                  <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
-                    <span className="text-[#2563EB] mt-0.5">&#8226;</span>
+                  <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
+                    <span className="text-[var(--text-accent)] mt-0.5">&#8226;</span>
                     {rec}
                   </li>
                 ))}

@@ -33,19 +33,19 @@ export default function AdminUsers() {
   return (
     <AdminLayout>
       <div className="mb-8">
-        <h1 className="font-heading font-700 text-2xl text-[#0F172A]">Users</h1>
-        <p className="text-sm text-[#475569] mt-1">Manage registered users</p>
+        <h1 className="font-heading font-700 text-2xl text-[var(--text-primary)]">Users</h1>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">Manage registered users</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden">
+      <div className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
-                <th className="text-left px-4 py-3 font-medium text-[#475569]">Name</th>
-                <th className="text-left px-4 py-3 font-medium text-[#475569]">Email</th>
-                <th className="text-left px-4 py-3 font-medium text-[#475569]">Role</th>
-                <th className="text-left px-4 py-3 font-medium text-[#475569]">Joined</th>
+              <tr className="border-b border-[var(--border)] bg-[var(--bg-muted)]">
+                <th className="text-left px-4 py-3 font-medium text-[var(--text-secondary)]">Name</th>
+                <th className="text-left px-4 py-3 font-medium text-[var(--text-secondary)]">Email</th>
+                <th className="text-left px-4 py-3 font-medium text-[var(--text-secondary)]">Role</th>
+                <th className="text-left px-4 py-3 font-medium text-[var(--text-secondary)]">Joined</th>
               </tr>
             </thead>
             <tbody>
@@ -59,23 +59,23 @@ export default function AdminUsers() {
                 </tr>
               )}
               {data?.items.map(user => (
-                <tr key={user._id} className="border-b border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors">
-                  <td className="px-4 py-3 font-medium text-[#0F172A]">{user.name}</td>
-                  <td className="px-4 py-3 text-[#475569] truncate max-w-[120px] sm:max-w-none">{user.email}</td>
+                <tr key={user._id} className="border-b border-[var(--border)] hover:bg-[var(--bg-muted)] transition-colors">
+                  <td className="px-4 py-3 font-medium text-[var(--text-primary)]">{user.name}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)] truncate max-w-[120px] sm:max-w-none">{user.email}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg ${
-                      user.role === 'admin' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#F1F5F9] text-[#475569]'
+                      user.role === 'admin' ? 'bg-[var(--bg-accent)] text-[var(--text-accent)]' : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)]'
                     }`}>
                       {user.role === 'admin' && <Shield className="w-3 h-3" />}
                       {user.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[#475569]">{new Date(user.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{new Date(user.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
               {data?.items.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-[#475569]">No users found</td>
+                  <td colSpan={4} className="px-4 py-12 text-center text-[var(--text-secondary)]">No users found</td>
                 </tr>
               )}
             </tbody>
@@ -83,15 +83,15 @@ export default function AdminUsers() {
         </div>
 
         {data && data.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[#E2E8F0]">
-            <span className="text-sm text-[#475569]">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border)]">
+            <span className="text-sm text-[var(--text-secondary)]">
               Page {data.page} of {data.totalPages} ({data.total} total)
             </span>
             <div className="flex items-center gap-2">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-1.5 rounded-lg hover:bg-[#F1F5F9] disabled:opacity-40 transition-colors">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1} className="p-1.5 rounded-lg hover:bg-[var(--bg-subtle)] disabled:opacity-40 transition-colors">
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button onClick={() => setPage(p => p + 1)} disabled={page >= (data?.totalPages || 1)} className="p-1.5 rounded-lg hover:bg-[#F1F5F9] disabled:opacity-40 transition-colors">
+              <button onClick={() => setPage(p => p + 1)} disabled={page >= (data?.totalPages || 1)} className="p-1.5 rounded-lg hover:bg-[var(--bg-subtle)] disabled:opacity-40 transition-colors">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>

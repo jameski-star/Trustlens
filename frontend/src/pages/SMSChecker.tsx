@@ -37,9 +37,9 @@ export default function SMSChecker() {
             <div className="w-10 h-10 bg-[#FFFBEB] rounded-xl flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-[#D97706]" />
             </div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">SMS & Phone Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">SMS & Phone Checker</h1>
           </div>
-          <p className="text-[#475569] mb-6">
+          <p className="text-[var(--text-secondary)] mb-6">
             Check if an SMS message, phone number, or WhatsApp message is part of a scam campaign.
           </p>
           <SearchBar placeholder="Enter a phone number or SMS message text..." onSubmit={handleSearch} isLoading={mutation.isPending} />
@@ -58,17 +58,17 @@ export default function SMSChecker() {
             <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
               <RiskScore score={report.riskScore} size="lg" />
               <div className="flex-1">
-                <h2 className="font-heading font-700 text-xl text-[#0F172A] mb-2">SMS Analysis Result</h2>
-                <p className="text-[#475569] mb-4">{report.summary}</p>
+                <h2 className="font-heading font-700 text-xl text-[var(--text-primary)] mb-2">SMS Analysis Result</h2>
+                <p className="text-[var(--text-secondary)] mb-4">{report.summary}</p>
               </div>
             </div>
 
             <Card className="mb-8">
-              <h3 className="font-semibold text-[#0F172A] mb-3">Detected Risks</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risks</h3>
               {report.details?.detectedRisks?.length > 0 ? (
                 <ul className="space-y-2">
                   {report.details.detectedRisks.map((risk: any, i: number) => (
-                    <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
+                    <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className="text-[#D97706]">&#8226;</span>
                       {risk.description}
                     </li>
@@ -80,11 +80,11 @@ export default function SMSChecker() {
             </Card>
 
             <Card className="mb-8">
-              <h3 className="font-semibold text-[#0F172A] mb-3">Recommendations</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">Recommendations</h3>
               <ul className="space-y-2">
                 {report.recommendations?.map((rec: string, i: number) => (
-                  <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
-                    <span className="text-[#2563EB]">&#8226;</span>
+                  <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
+                    <span className="text-[var(--text-accent)]">&#8226;</span>
                     {rec}
                   </li>
                 ))}

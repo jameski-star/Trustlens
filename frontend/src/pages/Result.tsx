@@ -55,8 +55,8 @@ export default function Result() {
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div>
-                <h1 className="font-heading font-700 text-xl md:text-2xl text-[#0F172A] mb-1">Security Analysis Report</h1>
-                <p className="text-sm text-[#475569]">
+                <h1 className="font-heading font-700 text-xl md:text-2xl text-[var(--text-primary)] mb-1">Security Analysis Report</h1>
+                <p className="text-sm text-[var(--text-secondary)]">
                   Analyzed: {report.input || 'N/A'} &middot; {new Date(report.createdAt).toLocaleString()}
                 </p>
               </div>
@@ -69,11 +69,11 @@ export default function Result() {
             <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
               <RiskScore score={report.riskScore} size="lg" />
               <div className="flex-1">
-                <p className="text-[#475569] mb-4">{report.summary}</p>
+                <p className="text-[var(--text-secondary)] mb-4">{report.summary}</p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="text-xs font-mono bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
-                  <span className="text-xs font-mono bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Type: {report.type}</span>
-                  <span className="text-xs font-mono bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Score: {report.riskScore}/100</span>
+                  <span className="text-xs font-mono bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
+                  <span className="text-xs font-mono bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Type: {report.type}</span>
+                  <span className="text-xs font-mono bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Score: {report.riskScore}/100</span>
                 </div>
               </div>
             </div>
@@ -82,7 +82,7 @@ export default function Result() {
               {report.details?.ssl && (
                 <Card>
                   <h3 className="font-semibold mb-2">SSL Certificate</h3>
-                  <div className="text-sm text-[#475569] space-y-1">
+                  <div className="text-sm text-[var(--text-secondary)] space-y-1">
                     <p>Valid: {report.details.ssl.valid ? 'Yes' : 'No'}</p>
                     <p>Issuer: {report.details.ssl.issuer}</p>
                     <p>Expires: {new Date(report.details.ssl.expiresAt).toLocaleDateString()}</p>
@@ -93,7 +93,7 @@ export default function Result() {
               {report.details?.domainAge && (
                 <Card>
                   <h3 className="font-semibold mb-2">Domain Age</h3>
-                  <div className="text-sm text-[#475569] space-y-1">
+                  <div className="text-sm text-[var(--text-secondary)] space-y-1">
                     <p>Created: {new Date(report.details.domainAge.created).toLocaleDateString()}</p>
                     <p>Age: {report.details.domainAge.daysSinceCreation} days</p>
                   </div>
@@ -104,7 +104,7 @@ export default function Result() {
                 <Card>
                   <h3 className="font-semibold mb-2">Blacklist Check</h3>
                   {report.details.blacklists.map((b: any) => (
-                    <div key={b.name} className="flex justify-between text-sm text-[#475569] py-1">
+                    <div key={b.name} className="flex justify-between text-sm text-[var(--text-secondary)] py-1">
                       <span>{b.name}</span>
                       <span className={b.listed ? 'text-[#DC2626]' : 'text-[#16A34A]'}>{b.listed ? 'Listed' : 'Clear'}</span>
                     </div>
@@ -115,7 +115,7 @@ export default function Result() {
               {report.details?.aiAnalysis && (
                 <Card>
                   <h3 className="font-semibold mb-2">AI Analysis</h3>
-                  <p className="text-sm text-[#475569]">{report.details.aiAnalysis.summary}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">{report.details.aiAnalysis.summary}</p>
                 </Card>
               )}
             </div>
@@ -125,8 +125,8 @@ export default function Result() {
                 <h3 className="font-semibold mb-3">Recommendations</h3>
                 <ul className="space-y-2">
                   {report.recommendations.map((rec: string, i: number) => (
-                    <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
-                      <span className="text-[#2563EB] mt-0.5">&#8226;</span>
+                    <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
+                      <span className="text-[var(--text-accent)] mt-0.5">&#8226;</span>
                       {rec}
                     </li>
                   ))}

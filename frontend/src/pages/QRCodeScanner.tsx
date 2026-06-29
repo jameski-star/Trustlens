@@ -46,24 +46,24 @@ export default function QRCodeScanner() {
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#F5F3FF] rounded-xl flex items-center justify-center"><QrCode className="w-5 h-5 text-[#7C3AED]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">QR Code Scanner</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">QR Code Scanner</h1>
           </div>
-          <p className="text-[#475569] mb-6">Upload a QR code image to extract and analyze the embedded URL or content before you scan it.</p>
+          <p className="text-[var(--text-secondary)] mb-6">Upload a QR code image to extract and analyze the embedded URL or content before you scan it.</p>
 
           <div
             onClick={() => inputRef.current?.click()}
-            className="border-2 border-dashed border-[#E2E8F0] rounded-2xl p-12 text-center hover:border-[#7C3AED] transition-colors cursor-pointer"
+            className="border-2 border-dashed border-[var(--border)] rounded-2xl p-12 text-center hover:border-[#7C3AED] transition-colors cursor-pointer"
           >
             {preview ? (
               <div className="relative">
                 <img src={preview} alt="Preview" className="max-h-80 mx-auto rounded-xl" />
-                <button onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); setResult(null); }} className="absolute top-2 right-2 p-1 bg-white rounded-full shadow"><X className="w-4 h-4" /></button>
+                <button onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); setResult(null); }} className="absolute top-2 right-2 p-1 bg-[var(--bg-surface)] rounded-full shadow"><X className="w-4 h-4" /></button>
               </div>
             ) : (
               <div>
-                <QrCode className="w-12 h-12 text-[#475569] mx-auto mb-4" />
-                <p className="text-[#475569] font-medium">Upload QR code image</p>
-                <p className="text-sm text-[#475569] mt-1">PNG, JPG, WEBP (max 10MB)</p>
+                <QrCode className="w-12 h-12 text-[var(--text-secondary)] mx-auto mb-4" />
+                <p className="text-[var(--text-secondary)] font-medium">Upload QR code image</p>
+                <p className="text-sm text-[var(--text-secondary)] mt-1">PNG, JPG, WEBP (max 10MB)</p>
               </div>
             )}
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
@@ -79,7 +79,7 @@ export default function QRCodeScanner() {
           {result && (
             <Card className="mt-6">
               <h3 className="font-semibold mb-2">Analysis Result</h3>
-              <p className="text-sm text-[#475569] mb-3">{result.text}</p>
+              <p className="text-sm text-[var(--text-secondary)] mb-3">{result.text}</p>
               <span className={`inline-block text-xs font-medium px-2 py-1 rounded-lg ${result.risk === 'safe' || result.risk === 'low' ? 'text-[#16A34A] bg-[#F0FDF4]' : 'text-[#DC2626] bg-[#FEF2F2]'}`}>
                 {result.risk === 'safe' || result.risk === 'low' ? 'No threats detected' : 'Potential risks detected'}
               </span>

@@ -140,8 +140,8 @@ export default function CommunityReports() {
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-2">
             <div>
-              <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Community Reports</h1>
-              <p className="text-[#475569] mt-1">Browse reports submitted by the community about suspicious websites, emails, phone numbers, and more.</p>
+              <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Community Reports</h1>
+              <p className="text-[var(--text-secondary)] mt-1">Browse reports submitted by the community about suspicious websites, emails, phone numbers, and more.</p>
             </div>
             <button onClick={() => setShowForm(true)} className="btn-primary text-sm whitespace-nowrap shrink-0">
               <Plus className="w-4 h-4" />
@@ -163,7 +163,7 @@ export default function CommunityReports() {
               {categories.map((cat) => (
                 <button key={cat} onClick={() => setCategory(cat)}
                   className={`px-3 py-1.5 text-sm rounded-xl transition-colors ${
-                    category === cat ? 'bg-[#2563EB] text-white' : 'bg-[#F1F5F9] text-[#475569] hover:text-[#2563EB]'
+                    category === cat ? 'bg-[#2563EB] text-white' : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-accent)]'
                   }`}
                 >
                   {cat}
@@ -175,16 +175,16 @@ export default function CommunityReports() {
           {showForm && (
             <div className="fixed inset-0 z-50 flex items-start justify-center pt-4 sm:pt-12 px-4 pb-4">
               <div className="fixed inset-0 bg-black/40" onClick={() => setShowForm(false)} />
-              <div className="relative bg-white rounded-2xl shadow-xl border border-[#E2E8F0] p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <div className="relative bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border)] p-4 sm:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-heading font-700 text-lg text-[#0F172A]">Report a Scam</h2>
-                  <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-[#F1F5F9]">
-                    <X className="w-5 h-5 text-[#475569]" />
+                  <h2 className="font-heading font-700 text-lg text-[var(--text-primary)]">Report a Scam</h2>
+                  <button onClick={() => setShowForm(false)} className="p-1 rounded-lg hover:bg-[var(--bg-subtle)]">
+                    <X className="w-5 h-5 text-[var(--text-secondary)]" />
                   </button>
                 </div>
                 <form onSubmit={onSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-[#0F172A] mb-1">Type</label>
+                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Type</label>
                     <select value={formData.type} onChange={e => setFormData(p => ({ ...p, type: e.target.value }))} className="input-field">
                       <option value="">Select type...</option>
                       {reportTypes.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -192,17 +192,17 @@ export default function CommunityReports() {
                     {errors.type && <p className="text-sm text-[#DC2626] mt-1">{errors.type}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#0F172A] mb-1">Target</label>
+                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Target</label>
                     <input value={formData.target} onChange={e => setFormData(p => ({ ...p, target: e.target.value }))} className="input-field" placeholder="The URL, email, or phone number" />
                     {errors.target && <p className="text-sm text-[#DC2626] mt-1">{errors.target}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#0F172A] mb-1">Title</label>
+                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Title</label>
                     <input value={formData.title} onChange={e => setFormData(p => ({ ...p, title: e.target.value }))} className="input-field" placeholder="Brief title for this report" />
                     {errors.title && <p className="text-sm text-[#DC2626] mt-1">{errors.title}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#0F172A] mb-1">Category</label>
+                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Category</label>
                     <select value={formData.category} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))} className="input-field">
                       <option value="">Select category...</option>
                       {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -210,12 +210,12 @@ export default function CommunityReports() {
                     {errors.category && <p className="text-sm text-[#DC2626] mt-1">{errors.category}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#0F172A] mb-1">Description</label>
+                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Description</label>
                     <textarea value={formData.description} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} className="input-field min-h-[100px]" placeholder="Describe what happened..." />
                     {errors.description && <p className="text-sm text-[#DC2626] mt-1">{errors.description}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#0F172A] mb-1">
+                    <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">
                       Screenshots <span className="text-[#94A3B8] font-normal">(optional — max 5)</span>
                     </label>
                     <input
@@ -226,15 +226,15 @@ export default function CommunityReports() {
                       onChange={handleFileSelect}
                       className="hidden"
                     />
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full border-2 border-dashed border-[#CBD5E1] rounded-xl p-4 text-center hover:border-[#2563EB] transition-colors cursor-pointer">
-                      <Upload className="w-5 h-5 mx-auto text-[#475569]" />
-                      <span className="text-sm text-[#475569] mt-1 block">Click to upload screenshots</span>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full border-2 border-dashed border-[#CBD5E1] rounded-xl p-4 text-center hover:border-[var(--border-accent)] transition-colors cursor-pointer">
+                      <Upload className="w-5 h-5 mx-auto text-[var(--text-secondary)]" />
+                      <span className="text-sm text-[var(--text-secondary)] mt-1 block">Click to upload screenshots</span>
                     </button>
                     {uploadPreviews.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {uploadPreviews.map((preview, i) => (
                           <div key={i} className="relative group">
-                            <img src={preview} alt={`Screenshot ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[#E2E8F0]" />
+                            <img src={preview} alt={`Screenshot ${i + 1}`} className="w-20 h-20 object-cover rounded-lg border border-[var(--border)]" />
                             <button type="button" onClick={() => removeFile(i)} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#DC2626] text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                               <X className="w-3 h-3" />
                             </button>
@@ -272,24 +272,24 @@ export default function CommunityReports() {
                       <Flag className="w-5 h-5 text-[#DC2626]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#0F172A]">{report.title}</h3>
+                    <h3 className="font-semibold text-[var(--text-primary)]">{report.title}</h3>
                     {report.target && (
-                      <p className="text-xs font-mono text-[#475569] mt-1 truncate">{report.target}</p>
+                      <p className="text-xs font-mono text-[var(--text-secondary)] mt-1 truncate">{report.target}</p>
                     )}
-                    <p className="text-sm text-[#475569] mt-1">{report.description.substring(0, 200)}</p>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">{report.description.substring(0, 200)}</p>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="text-xs font-mono bg-[#F1F5F9] px-2 py-1 rounded-lg">{report.type}</span>
-                      <span className="text-xs text-[#475569]">{report.reports} reports</span>
+                      <span className="text-xs font-mono bg-[var(--bg-subtle)] px-2 py-1 rounded-lg">{report.type}</span>
+                      <span className="text-xs text-[var(--text-secondary)]">{report.reports} reports</span>
                       {report.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
                       {report.screenshots?.length > 0 && (
-                        <span className="text-xs text-[#475569] flex items-center gap-1">
+                        <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
                           <ImageIcon className="w-3 h-3" />
                           {report.screenshots.length} screenshot{report.screenshots.length > 1 ? 's' : ''}
                         </span>
                       )}
                       <button
                         onClick={() => handleUpvote(report._id)}
-                        className="flex items-center gap-1 text-xs font-medium text-[#475569] hover:text-[#2563EB] transition-colors"
+                        className="flex items-center gap-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors"
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />
                         Upvote
@@ -300,7 +300,7 @@ export default function CommunityReports() {
               </Card>
             ))}
             {data?.items?.length === 0 && (
-              <Card><p className="text-[#475569] text-center py-8">No reports yet. Be the first to report!</p></Card>
+              <Card><p className="text-[var(--text-secondary)] text-center py-8">No reports yet. Be the first to report!</p></Card>
             )}
           </div>
         </div>

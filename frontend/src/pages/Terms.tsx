@@ -7,8 +7,8 @@ export default function Terms() {
       <SEOHead title="Terms of Service" description="TrustLens terms of service. By using our security analysis tools, you agree to these terms and conditions." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Terms of Service' }]} />
-        <div className="max-w-3xl mx-auto prose prose-gray text-[#475569]">
-          <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A]">Terms of Service</h1>
+        <div className="max-w-3xl mx-auto prose prose-gray text-[var(--text-secondary)]">
+          <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)]">Terms of Service</h1>
           <p className="text-sm">Last updated: January 1, 2025</p>
 
           <h2>Acceptance of Terms</h2>

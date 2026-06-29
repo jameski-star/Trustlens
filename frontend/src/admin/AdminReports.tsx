@@ -63,29 +63,29 @@ export default function AdminReports() {
   return (
     <AdminLayout>
       <div className="mb-8">
-        <h1 className="font-heading font-700 text-2xl text-[#0F172A]">Community Reports</h1>
-        <p className="text-sm text-[#475569] mt-1">Moderate pending community reports</p>
+        <h1 className="font-heading font-700 text-2xl text-[var(--text-primary)]">Community Reports</h1>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">Moderate pending community reports</p>
       </div>
 
       <div className="space-y-4">
         {isLoading && (
           <div className="flex justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[var(--text-accent)]" />
           </div>
         )}
 
         {data?.items.length === 0 && (
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] p-8 text-center">
-            <p className="text-[#475569]">No pending reports to moderate</p>
+          <div className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border)] p-8 text-center">
+            <p className="text-[var(--text-secondary)]">No pending reports to moderate</p>
           </div>
         )}
 
         {data?.items.map(report => (
-          <div key={report._id} className="bg-white rounded-2xl border border-[#E2E8F0] p-5">
+          <div key={report._id} className="bg-[var(--bg-surface)] rounded-2xl border border-[var(--border)] p-5">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-xs font-medium uppercase text-[#475569]">{report.type}</span>
+                  <span className="text-xs font-medium uppercase text-[var(--text-secondary)]">{report.type}</span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                     report.status === 'pending' ? 'bg-[#FFFBEB] text-[#D97706]' :
                     report.status === 'published' ? 'bg-[#F0FDF4] text-[#16A34A]' : 'bg-[#FEF2F2] text-[#DC2626]'
@@ -93,22 +93,22 @@ export default function AdminReports() {
                     {report.status}
                   </span>
                   {report.category && (
-                    <span className="text-xs bg-[#F1F5F9] px-2 py-0.5 rounded-full text-[#475569]">{report.category}</span>
+                    <span className="text-xs bg-[var(--bg-subtle)] px-2 py-0.5 rounded-full text-[var(--text-secondary)]">{report.category}</span>
                   )}
                   {report.screenshots?.length > 0 && (
-                    <span className="text-xs text-[#475569] flex items-center gap-1">
+                    <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
                       <ImageIcon className="w-3 h-3" />
                       {report.screenshots.length} screenshot{report.screenshots.length > 1 ? 's' : ''}
                     </span>
                   )}
                 </div>
-                <h3 className="font-semibold text-[#0F172A]">{report.title}</h3>
-                <p className="text-sm text-[#475569] mt-1 font-mono">{report.target}</p>
+                <h3 className="font-semibold text-[var(--text-primary)]">{report.title}</h3>
+                <p className="text-sm text-[var(--text-secondary)] mt-1 font-mono">{report.target}</p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={() => openDetail(report)}
-                  className="p-2 rounded-lg text-[#2563EB] hover:bg-[#EFF6FF] transition-colors"
+                  className="p-2 rounded-lg text-[var(--text-accent)] hover:bg-[var(--bg-accent)] transition-colors"
                   title="View details"
                 >
                   <Eye className="w-5 h-5" />
@@ -131,8 +131,8 @@ export default function AdminReports() {
                 </button>
               </div>
             </div>
-            <p className="text-sm text-[#475569]">{report.description.substring(0, 300)}{report.description.length > 300 ? '...' : ''}</p>
-            <p className="text-xs text-[#475569] mt-2">
+            <p className="text-sm text-[var(--text-secondary)]">{report.description.substring(0, 300)}{report.description.length > 300 ? '...' : ''}</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-2">
               Submitted {new Date(report.createdAt).toLocaleDateString()} | Reports: {report.reports} | {report.isVerified ? 'Verified' : 'Not verified'}
             </p>
           </div>
@@ -142,60 +142,60 @@ export default function AdminReports() {
       {selectedReport && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-4 sm:pt-12 px-4 pb-4">
           <div className="fixed inset-0 bg-black/40" onClick={() => setSelectedReport(null)} />
-          <div className="relative bg-white rounded-2xl shadow-xl border border-[#E2E8F0] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border)] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading font-700 text-lg text-[#0F172A]">Report Details</h2>
-              <button onClick={() => setSelectedReport(null)} className="p-1 rounded-lg hover:bg-[#F1F5F9]">
-                <X className="w-5 h-5 text-[#475569]" />
+              <h2 className="font-heading font-700 text-lg text-[var(--text-primary)]">Report Details</h2>
+              <button onClick={() => setSelectedReport(null)} className="p-1 rounded-lg hover:bg-[var(--bg-subtle)]">
+                <X className="w-5 h-5 text-[var(--text-secondary)]" />
               </button>
             </div>
 
             {detailLoading ? (
               <div className="flex justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+                <Loader2 className="w-6 h-6 animate-spin text-[var(--text-accent)]" />
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Type</span>
-                    <p className="text-sm font-medium text-[#0F172A] mt-0.5">{selectedReport.type}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{selectedReport.type}</p>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Category</span>
-                    <p className="text-sm font-medium text-[#0F172A] mt-0.5">{selectedReport.category}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{selectedReport.category}</p>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Status</span>
-                    <p className="text-sm font-medium text-[#0F172A] mt-0.5 capitalize">{selectedReport.status}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5 capitalize">{selectedReport.status}</p>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Reports Count</span>
-                    <p className="text-sm font-medium text-[#0F172A] mt-0.5">{selectedReport.reports}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{selectedReport.reports}</p>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Verified</span>
-                    <p className="text-sm font-medium text-[#0F172A] mt-0.5">{selectedReport.isVerified ? 'Yes' : 'No'}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{selectedReport.isVerified ? 'Yes' : 'No'}</p>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Submitted</span>
-                    <p className="text-sm font-medium text-[#0F172A] mt-0.5">{new Date(selectedReport.createdAt).toLocaleString()}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{new Date(selectedReport.createdAt).toLocaleString()}</p>
                   </div>
                 </div>
 
                 <div>
                   <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Title</span>
-                  <p className="text-sm font-medium text-[#0F172A] mt-0.5">{selectedReport.title}</p>
+                  <p className="text-sm font-medium text-[var(--text-primary)] mt-0.5">{selectedReport.title}</p>
                 </div>
 
                 <div>
                   <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Target</span>
-                  <p className="text-sm font-mono text-[#0F172A] mt-0.5 break-all">{selectedReport.target}</p>
+                  <p className="text-sm font-mono text-[var(--text-primary)] mt-0.5 break-all">{selectedReport.target}</p>
                 </div>
 
                 <div>
                   <span className="text-xs font-medium text-[#94A3B8] uppercase tracking-wide">Description</span>
-                  <p className="text-sm text-[#475569] mt-0.5 whitespace-pre-wrap">{selectedReport.description}</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-0.5 whitespace-pre-wrap">{selectedReport.description}</p>
                 </div>
 
                 {selectedReport.screenshots?.length > 0 && (
@@ -210,7 +210,7 @@ export default function AdminReports() {
                           <img
                             src={src.startsWith('http') ? src : `${API_BASE}${src}`}
                             alt={`Screenshot ${i + 1}`}
-                            className="w-full h-40 object-cover rounded-xl border border-[#E2E8F0] hover:border-[#2563EB] transition-colors"
+                            className="w-full h-40 object-cover rounded-xl border border-[var(--border)] hover:border-[#2563EB] transition-colors"
                           />
                         </a>
                       ))}
@@ -224,7 +224,7 @@ export default function AdminReports() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-3 pt-2 border-t border-[#E2E8F0]">
+                <div className="flex items-center gap-3 pt-2 border-t border-[var(--border)]">
                   <button
                     onClick={() => updateMutation.mutate({ id: selectedReport._id, status: 'published' })}
                     disabled={updateMutation.isPending}

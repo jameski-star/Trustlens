@@ -25,16 +25,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFBFC] flex">
-      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-[#E2E8F0] transform transition-transform duration-200 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-[#E2E8F0]">
+    <div className="min-h-screen bg-[var(--bg-page)] flex">
+      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-[var(--bg-surface)] border-r border-[var(--border)] transform transition-transform duration-200 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between h-16 px-6 border-b border-[var(--border)]">
           <Link to="/admin" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#0F172A] rounded-lg flex items-center justify-center">
               <Shield className="w-4 h-4 text-white" />
             </div>
-            <span className="font-heading font-800 text-base text-[#0F172A]">TrustLens</span>
+            <span className="font-heading font-800 text-base text-[var(--text-primary)]">TrustLens</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg hover:bg-[#F1F5F9]">
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded-lg hover:bg-[var(--bg-subtle)]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 key={link.href}
                 to={link.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  isActive ? 'bg-[#EFF6FF] text-[#2563EB]' : 'text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
+                  isActive ? 'bg-[var(--bg-accent)] text-[var(--text-accent)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-primary)]'
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[#E2E8F0]">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-[var(--border)]">
           <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#DC2626] hover:bg-[#FEF2F2] transition-colors w-full">
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -67,16 +67,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       {sidebarOpen && <div className="fixed inset-0 bg-black/20 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
       <div className="flex-1 lg:pl-64 min-w-0">
-        <header className="sticky top-0 z-20 bg-white border-b border-[#E2E8F0] h-16 flex items-center justify-between px-4 lg:px-8">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-xl hover:bg-[#F1F5F9]">
+        <header className="sticky top-0 z-20 bg-[var(--bg-surface)] border-b border-[var(--border)] h-16 flex items-center justify-between px-4 lg:px-8">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-xl hover:bg-[var(--bg-subtle)]">
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex-1" />
           <div className="flex items-center gap-3">
-            <button onClick={toggleTheme} className="p-2 rounded-xl hover:bg-[#F1F5F9] transition-colors" aria-label="Toggle theme">
+            <button onClick={toggleTheme} className="p-2 rounded-xl hover:bg-[var(--bg-subtle)] transition-colors" aria-label="Toggle theme">
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <Link to="/" className="text-sm text-[#2563EB] hover:underline">View Site</Link>
+            <Link to="/" className="text-sm text-[var(--text-accent)] hover:underline">View Site</Link>
           </div>
         </header>
         <main className="p-4 lg:p-8">

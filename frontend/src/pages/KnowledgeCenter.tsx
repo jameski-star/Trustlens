@@ -23,19 +23,19 @@ export default function KnowledgeCenter() {
         <Breadcrumbs items={[{ label: 'Knowledge Center' }]} />
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center"><BookOpen className="w-5 h-5 text-[#2563EB]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Knowledge Center</h1>
+            <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center"><BookOpen className="w-5 h-5 text-[var(--text-accent)]" /></div>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Knowledge Center</h1>
           </div>
-          <p className="text-[#475569] mb-8">Learn how to protect yourself from online scams, phishing, identity theft, and other cybersecurity threats.</p>
+          <p className="text-[var(--text-secondary)] mb-8">Learn how to protect yourself from online scams, phishing, identity theft, and other cybersecurity threats.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {categories.map((cat) => (
               <Link key={cat.title} to={cat.href} className="card hover:shadow-card-hover transition-all duration-200 group">
-                <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center mb-3">
-                  <cat.icon className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
+                  <cat.icon className="w-5 h-5 text-[var(--text-accent)]" />
                 </div>
-                <h3 className="font-semibold text-[#0F172A] group-hover:text-[#2563EB] transition-colors mb-1">{cat.title}</h3>
-                <p className="text-sm text-[#475569]">{cat.desc}</p>
+                <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{cat.title}</h3>
+                <p className="text-sm text-[var(--text-secondary)]">{cat.desc}</p>
               </Link>
             ))}
           </div>

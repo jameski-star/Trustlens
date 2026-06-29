@@ -31,14 +31,14 @@ export default function ScamAlerts() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center"><Bell className="w-5 h-5 text-[#DC2626]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Scam Alerts</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Scam Alerts</h1>
           </div>
-          <p className="text-[#475569] mb-8">Community-verified scam alerts. Only reports with 5+ upvotes are shown here.</p>
+          <p className="text-[var(--text-secondary)] mb-8">Community-verified scam alerts. Only reports with 5+ upvotes are shown here.</p>
 
           {isLoading && <ReportSkeleton />}
 
           {!isLoading && alerts.length === 0 && (
-            <p className="text-center text-[#475569] py-12">No scam alerts yet. Reports need at least 5 upvotes to appear here.</p>
+            <p className="text-center text-[var(--text-secondary)] py-12">No scam alerts yet. Reports need at least 5 upvotes to appear here.</p>
           )}
 
           {!isLoading && alerts.length > 0 && (
@@ -54,16 +54,16 @@ export default function ScamAlerts() {
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-[#0F172A]">{alert.title}</h3>
+                        <h3 className="font-semibold text-[var(--text-primary)]">{alert.title}</h3>
                         {alert.category && (
-                          <span className="text-xs bg-[#F1F5F9] px-2 py-0.5 rounded text-[#475569]">{alert.category}</span>
+                          <span className="text-xs bg-[var(--bg-subtle)] px-2 py-0.5 rounded text-[var(--text-secondary)]">{alert.category}</span>
                         )}
                       </div>
                       {alert.target && (
-                        <p className="text-xs font-mono text-[#475569] mt-0.5 truncate">{alert.target}</p>
+                        <p className="text-xs font-mono text-[var(--text-secondary)] mt-0.5 truncate">{alert.target}</p>
                       )}
-                      <p className="text-sm text-[#475569] mt-1 line-clamp-2">{alert.description}</p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-[#475569]">
+                      <p className="text-sm text-[var(--text-secondary)] mt-1 line-clamp-2">{alert.description}</p>
+                      <div className="flex items-center gap-3 mt-2 text-xs text-[var(--text-secondary)]">
                         <span>{alert.reports} reports</span>
                         <span>{new Date(alert.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </div>

@@ -13,9 +13,9 @@ interface BreadcrumbsProps {
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className="flex items-center gap-1.5 text-sm text-[#475569]">
+      <ol className="flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
         <li>
-          <Link to="/" className="hover:text-[#2563EB] transition-colors">
+          <Link to="/" className="hover:text-[var(--text-accent)] transition-colors">
             <Home className="w-4 h-4" />
           </Link>
         </li>
@@ -23,11 +23,11 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
           <li key={i} className="flex items-center gap-1.5">
             <ChevronRight className="w-3.5 h-3.5" />
             {item.href ? (
-              <Link to={item.href} className="hover:text-[#2563EB] transition-colors">
+              <Link to={item.href} className="hover:text-[var(--text-accent)] transition-colors">
                 {item.label}
               </Link>
             ) : (
-              <span className="text-[#0F172A] font-medium">{item.label}</span>
+              <span className="text-[var(--text-primary)] font-medium">{item.label}</span>
             )}
           </li>
         ))}

@@ -17,12 +17,12 @@ export default function About() {
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'About' }]} />
         <div className="max-w-3xl mx-auto">
-          <h1 className="font-heading font-700 text-xl md:text-4xl text-[#0F172A] mb-4">About TrustLens</h1>
-          <p className="text-lg text-[#475569] mb-8">
+          <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)] mb-4">About TrustLens</h1>
+          <p className="text-lg text-[var(--text-secondary)] mb-8">
             TrustLens is a free cybersecurity analysis platform that helps you determine if websites, emails, SMS messages, and online offers are safe or potentially fraudulent.
           </p>
 
-          <div className="prose prose-gray max-w-none mb-12 text-[#475569] space-y-4">
+          <div className="prose prose-gray max-w-none mb-12 text-[var(--text-secondary)] space-y-4">
             <p>
               Our mission is simple: <strong>know before you click</strong>. In an era where online scams and phishing attacks are increasingly sophisticated, we provide accessible tools that empower everyone to make informed decisions about online safety.
             </p>
@@ -37,18 +37,18 @@ export default function About() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
             {values.map((v) => (
               <Card key={v.title}>
-                <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center mb-3">
-                  <v.icon className="w-5 h-5 text-[#2563EB]" />
+                <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
+                  <v.icon className="w-5 h-5 text-[var(--text-accent)]" />
                 </div>
                 <h3 className="font-semibold mb-1">{v.title}</h3>
-                <p className="text-sm text-[#475569]">{v.desc}</p>
+                <p className="text-sm text-[var(--text-secondary)]">{v.desc}</p>
               </Card>
             ))}
           </div>
 
           <Card>
             <h2 className="font-heading font-700 text-xl mb-3">How It Works</h2>
-            <ol className="list-decimal list-inside space-y-2 text-sm text-[#475569]">
+            <ol className="list-decimal list-inside space-y-2 text-sm text-[var(--text-secondary)]">
               <li>Submit a URL, email, phone number, or message for analysis</li>
               <li>Our system checks multiple security indicators simultaneously</li>
               <li>AI analysis evaluates the content for scam patterns</li>

@@ -37,9 +37,9 @@ export default function EmailChecker() {
             <div className="w-10 h-10 bg-[#F0FDF4] rounded-xl flex items-center justify-center">
               <Mail className="w-5 h-5 text-[#16A34A]" />
             </div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Email Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Email Checker</h1>
           </div>
-          <p className="text-[#475569] mb-6">
+          <p className="text-[var(--text-secondary)] mb-6">
             Check if an email address or email message is part of a phishing attempt or scam campaign.
           </p>
           <SearchBar placeholder="Enter an email address or email content..." onSubmit={handleSearch} isLoading={mutation.isPending} />
@@ -60,21 +60,21 @@ export default function EmailChecker() {
             <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
               <RiskScore score={report.riskScore} size="lg" />
               <div className="flex-1">
-                <h2 className="font-heading font-700 text-xl text-[#0F172A] mb-2">Email Analysis Result</h2>
-                <p className="text-[#475569] mb-4">{report.summary}</p>
+                <h2 className="font-heading font-700 text-xl text-[var(--text-primary)] mb-2">Email Analysis Result</h2>
+                <p className="text-[var(--text-secondary)] mb-4">{report.summary}</p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
-                  <span className="text-xs font-mono text-[#475569] bg-[#F1F5F9] px-3 py-1.5 rounded-lg">Input: {(report.input || '').substring(0, 50)}</span>
+                  <span className="text-xs font-mono text-[var(--text-secondary)] bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Confidence: {report.confidenceScore}%</span>
+                  <span className="text-xs font-mono text-[var(--text-secondary)] bg-[var(--bg-subtle)] px-3 py-1.5 rounded-lg">Input: {(report.input || '').substring(0, 50)}</span>
                 </div>
               </div>
             </div>
 
             <Card className="mb-8">
-              <h3 className="font-semibold text-[#0F172A] mb-3">Detected Risk Indicators</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risk Indicators</h3>
               {report.details?.detectedRisks?.length > 0 ? (
                 <ul className="space-y-2">
                   {report.details.detectedRisks.map((risk: any, i: number) => (
-                    <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
+                    <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
                         risk.severity === 'critical' ? 'bg-[#991B1B]' :
                         risk.severity === 'high' ? 'bg-[#DC2626]' :
@@ -91,12 +91,12 @@ export default function EmailChecker() {
 
             {report.details?.aiAnalysis && (
               <Card className="mb-8">
-                <h3 className="font-semibold text-[#0F172A] mb-3">AI Analysis</h3>
-                <p className="text-sm text-[#475569] mb-3">{report.details.aiAnalysis.summary}</p>
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3">AI Analysis</h3>
+                <p className="text-sm text-[var(--text-secondary)] mb-3">{report.details.aiAnalysis.summary}</p>
                 {report.details.aiAnalysis.riskFactors?.length > 0 && (
                   <ul className="space-y-1">
                     {report.details.aiAnalysis.riskFactors.map((f: string, i: number) => (
-                      <li key={i} className="text-sm text-[#475569] flex items-start gap-2">
+                      <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                         <span className="text-[#D97706]">&#9888;</span>
                         {f}
                       </li>

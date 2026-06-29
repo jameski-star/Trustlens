@@ -3,6 +3,32 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bg-page: #FAFBFC;
+    --bg-surface: #FFFFFF;
+    --bg-muted: #F8FAFC;
+    --bg-subtle: #F1F5F9;
+    --bg-accent: #EFF6FF;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-accent: #2563EB;
+    --border: #E2E8F0;
+    --border-accent: #2563EB;
+  }
+
+  .dark {
+    --bg-page: #0F172A;
+    --bg-surface: #1E293B;
+    --bg-muted: #1E293B;
+    --bg-subtle: #334155;
+    --bg-accent: #1E3A5F;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-accent: #60A5FA;
+    --border: #334155;
+    --border-accent: #60A5FA;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
@@ -12,16 +38,14 @@
   }
 
   body {
-    @apply bg-[#FAFBFC] text-[#0F172A] font-body leading-relaxed;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    @apply font-body leading-relaxed;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
-  }
-
-  .dark body {
-    @apply bg-[#0F172A] text-[#F8FAFC];
   }
 }
 
@@ -45,21 +69,33 @@
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 border-[#E2E8F0] text-[#0F172A] font-semibold rounded-2xl
-           hover:border-[#2563EB] hover:text-[#2563EB] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 text-sm sm:text-base;
+    @apply inline-flex items-center justify-center px-4 py-2.5 sm:px-6 sm:py-3 border-2 font-semibold rounded-2xl
+           hover:border-[var(--border-accent)] hover:text-[var(--text-accent)] transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:ring-offset-2 text-sm sm:text-base;
+    border-color: var(--border);
+    color: var(--text-primary);
   }
 
   .card {
-    @apply bg-white rounded-2xl shadow-card border border-[#E2E8F0] p-4 sm:p-6;
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    @apply rounded-2xl shadow-card p-4 sm:p-6;
   }
 
   .input-field {
-    @apply w-full px-3 py-2.5 sm:px-4 sm:py-3 bg-white border border-[#E2E8F0] rounded-2xl text-sm sm:text-base text-[#0F172A]
-           placeholder:text-[#475569] focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent
+    @apply w-full px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base
+           focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent
            transition-all duration-200;
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+
+  .input-field::placeholder {
+    color: var(--text-secondary);
   }
 
   .skeleton {
-    @apply bg-[#E2E8F0] rounded-lg animate-pulse;
+    background-color: var(--bg-subtle);
+    @apply rounded-lg animate-pulse;
   }
 }

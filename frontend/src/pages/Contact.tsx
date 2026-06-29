@@ -35,30 +35,30 @@ export default function Contact() {
         <Breadcrumbs items={[{ label: 'Contact' }]} />
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center"><MessageSquare className="w-5 h-5 text-[#2563EB]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[#0F172A]">Contact Us</h1>
+            <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center"><MessageSquare className="w-5 h-5 text-[var(--text-accent)]" /></div>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Contact Us</h1>
           </div>
-          <p className="text-[#475569] mb-8">Have a question, suggestion, or need help? Send us a message and we will get back to you within 24 hours.</p>
+          <p className="text-[var(--text-secondary)] mb-8">Have a question, suggestion, or need help? Send us a message and we will get back to you within 24 hours.</p>
 
           <Card>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Name</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Name</label>
                 <input {...register('name')} className="input-field" placeholder="Your name" />
                 {errors.name && <p className="text-sm text-[#DC2626] mt-1">{errors.name.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Email</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Email</label>
                 <input {...register('email')} type="email" className="input-field" placeholder="your@email.com" />
                 {errors.email && <p className="text-sm text-[#DC2626] mt-1">{errors.email.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Subject</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Subject</label>
                 <input {...register('subject')} className="input-field" placeholder="How can we help?" />
                 {errors.subject && <p className="text-sm text-[#DC2626] mt-1">{errors.subject.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#0F172A] mb-1.5">Message</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Message</label>
                 <textarea {...register('message')} rows={5} className="input-field resize-none" placeholder="Describe your question or issue..." />
                 {errors.message && <p className="text-sm text-[#DC2626] mt-1">{errors.message.message}</p>}
               </div>
