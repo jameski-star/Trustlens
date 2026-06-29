@@ -24,7 +24,7 @@ export default function EmailChecker() {
 
   useEffect(() => {
     if (queryParam) mutation.mutate(queryParam);
-  }, [queryParam, mutation]);
+  }, [queryParam]);
 
   const handleSearch = (input: string) => {
     navigate(`/email-checker?q=${encodeURIComponent(input)}`);

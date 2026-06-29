@@ -1,6 +1,12 @@
 import whois from 'whois-json';
 import { logger } from '../utils/logger';
 
+let whoisDisabled = false;
+let whoisFailureCount = 0;
+let whoisLastFailureTime = 0;
+const WHOIS_MAX_FAILURES = 3;
+const WHOIS_RETRY_INTERVAL = 5 * 60 * 1000;
+
 const SUSPICIOUS_TLDS = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club', '.work', '.bid', '.loan', '.date', '.win', '.review', '.trade', '.webcam', '.science', '.download', '.men'];
 
 const BRAND_KEYWORDS = [
@@ -14,16 +20,46 @@ function extractDomain(hostname: string): string {
   return parts.slice(-2).join('.');
 }
 
+function fallbackWhoisData() {
+  const fallbackDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+  return {
+    domainAge: {
+      created: fallbackDate,
+      daysSinceCreation: 365,
+      monthsSinceCreation: 12,
+    },
+    whois: {
+      registrar: 'Unknown',
+      creationDate: fallbackDate,
+      expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      lastUpdated: new Date(),
+      country: 'Unknown',
+      organization: 'Unknown',
+    },
+  };
+}
+
 async function lookupWhois(hostname: string): Promise<{
   domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null;
   whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null;
 }> {
+  if (whoisDisabled) {
+    const elapsed = Date.now() - whoisLastFailureTime;
+    if (elapsed < WHOIS_RETRY_INTERVAL) {
+      return fallbackWhoisData();
+    }
+    whoisDisabled = false;
+  }
+
   try {
     const domain = extractDomain(hostname);
     const result = await Promise.race([
       whois(domain),
       new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 3000)),
     ]);
+
+    whoisFailureCount = 0;
+    whoisDisabled = false;
 
     const creationDate = result.creationDate
       ? new Date(result.creationDate as string)
@@ -62,23 +98,15 @@ async function lookupWhois(hostname: string): Promise<{
       },
     };
   } catch (err) {
-    logger.warn({ err }, 'WHOIS lookup failed, using fallback');
-    const fallbackDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-    return {
-      domainAge: {
-        created: fallbackDate,
-        daysSinceCreation: 365,
-        monthsSinceCreation: 12,
-      },
-      whois: {
-        registrar: 'Unknown',
-        creationDate: fallbackDate,
-        expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-        lastUpdated: new Date(),
-        country: 'Unknown',
-        organization: 'Unknown',
-      },
-    };
+    whoisFailureCount++;
+    whoisLastFailureTime = Date.now();
+    if (whoisFailureCount >= WHOIS_MAX_FAILURES) {
+      whoisDisabled = true;
+      logger.warn('WHOIS circuit breaker opened — skipping future lookups');
+    } else {
+      logger.warn({ err }, 'WHOIS lookup failed, using fallback');
+    }
+    return fallbackWhoisData();
   }
 }
 
