@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogPosts } from '../api/client';
@@ -6,16 +6,39 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { BlogSkeleton } from '../components/Skeleton';
+import { Loader2 } from 'lucide-react';
 
 const categories = ['All', 'Phishing', 'Crypto', 'Job Scams', 'SMS Scams', 'Romance Scams', 'Investment', 'Identity Theft', 'Online Safety'];
 
 export default function Blog() {
   const [category, setCategory] = useState('All');
+  const [page, setPage] = useState(1);
+  const [allItems, setAllItems] = useState<any[]>([]);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['blog-posts', category],
-    queryFn: () => getBlogPosts({ page: 1, category: category === 'All' ? undefined : category }),
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ['blog-posts', category, page],
+    queryFn: () => getBlogPosts({ page, category: category === 'All' ? undefined : category }),
   });
+
+  const handleCategoryChange = (cat: string) => {
+    setCategory(cat);
+    setPage(1);
+    setAllItems([]);
+  };
+
+  useEffect(() => {
+    if (data?.items) {
+      setAllItems(prev => {
+        if (page === 1) return data.items;
+        const existingIds = new Set(prev.map(p => p._id));
+        const newItems = data.items.filter((i: any) => !existingIds.has(i._id));
+        return [...prev, ...newItems];
+      });
+    }
+  }, [data]);
+
+  const total = data?.total ?? 0;
+  const hasMore = allItems.length < total;
 
   return (
     <>
@@ -26,10 +49,14 @@ export default function Blog() {
           <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)] mb-2">Blog</h1>
           <p className="text-[var(--text-secondary)] mb-6">Cybersecurity news, scam alerts, and tips to stay safe online.</p>
 
+          {total > 0 && (
+            <p className="text-xs text-[var(--text-secondary)] mb-4">{total} post{total !== 1 ? 's' : ''}</p>
+          )}
+
           <div className="mb-8">
             <select
               value={category}
-              onChange={e => setCategory(e.target.value)}
+              onChange={e => handleCategoryChange(e.target.value)}
               className="input-field sm:hidden"
             >
               {categories.map(cat => (
@@ -38,7 +65,7 @@ export default function Blog() {
             </select>
             <div className="hidden sm:flex flex-wrap gap-2">
               {categories.map((cat) => (
-                <button key={cat} onClick={() => setCategory(cat)}
+                <button key={cat} onClick={() => handleCategoryChange(cat)}
                   className={`px-3 py-1.5 text-sm rounded-xl transition-colors ${
                     category === cat ? 'bg-[#2563EB] text-white' : 'bg-[var(--bg-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-accent)]'
                   }`}
@@ -49,10 +76,10 @@ export default function Blog() {
             </div>
           </div>
 
-          {isLoading && <BlogSkeleton />}
+          {isLoading && page === 1 && <BlogSkeleton />}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data?.items?.map((post: any) => (
+            {allItems.map((post: any) => (
               <Link key={post._id} to={`/blog/${post.slug}`} className="card hover:shadow-card-hover transition-all duration-200 group">
                 <div className="h-48 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-xl mb-4 flex items-center justify-center">
                   <span className="text-4xl font-heading font-800 text-[var(--text-accent)]/20">{post.title[0]}</span>
@@ -69,8 +96,24 @@ export default function Blog() {
             ))}
           </div>
 
-          {data?.items?.length === 0 && (
+          {allItems.length === 0 && !isLoading && (
             <Card><p className="text-center text-[var(--text-secondary)] py-8">No posts yet in this category.</p></Card>
+          )}
+
+          {hasMore && (
+            <div className="text-center mt-10">
+              <button
+                onClick={() => setPage(p => p + 1)}
+                disabled={isFetching}
+                className="btn-secondary"
+              >
+                {isFetching ? (
+                  <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading...</span>
+                ) : (
+                  'View More Posts'
+                )}
+              </button>
+            </div>
           )}
         </div>
       </div>

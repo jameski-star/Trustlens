@@ -42,36 +42,35 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
     if (!title) continue;
 
     const slug = slugify(title);
-    const exists = await BlogPost.findOne({ slug });
-    if (exists) continue;
-
     const excerpt = (item.contentSnippet || item.content || '').substring(0, 500);
     const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
     const coverImage = item.enclosure?.url || item['media:thumbnail']?.$.url || '';
 
     try {
-      await BlogPost.create({
-        title: title.substring(0, 200),
-        slug,
-        excerpt: excerpt || 'No excerpt available.',
-        content: item.content || item.contentSnippet || excerpt || '',
-        coverImage,
-        category: 'Scam Alert',
-        tags: [feed.category],
-        author: 'TrustLens Security Team',
-        isPublished: true,
-        publishedAt: pubDate,
-        seo: {
-          metaTitle: title.substring(0, 60),
-          metaDescription: excerpt.substring(0, 160),
-          canonicalUrl: item.link || '',
+      await BlogPost.findOneAndUpdate(
+        { slug },
+        {
+          title: title.substring(0, 200),
+          slug,
+          excerpt: excerpt || 'No excerpt available.',
+          content: item.content || item.contentSnippet || excerpt || '',
+          coverImage,
+          category: 'Scam Alert',
+          tags: [feed.category],
+          author: 'TrustLens Security Team',
+          isPublished: true,
+          publishedAt: pubDate,
+          seo: {
+            metaTitle: title.substring(0, 60),
+            metaDescription: excerpt.substring(0, 160),
+            canonicalUrl: item.link || '',
+          },
         },
-      });
-      logger.info({ title, slug }, 'Auto-created blog post from RSS');
+        { upsert: true, new: true },
+      );
+      logger.info({ title, slug }, 'Upserted blog post from RSS');
     } catch (err: any) {
-      if (err?.code !== 11000) {
-        logger.warn({ err, title }, 'Failed to create blog post from RSS');
-      }
+      logger.warn({ err, title }, 'Failed to upsert blog post from RSS');
     }
   }
 }
