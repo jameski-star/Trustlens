@@ -5,7 +5,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Calendar, User, Tag, ArrowLeft } from 'lucide-react';
+import { Calendar, User, Tag, ArrowLeft, ExternalLink } from 'lucide-react';
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,6 +15,8 @@ export default function BlogPostPage() {
     queryFn: () => getBlogPost(slug!),
     enabled: !!slug,
   });
+
+  const isFromRss = post?.author === 'TrustLens Security Team';
 
   return (
     <>
@@ -72,7 +74,23 @@ export default function BlogPostPage() {
             )}
 
             <Card className="mb-8">
-              <div className="prose prose-sm max-w-none text-[var(--text-secondary)] leading-relaxed" dangerouslySetInnerHTML={{ __html: post.content }} />
+              <div
+                className="prose prose-sm md:prose-base max-w-none dark:prose-invert prose-headings:text-[var(--text-primary)] prose-a:text-[var(--text-accent)] prose-a:no-underline hover:prose-a:underline prose-strong:text-[var(--text-primary)] prose-code:bg-[var(--bg-subtle)] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal prose-pre:bg-[var(--bg-subtle)] prose-pre:text-[var(--text-primary)] prose-blockquote:border-l-[var(--text-accent)] prose-blockquote:text-[var(--text-secondary)] prose-li:text-[var(--text-secondary)] leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+              {isFromRss && post.seo?.canonicalUrl && (
+                <div className="mt-8 pt-6 border-t border-[var(--border)]">
+                  <a
+                    href={post.seo.canonicalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-[var(--text-accent)] hover:underline"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Read Full Story
+                  </a>
+                </div>
+              )}
             </Card>
 
             <script type="application/ld+json" dangerouslySetInnerHTML={{

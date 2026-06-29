@@ -27,15 +27,30 @@ function slugify(text: string): string {
 }
 
 function cleanRssContent(raw: string): string {
+  if (!raw) return '';
+
   let html = raw
     .replace(/<figure[\s\S]*?<\/figure>/gi, '')
     .replace(/<div[^>]*yarpp[\s\S]*?<\/div>/gi, '')
     .replace(/<div class=["']sharedaddy[\s\S]*?<\/div>/gi, '')
     .replace(/<div id=["']jp-post-flair[\s\S]*?<\/div>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<p>\s*The post\s.*?(?:appeared first on|was originally published on).*?<\/p>/gi, '')
     .replace(/<p>\s*Last Updated on.*?by.*?<\/p>/gi, '')
     .replace(/<p>\s*<\/p>/gi, '')
+    .replace(/<p>\s*<br\s*\/?>\s*<\/p>/gi, '')
     .trim();
+
+  html = html.replace(/\bLast Updated on\s.+?by\s.+?(?=<|$)/g, '');
+  html = html.replace(/\bThe post\s.+?appeared first on\s.+?\./g, '');
+  html = html.replace(/Related posts:[\s\S]*?(?=<|$)/g, '');
+  html = html.replace(/YARPP[\s\S]*?(?=<|$)/g, '');
+
+  if (!html.includes('<') && html.length > 0) {
+    const paragraphs = html.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+    html = paragraphs.map(p => `<p>${p}</p>`).join('\n');
+  }
+
   return html;
 }
 
