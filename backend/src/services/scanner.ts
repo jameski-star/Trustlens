@@ -22,7 +22,7 @@ async function lookupWhois(hostname: string): Promise<{
     const domain = extractDomain(hostname);
     const result = await Promise.race([
       whois(domain),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 5000)),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 3000)),
     ]);
 
     const creationDate = result.creationDate

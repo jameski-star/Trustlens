@@ -60,24 +60,31 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
   try {
     const mistralApiKey = process.env.MISTRAL_API_KEY || '';
     if (mistralApiKey) {
-      const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${mistralApiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'open-mistral-nemo',
-          messages: [
-            { role: 'system', content: 'You are a cybersecurity analysis AI. Analyze the following content for scam/fraud indicators. Provide a brief, factual analysis in 1-3 sentences.' },
-            { role: 'user', content: `Analyze this ${type} for security risks: ${input.substring(0, 2000)}` },
-          ],
-          max_tokens: 200,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
-        aiSummary = data.choices?.[0]?.message?.content || '';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      try {
+        const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${mistralApiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'open-mistral-nemo',
+            messages: [
+              { role: 'system', content: 'You are a cybersecurity analysis AI. Analyze the following content for scam/fraud indicators. Provide a brief, factual analysis in 1-3 sentences.' },
+              { role: 'user', content: `Analyze this ${type} for security risks: ${input.substring(0, 2000)}` },
+            ],
+            max_tokens: 200,
+          }),
+          signal: controller.signal,
+        });
+        if (response.ok) {
+          const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
+          aiSummary = data.choices?.[0]?.message?.content || '';
+        }
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
   } catch {

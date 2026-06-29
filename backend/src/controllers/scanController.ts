@@ -60,9 +60,11 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
   try {
     const { input } = req.body;
 
-    const analysis = await analyzeUrl(input);
-    const aiResult = await performAIAnalysis(input, 'url');
-    const community = await getCommunityScore(input, 'url');
+    const [analysis, aiResult, community] = await Promise.all([
+      analyzeUrl(input),
+      performAIAnalysis(input, 'url'),
+      getCommunityScore(input, 'url'),
+    ]);
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
@@ -127,9 +129,11 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
   try {
     const { input } = req.body;
 
+    const [aiResult, community] = await Promise.all([
+      performAIAnalysis(input, 'email'),
+      getCommunityScore(input, 'email'),
+    ]);
     const analysis = analyzeEmail(input);
-    const aiResult = await performAIAnalysis(input, 'email');
-    const community = await getCommunityScore(input, 'email');
 
     const finalScore = calculateFinalScore({
       ssl: 0,
@@ -194,9 +198,11 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
   try {
     const { input } = req.body;
 
+    const [aiResult, community] = await Promise.all([
+      performAIAnalysis(input, 'sms'),
+      getCommunityScore(input, 'sms'),
+    ]);
     const phoneAnalysis = analyzePhoneNumber(input);
-    const aiResult = await performAIAnalysis(input, 'sms');
-    const community = await getCommunityScore(input, 'sms');
 
     const finalScore = calculateFinalScore({
       ssl: 0,
@@ -430,9 +436,11 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
 export async function scanQrcode(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { input } = req.body;
-    const analysis = await analyzeUrl(input);
-    const aiResult = await performAIAnalysis(input, 'url');
-    const community = await getCommunityScore(input, 'qrcode');
+    const [analysis, aiResult, community] = await Promise.all([
+      analyzeUrl(input),
+      performAIAnalysis(input, 'url'),
+      getCommunityScore(input, 'qrcode'),
+    ]);
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
