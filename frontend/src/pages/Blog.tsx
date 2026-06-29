@@ -95,7 +95,7 @@ export default function Blog() {
             {allItems.map((post: BlogPostItem) => (
               <Link key={post._id} to={`/blog/${post.slug}`} className="card hover:shadow-card-hover transition-all duration-200 group">
                 <div className="h-48 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-xl mb-4 flex items-center justify-center">
-                  <span className="text-4xl font-heading font-800 text-[var(--text-accent)]/20">{post.title[0]}</span>
+                  <span className="text-4xl font-heading font-800 text-[var(--text-accent)]/20">{post.title[0] || '?'}</span>
                 </div>
                 <span className="text-xs font-medium text-[var(--text-accent)]">{post.category}</span>
                 <h3 className="font-semibold text-[var(--text-primary)] mt-1 mb-2 group-hover:text-[var(--text-accent)] transition-colors">{post.title}</h3>

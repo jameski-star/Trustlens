@@ -31,7 +31,7 @@ export default function URLChecker() {
     if (queryParam) {
       mutation.mutate(queryParam);
     }
-  }, [queryParam]);
+  }, [queryParam, mutation]);
 
   const handleSearch = (input: string) => {
     navigate(`/url-checker?q=${encodeURIComponent(input)}`);

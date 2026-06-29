@@ -26,8 +26,13 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
-    const stored = localStorage.getItem('trustlens-user');
-    return stored ? JSON.parse(stored) : null;
+    try {
+      const stored = localStorage.getItem('trustlens-user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      localStorage.removeItem('trustlens-user');
+      return null;
+    }
   });
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('trustlens-token'));
 

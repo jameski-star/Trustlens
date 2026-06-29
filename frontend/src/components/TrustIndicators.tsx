@@ -6,10 +6,13 @@ export default function TrustIndicators() {
   const [count, setCount] = useState('50,000+');
 
   useEffect(() => {
+    let cancelled = false;
     getCommunityReports({ page: 1 }).then(data => {
+      if (cancelled) return;
       const total = data?.total || data?.reports?.length || 0;
       if (total > 0) setCount((total * 1000).toLocaleString() + '+');
     }).catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   const indicators = [

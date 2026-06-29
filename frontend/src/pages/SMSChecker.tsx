@@ -24,7 +24,7 @@ export default function SMSChecker() {
 
   useEffect(() => {
     if (queryParam) mutation.mutate(queryParam);
-  }, [queryParam]);
+  }, [queryParam, mutation]);
 
   const handleSearch = (input: string) => {
     navigate(`/sms-checker?q=${encodeURIComponent(input)}`);

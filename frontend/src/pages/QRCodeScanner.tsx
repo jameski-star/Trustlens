@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { QrCode, X, Loader2 } from 'lucide-react';
-import { scanUrl } from '../api/client';
+import { scanQrcode } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -23,16 +23,17 @@ export default function QRCodeScanner() {
     if (!file) return;
     setAnalyzing(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = reader.result as string;
-        const report = await scanUrl(base64);
-        setResult({ text: report.summary || 'Analysis completed.', risk: report.riskLevel });
-        setAnalyzing(false);
-      };
-      reader.readAsDataURL(file);
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+      const report = await scanQrcode(base64);
+      setResult({ text: report.summary || 'Analysis completed.', risk: report.riskLevel });
     } catch {
       setResult({ text: 'Analysis failed. Please try again.', risk: 'unknown' });
+    } finally {
       setAnalyzing(false);
     }
   };
