@@ -61,6 +61,16 @@ function fallbackWhoisData() {
   };
 }
 
+async function fetchWithTimeout(url: string, timeoutMs: number, options: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function lookupWhois(hostname: string): Promise<{
   domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null;
   whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null;
@@ -79,17 +89,9 @@ async function lookupWhois(hostname: string): Promise<{
     const rdapUrl = RDAP_SERVERS[tld] || await findRdapServer(tld);
     if (!rdapUrl) throw new Error(`No RDAP server for .${tld}`);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    let response: Response;
-    try {
-      response = await fetch(`${rdapUrl}${domain}`, {
-        headers: { Accept: 'application/json' },
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    const response = await fetchWithTimeout(`${rdapUrl}${domain}`, 8000, {
+      headers: { Accept: 'application/json' },
+    });
 
     if (!response.ok) throw new Error(`RDAP HTTP ${response.status}`);
     const data = await response.json() as Record<string, unknown>;
@@ -180,17 +182,9 @@ async function lookupWhois(hostname: string): Promise<{
 
 async function findRdapServer(tld: string): Promise<string | null> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    let response: Response;
-    try {
-      response = await fetch(RDAP_BOOTSTRAP, {
-        headers: { Accept: 'application/json' },
-        signal: controller.signal,
-      });
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    const response = await fetchWithTimeout(RDAP_BOOTSTRAP, 5000, {
+      headers: { Accept: 'application/json' },
+    });
     if (!response.ok) return null;
     const bootstrap = await response.json() as { services?: Array<[string[], string[]]> };
     const services = bootstrap.services || [];
@@ -203,6 +197,25 @@ async function findRdapServer(tld: string): Promise<string | null> {
     // ignore bootstrap failure
   }
   return null;
+}
+
+async function withTimeout<T>(fn: () => Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await Promise.race([
+        fn(),
+        new Promise<never>((_, reject) => {
+          controller.signal.addEventListener('abort', () => reject(new Error('Timed out')));
+        }),
+      ]);
+    } finally {
+      clearTimeout(id);
+    }
+  } catch {
+    return fallback;
+  }
 }
 
 export async function analyzeUrl(url: string): Promise<{
@@ -302,7 +315,7 @@ export async function analyzeUrl(url: string): Promise<{
 
   let whoisData: { domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null; whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null } = { domainAge: null, whois: null };
   if (hostname && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
-    whoisData = await lookupWhois(hostname);
+    whoisData = await withTimeout(() => lookupWhois(hostname), 10000, fallbackWhoisData());
   }
 
   const scored = Math.min(100, Math.max(0, 100 - riskScore));

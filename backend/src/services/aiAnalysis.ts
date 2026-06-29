@@ -82,6 +82,8 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
         if (response.ok) {
           const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
           aiSummary = data.choices?.[0]?.message?.content || '';
+        } else if (response.status === 401) {
+          logger.warn('Mistral AI API key is invalid or unauthorized');
         }
       } finally {
         clearTimeout(timeoutId);

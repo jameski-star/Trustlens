@@ -30,11 +30,9 @@ const mockRdapResponse = {
 };
 
 const originalFetch = globalThis.fetch;
-let fetchCallCount = 0;
 
 beforeAll(() => {
   globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
-    fetchCallCount++;
     if (url.includes('iana.org')) {
       return {
         ok: true,
