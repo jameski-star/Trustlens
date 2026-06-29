@@ -26,6 +26,7 @@ export default function AdminBlog() {
       const { data } = await apiClient.get('/admin/blog');
       return data.data as { items: BlogPostItem[] };
     },
+    refetchInterval: 30 * 1000,
   });
 
   const openEditor = (post?: BlogPostItem) => {

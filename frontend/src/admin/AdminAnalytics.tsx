@@ -16,6 +16,7 @@ export default function AdminAnalytics() {
       const { data } = await apiClient.get('/admin/analytics');
       return data.data as AnalyticsData;
     },
+    refetchInterval: 30 * 1000,
   });
 
   return (

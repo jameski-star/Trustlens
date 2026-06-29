@@ -20,6 +20,7 @@ export default function AdminDashboard() {
       const { data } = await apiClient.get('/admin/dashboard');
       return data.data as DashboardStats;
     },
+    refetchInterval: 30 * 1000,
   });
 
   const stats = data?.stats;
