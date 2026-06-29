@@ -1,5 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
+
+interface ScamAlertItem {
+  _id: string;
+  title: string;
+  target: string;
+  description: string;
+  type: string;
+  reports: number;
+  isVerified: boolean;
+  category: string;
+  createdAt: string;
+}
 import { getCommunityReports } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
@@ -43,7 +55,7 @@ export default function ScamAlerts() {
 
           {!isLoading && alerts.length > 0 && (
             <div className="space-y-4">
-              {alerts.map((alert: Record<string, unknown>) => (
+              {alerts.map((alert: ScamAlertItem) => (
                 <Card key={alert._id}>
                   <div className="flex items-start gap-4">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-lg flex-shrink-0 mt-0.5 ${

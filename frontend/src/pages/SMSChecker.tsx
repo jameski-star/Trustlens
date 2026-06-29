@@ -1,6 +1,12 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
+
+interface RiskItem {
+  category: string;
+  severity: string;
+  description: string;
+}
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import RiskScore from '../components/RiskScore';
@@ -67,7 +73,7 @@ export default function SMSChecker() {
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risks</h3>
               {report.details?.detectedRisks?.length > 0 ? (
                 <ul className="space-y-2">
-                  {report.details.detectedRisks.map((risk: Record<string, unknown>, i: number) => (
+                  {(report.details?.detectedRisks as RiskItem[] | undefined)?.map((risk: RiskItem, i: number) => (
                     <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className="text-[#D97706]">&#8226;</span>
                       {risk.description}

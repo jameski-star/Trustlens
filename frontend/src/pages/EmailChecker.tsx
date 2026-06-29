@@ -1,6 +1,12 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
+
+interface RiskItem {
+  category: string;
+  severity: string;
+  description: string;
+}
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import RiskScore from '../components/RiskScore';
@@ -73,7 +79,7 @@ export default function EmailChecker() {
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risk Indicators</h3>
               {report.details?.detectedRisks?.length > 0 ? (
                 <ul className="space-y-2">
-                  {report.details.detectedRisks.map((risk: Record<string, unknown>, i: number) => (
+                  {report.details.detectedRisks.map((risk: RiskItem, i: number) => (
                     <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
                         risk.severity === 'critical' ? 'bg-[#991B1B]' :

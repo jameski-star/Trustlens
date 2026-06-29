@@ -40,7 +40,7 @@ export default function Blog() {
 
   useEffect(() => {
     if (data?.items) {
-      dispatch({ items: data.items, page });
+      dispatch({ items: data.items as unknown as BlogPostItem[], page });
     }
   }, [data, page]);
 

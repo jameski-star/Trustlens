@@ -177,7 +177,7 @@ export async function analyzeUrl(url: string): Promise<{
     riskScore += 40;
   }
 
-  let whoisData = { domainAge: null as { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null, whois: null as Record<string, unknown> | null };
+  let whoisData: { domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null; whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null } = { domainAge: null, whois: null };
   if (hostname && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
     whoisData = await lookupWhois(hostname);
   }

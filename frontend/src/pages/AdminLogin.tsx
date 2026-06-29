@@ -18,15 +18,15 @@ export default function AdminLogin() {
     if (!email.trim() || !password.trim()) return;
     setIsLoading(true);
     try {
-      const data = await login(email, password);
+      const data = (await login(email, password)) as { user: { role: string } };
       if (data.user.role !== 'admin') {
         toast.error('Admin access required');
         return;
       }
       toast.success('Welcome to Admin Panel');
       navigate('/admin');
-    } catch (err: unknown) {
-      toast.error((err as Record<string, unknown>)?.response?.data?.error || 'Login failed');
+    } catch {
+      toast.error('Login failed');
     } finally {
       setIsLoading(false);
     }

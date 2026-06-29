@@ -19,8 +19,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
-  login: async () => {},
-  register: async () => {},
+  login: async () => ({} as Record<string, unknown>),
+  register: async () => ({} as Record<string, unknown>),
   logout: () => {},
 });
 

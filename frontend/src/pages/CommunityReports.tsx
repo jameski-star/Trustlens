@@ -17,6 +17,19 @@ const reportTypes = [
   { value: 'investment', label: 'Investment Platform' },
 ];
 
+interface CommunityReportItem {
+  _id: string;
+  title: string;
+  target: string;
+  description: string;
+  type: string;
+  reports: number;
+  isVerified: boolean;
+  screenshots: string[];
+  category: string;
+  createdAt: string;
+}
+
 const categories = [
   'Phishing',
   'Scam',
@@ -125,8 +138,8 @@ export default function CommunityReports() {
       resetForm();
       setShowForm(false);
       queryClient.invalidateQueries({ queryKey: ['community-reports'] });
-    } catch (err: unknown) {
-      toast.error((err as Record<string, unknown>)?.response?.data?.error || 'Failed to submit report');
+    } catch {
+      toast.error('Failed to submit report');
     } finally {
       setIsSubmitting(false);
     }
@@ -265,30 +278,30 @@ export default function CommunityReports() {
           )}
 
           <div className="space-y-4 mt-8">
-            {data?.items?.map((report: Record<string, unknown>) => (
-              <Card key={report._id}>
+            {data?.items?.map((item: CommunityReportItem) => (
+              <Card key={item._id}>
                 <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">
                       <Flag className="w-5 h-5 text-[#DC2626]" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[var(--text-primary)]">{report.title}</h3>
-                    {report.target && (
-                      <p className="text-xs font-mono text-[var(--text-secondary)] mt-1 truncate">{report.target}</p>
+                    <h3 className="font-semibold text-[var(--text-primary)]">{item.title}</h3>
+                    {item.target && (
+                      <p className="text-xs font-mono text-[var(--text-secondary)] mt-1 truncate">{item.target}</p>
                     )}
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">{report.description.substring(0, 200)}</p>
+                    <p className="text-sm text-[var(--text-secondary)] mt-1">{item.description.substring(0, 200)}</p>
                     <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="text-xs font-mono bg-[var(--bg-subtle)] px-2 py-1 rounded-lg">{report.type}</span>
-                      <span className="text-xs text-[var(--text-secondary)]">{report.reports} reports</span>
-                      {report.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
-                      {report.screenshots?.length > 0 && (
+                      <span className="text-xs font-mono bg-[var(--bg-subtle)] px-2 py-1 rounded-lg">{item.type}</span>
+                      <span className="text-xs text-[var(--text-secondary)]">{item.reports} reports</span>
+                      {item.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
+                      {item.screenshots?.length > 0 && (
                         <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
                           <ImageIcon className="w-3 h-3" />
-                          {report.screenshots.length} screenshot{report.screenshots.length > 1 ? 's' : ''}
+                          {item.screenshots.length} screenshot{item.screenshots.length > 1 ? 's' : ''}
                         </span>
                       )}
                       <button
-                        onClick={() => handleUpvote(report._id)}
+                        onClick={() => handleUpvote(item._id)}
                         className="flex items-center gap-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors"
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />

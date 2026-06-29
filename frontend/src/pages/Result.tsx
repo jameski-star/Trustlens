@@ -1,6 +1,12 @@
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getReport } from '../api/client';
+
+interface BlacklistItem {
+  name: string;
+  listed: boolean;
+  source: string;
+}
 import SEOHead from '../components/SEOHead';
 import RiskScore from '../components/RiskScore';
 import Card from '../components/Card';
@@ -103,7 +109,7 @@ export default function Result() {
               {report.details?.blacklists && report.details.blacklists.length > 0 && (
                 <Card>
                   <h3 className="font-semibold mb-2">Blacklist Check</h3>
-                  {report.details.blacklists.map((b: Record<string, unknown>) => (
+                  {report.details.blacklists.map((b: BlacklistItem) => (
                     <div key={b.name} className="flex justify-between text-sm text-[var(--text-secondary)] py-1">
                       <span>{b.name}</span>
                       <span className={b.listed ? 'text-[#DC2626]' : 'text-[#16A34A]'}>{b.listed ? 'Listed' : 'Clear'}</span>

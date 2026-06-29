@@ -1,6 +1,17 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
+
+interface BlacklistItem {
+  name: string;
+  listed: boolean;
+  source: string;
+}
+interface RiskItem {
+  category: string;
+  severity: string;
+  description: string;
+}
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import RiskScore from '../components/RiskScore';
@@ -111,7 +122,7 @@ export default function URLChecker() {
               <Card>
                 <h3 className="font-semibold text-[var(--text-primary)] mb-2">Blacklist Status</h3>
                 <div className="space-y-2">
-                  {report.details?.blacklists?.map((b: Record<string, unknown>) => (
+                  {(report.details?.blacklists as BlacklistItem[] | undefined)?.map((b: BlacklistItem) => (
                     <div key={b.name} className="flex items-center justify-between text-sm">
                       <span className="text-[var(--text-secondary)]">{b.name}</span>
                       <span className={b.listed ? 'text-[#DC2626]' : 'text-[#16A34A]'}>
@@ -126,7 +137,7 @@ export default function URLChecker() {
                 <h3 className="font-semibold text-[var(--text-primary)] mb-2">Detected Risks</h3>
                 {report.details?.detectedRisks?.length > 0 ? (
                   <ul className="space-y-2">
-                    {report.details.detectedRisks.map((risk: Record<string, unknown>, i: number) => (
+                    {report.details.detectedRisks.map((risk: RiskItem, i: number) => (
                       <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                         <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
                           risk.severity === 'critical' ? 'bg-[#991B1B]' :
