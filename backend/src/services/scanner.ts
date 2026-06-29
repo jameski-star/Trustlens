@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { logger } from '../utils/logger';
 import { config } from '../config';
 
@@ -42,33 +43,13 @@ function extractDomain(hostname: string): string {
 }
 
 function fallbackWhoisData() {
-  const fallbackDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-  return {
-    domainAge: {
-      created: fallbackDate,
-      daysSinceCreation: 365,
-      monthsSinceCreation: 12,
-    },
-    whois: {
-      registrar: 'Unknown',
-      creationDate: fallbackDate,
-      expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      lastUpdated: new Date(),
-      country: 'Unknown',
-      organization: 'Unknown',
-    },
-  };
+  return { domainAge: null, whois: null };
 }
 
-async function fetchWithTimeout(url: string, timeoutMs: number, options: RequestInit = {}): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
+const rdapClient = axios.create({
+  timeout: config.whois.rdapTimeoutMs,
+  headers: { Accept: 'application/json' },
+});
 
 async function lookupWhois(hostname: string): Promise<{
   domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null;
@@ -80,6 +61,7 @@ async function lookupWhois(hostname: string): Promise<{
       return fallbackWhoisData();
     }
     whoisDisabled = false;
+    whoisFailureCount = 0;
   }
 
   try {
@@ -88,12 +70,8 @@ async function lookupWhois(hostname: string): Promise<{
     const rdapUrl = RDAP_SERVERS[tld] || await findRdapServer(tld);
     if (!rdapUrl) throw new Error(`No RDAP server for .${tld}`);
 
-    const response = await fetchWithTimeout(`${rdapUrl}${domain}`, config.whois.rdapTimeoutMs, {
-      headers: { Accept: 'application/json' },
-    });
-
-    if (!response.ok) throw new Error(`RDAP HTTP ${response.status}`);
-    const data = await response.json() as Record<string, unknown>;
+    const response = await rdapClient.get(`${rdapUrl}${domain}`);
+    const data = response.data as Record<string, unknown>;
 
     const events = (data.events as Array<{ eventAction: string; eventDate: string }>) || [];
     const entities = (data.entities as Array<Record<string, unknown>>) || [];
@@ -170,7 +148,7 @@ async function lookupWhois(hostname: string): Promise<{
     whoisLastFailureTime = Date.now();
     if (whoisFailureCount >= config.whois.maxFailures) {
       whoisDisabled = true;
-      logger.warn({ hostname, failures: whoisFailureCount }, 'WHOIS circuit breaker opened — skipping future lookups');
+      logger.warn({ hostname, failures: whoisFailureCount, error: err instanceof Error ? err.message : String(err) }, 'WHOIS lookup disabled after failures');
     } else {
       logger.debug('WHOIS lookup failed for %s (%d/%d): %s', hostname, whoisFailureCount, config.whois.maxFailures, err instanceof Error ? err.message : String(err));
     }
@@ -180,11 +158,8 @@ async function lookupWhois(hostname: string): Promise<{
 
 async function findRdapServer(tld: string): Promise<string | null> {
   try {
-    const response = await fetchWithTimeout(RDAP_BOOTSTRAP, config.whois.bootstrapTimeoutMs, {
-      headers: { Accept: 'application/json' },
-    });
-    if (!response.ok) return null;
-    const bootstrap = await response.json() as { services?: Array<[string[], string[]]> };
+    const response = await rdapClient.get(RDAP_BOOTSTRAP, { timeout: config.whois.bootstrapTimeoutMs });
+    const bootstrap = response.data as { services?: Array<[string[], string[]]> };
     const services = bootstrap.services || [];
     for (const [tlds, urls] of services) {
       if (tlds.includes(tld)) {
@@ -199,18 +174,10 @@ async function findRdapServer(tld: string): Promise<string | null> {
 
 async function withTimeout<T>(fn: () => Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
   try {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      return await Promise.race([
-        fn(),
-        new Promise<never>((_, reject) => {
-          controller.signal.addEventListener('abort', () => reject(new Error('Timed out')));
-        }),
-      ]);
-    } finally {
-      clearTimeout(id);
-    }
+    return await Promise.race([
+      fn(),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timed out')), timeoutMs)),
+    ]);
   } catch {
     return fallback;
   }

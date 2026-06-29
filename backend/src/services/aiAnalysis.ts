@@ -8,6 +8,30 @@ interface AIAnalysisResult {
   modelVersion: string;
 }
 
+let lastMistralCall = 0;
+let mistralCallInProgress = false;
+let mistralRateLimited = false;
+let mistralRateLimitReset = 0;
+let mistralConsecutive429s = 0;
+let last429LogTime = 0;
+
+async function throttleMistral(): Promise<void> {
+  if (mistralRateLimited) {
+    if (Date.now() < mistralRateLimitReset) {
+      throw new Error('rate_limited');
+    }
+    mistralRateLimited = false;
+    mistralConsecutive429s = 0;
+  }
+
+  const elapsed = Date.now() - lastMistralCall;
+  if (elapsed < config.mistral.rateLimitIntervalMs || mistralCallInProgress) {
+    throw new Error('rate_limited');
+  }
+
+  mistralCallInProgress = true;
+}
+
 export async function performAIAnalysis(input: string, type: string): Promise<AIAnalysisResult> {
   const riskFactors: string[] = [];
   let confidence = 75;
@@ -60,6 +84,7 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
   let aiSummary = '';
   try {
     if (config.mistral.apiKey) {
+      await throttleMistral();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), config.mistral.timeoutMs);
       try {
@@ -80,19 +105,40 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
           signal: controller.signal,
         });
         if (response.ok) {
+          mistralRateLimited = false;
+          mistralConsecutive429s = 0;
           const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
           aiSummary = data.choices?.[0]?.message?.content || '';
         } else if (response.status === 401) {
           logger.warn('Mistral AI API key is invalid or unauthorized');
+        } else if (response.status === 429) {
+          mistralConsecutive429s++;
+          const retryAfter = parseInt(response.headers.get('retry-after') || '60', 10);
+          const backoff = Math.min(retryAfter * Math.pow(2, mistralConsecutive429s - 1), 600);
+          mistralRateLimited = true;
+          mistralRateLimitReset = Date.now() + backoff * 1000;
+          const now = Date.now();
+          if (now - last429LogTime > 60000) {
+            logger.warn('Mistral AI rate limited (429), backing off %ds (consecutive: %d)', backoff, mistralConsecutive429s);
+            last429LogTime = now;
+          } else {
+            logger.debug('Mistral AI rate limited (429), backing off %ds (consecutive: %d)', backoff, mistralConsecutive429s);
+          }
         } else {
           logger.debug('Mistral AI returned HTTP %d for %s analysis', response.status, type);
         }
       } finally {
         clearTimeout(timeoutId);
+        lastMistralCall = Date.now();
+        mistralCallInProgress = false;
       }
     }
   } catch (err) {
-    logger.debug('Mistral AI unavailable for %s: %s', type, err instanceof Error ? err.message : String(err));
+    if (err instanceof Error && err.message === 'rate_limited') {
+      logger.debug('Skipping Mistral AI — rate limited');
+    } else {
+      logger.debug('Mistral AI unavailable for %s: %s', type, err instanceof Error ? err.message : String(err));
+    }
   }
 
   const summary = aiSummary || generateRuleBasedSummary(riskFactors, type);
