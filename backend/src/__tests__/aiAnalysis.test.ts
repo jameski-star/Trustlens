@@ -1,5 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { performAIAnalysis } from '../services/aiAnalysis';
+
+beforeAll(() => {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    new Response(JSON.stringify({ choices: [{ message: { content: 'Safe URL analysis' } }] }), { status: 200 })
+  );
+});
+
+afterAll(() => {
+  vi.restoreAllMocks();
+});
 
 describe('performAIAnalysis', () => {
   it('should analyze a safe URL', async () => {

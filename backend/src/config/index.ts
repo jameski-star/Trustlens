@@ -27,9 +27,9 @@ export const config = {
   whois: {
     maxFailures: parseInt(process.env.WHOIS_MAX_FAILURES || '1', 10),
     retryIntervalMs: parseInt(process.env.WHOIS_RETRY_INTERVAL_MS || '300000', 10),
-    rdapTimeoutMs: parseInt(process.env.WHOIS_RDAP_TIMEOUT_MS || '3000', 10),
-    lookupTimeoutMs: parseInt(process.env.WHOIS_LOOKUP_TIMEOUT_MS || '5000', 10),
-    bootstrapTimeoutMs: parseInt(process.env.WHOIS_BOOTSTRAP_TIMEOUT_MS || '2000', 10),
+    rdapTimeoutMs: parseInt(process.env.WHOIS_RDAP_TIMEOUT_MS || '8000', 10),
+    lookupTimeoutMs: parseInt(process.env.WHOIS_LOOKUP_TIMEOUT_MS || '10000', 10),
+    bootstrapTimeoutMs: parseInt(process.env.WHOIS_BOOTSTRAP_TIMEOUT_MS || '4000', 10),
   },
   mistral: {
     timeoutMs: parseInt(process.env.MISTRAL_TIMEOUT_MS || '15000', 10),

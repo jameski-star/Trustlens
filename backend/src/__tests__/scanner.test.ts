@@ -1,53 +1,36 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import axios from 'axios';
 
-const mockRdapResponse = {
-  events: [
-    { eventAction: 'registration', eventDate: '1997-09-15T00:00:00.000Z' },
-    { eventAction: 'expiration', eventDate: '2028-09-14T00:00:00.000Z' },
-    { eventAction: 'last changed', eventDate: '2023-09-19T00:00:00.000Z' },
-  ],
-  entities: [
-    {
-      roles: ['registrar'],
-      vcardArray: [
-        'vcard',
-        [
-          ['fn', {}, 'text', 'MarkMonitor Inc.'],
-        ],
-      ],
-    },
-    {
-      roles: ['registrant'],
-      vcardArray: [
-        'vcard',
-        [
-          ['fn', {}, 'text', 'Google LLC'],
-          ['adr', {}, 'text', ';;;Mountain View;CA;US'],
-        ],
-      ],
-    },
-  ],
-};
-
-const originalFetch = globalThis.fetch;
-
-beforeAll(() => {
-  globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
+vi.mock('axios', async () => {
+  const actual = await vi.importActual('axios') as typeof axios;
+  const mockGet = vi.fn(async (url: string) => {
     if (url.includes('iana.org')) {
-      return {
-        ok: true,
-        json: async () => ({ services: [ [ ['com'], ['https://rdap.verisign.com/'] ] ] }),
-      } as Response;
+      return { data: { services: [ [ ['com'], ['https://rdap.verisign.com/'] ] ] } };
     }
     return {
-      ok: true,
-      json: async () => mockRdapResponse,
-    } as Response;
+      data: {
+        events: [
+          { eventAction: 'registration', eventDate: '1997-09-15T00:00:00.000Z' },
+          { eventAction: 'expiration', eventDate: '2028-09-14T00:00:00.000Z' },
+          { eventAction: 'last changed', eventDate: '2023-09-19T00:00:00.000Z' },
+        ],
+        entities: [
+          {
+            roles: ['registrar'],
+            vcardArray: ['vcard', [['fn', {}, 'text', 'MarkMonitor Inc.']]],
+          },
+          {
+            roles: ['registrant'],
+            vcardArray: ['vcard', [['fn', {}, 'text', 'Google LLC'], ['adr', {}, 'text', ';;;Mountain View;CA;US']]],
+          },
+        ],
+      },
+    };
   });
-});
-
-afterAll(() => {
-  globalThis.fetch = originalFetch;
+  return {
+    default: { ...actual, create: () => ({ get: mockGet }) },
+    get: mockGet,
+  };
 });
 
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, calculateFinalScore, generateRecommendations } from '../services/scanner';
