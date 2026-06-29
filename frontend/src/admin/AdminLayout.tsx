@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       {sidebarOpen && <div className="fixed inset-0 bg-black/20 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      <div className="flex-1 lg:pl-64">
+      <div className="flex-1 lg:pl-64 min-w-0">
         <header className="sticky top-0 z-20 bg-white border-b border-[#E2E8F0] h-16 flex items-center justify-between px-4 lg:px-8">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-xl hover:bg-[#F1F5F9]">
             <Menu className="w-5 h-5" />

@@ -61,7 +61,7 @@ export default function AdminUsers() {
               {data?.items.map(user => (
                 <tr key={user._id} className="border-b border-[#E2E8F0] hover:bg-[#F8FAFC] transition-colors">
                   <td className="px-4 py-3 font-medium text-[#0F172A]">{user.name}</td>
-                  <td className="px-4 py-3 text-[#475569]">{user.email}</td>
+                  <td className="px-4 py-3 text-[#475569] truncate max-w-[120px] sm:max-w-none">{user.email}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg ${
                       user.role === 'admin' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#F1F5F9] text-[#475569]'

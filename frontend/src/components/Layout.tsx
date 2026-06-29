@@ -6,7 +6,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen grid grid-rows-[auto_1fr_auto]">
       <Navbar />
-      <main>
+      <main className="min-w-0">
         {children}
       </main>
       <Footer />
