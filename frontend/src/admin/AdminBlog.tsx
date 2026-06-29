@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit3, Loader2 } from 'lucide-react';
 import apiClient from '../api/client';
 import AdminLayout from './AdminLayout';
 import BlogEditor from './BlogEditor';
-import toast from 'react-hot-toast';
-
 interface BlogPostItem {
   _id: string;
   title: string;

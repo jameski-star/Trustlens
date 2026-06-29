@@ -1,15 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { BlogPost } from '../models/BlogPost';
 import { Comment } from '../models/Comment';
-import { logger } from '../utils/logger';
-
 export async function getPosts(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const category = req.query.category as string;
 
-    const filter: any = { isPublished: true };
+    const filter: Record<string, unknown> = { isPublished: true };
     if (category) filter.category = category;
 
     const [items, total] = await Promise.all([

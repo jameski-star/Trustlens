@@ -70,8 +70,8 @@ async function processFeed(feed: { url: string; category: string }): Promise<num
         },
       });
       count++;
-    } catch (err: any) {
-      if (err?.code !== 11000) {
+    } catch (err: unknown) {
+      if ((err as Record<string, unknown>)?.code !== 11000) {
         logger.warn({ err, title }, 'Failed to create blog post from RSS');
       }
     }

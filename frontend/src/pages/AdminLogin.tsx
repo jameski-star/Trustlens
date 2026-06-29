@@ -25,8 +25,8 @@ export default function AdminLogin() {
       }
       toast.success('Welcome to Admin Panel');
       navigate('/admin');
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Login failed');
+    } catch (err: unknown) {
+      toast.error((err as Record<string, unknown>)?.response?.data?.error || 'Login failed');
     } finally {
       setIsLoading(false);
     }

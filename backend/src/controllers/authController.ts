@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
-import { logger } from '../utils/logger';
-
 export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { name, email, password } = req.body;
@@ -128,7 +126,7 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
 
 export async function getProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const userId = (req as any).userId;
+    const userId = (req as Request & { userId: string }).userId;
     const user = await User.findById(userId).select('-refreshToken');
 
     if (!user) {

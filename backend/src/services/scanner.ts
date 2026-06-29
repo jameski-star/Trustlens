@@ -177,7 +177,7 @@ export async function analyzeUrl(url: string): Promise<{
     riskScore += 40;
   }
 
-  let whoisData = { domainAge: null as { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null, whois: null as any };
+  let whoisData = { domainAge: null as { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null, whois: null as Record<string, unknown> | null };
   if (hostname && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
     whoisData = await lookupWhois(hostname);
   }
@@ -307,7 +307,7 @@ export function analyzePhoneNumber(phone: string): {
   const detectedRisks: Array<{ category: string; severity: 'low' | 'medium' | 'high' | 'critical'; description: string }> = [];
   let riskScore = 50;
 
-  const cleaned = phone.replace(/[\s\-\(\)\.\+]/g, '');
+  const cleaned = phone.replace(/[\s\-().+]/g, '');
   
   if (cleaned.length < 7 || cleaned.length > 15) {
     detectedRisks.push({

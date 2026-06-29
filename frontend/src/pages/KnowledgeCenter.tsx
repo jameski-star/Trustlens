@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, QrCode, Briefcase, Heart } from 'lucide-react';
+import { BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, Briefcase, Heart } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
-import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 const categories = [

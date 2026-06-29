@@ -21,9 +21,6 @@ describe('analyzeUrl', () => {
 
   it('should detect brand impersonation', async () => {
     const result = await analyzeUrl('https://paypal-secure-login.com');
-    const brandRisks = result.detectedRisks.filter(r =>
-      r.description.toLowerCase().includes('brand') || r.description.toLowerCase().includes('impersonat')
-    );
     expect(result.detectedRisks.length).toBeGreaterThanOrEqual(0);
   });
 

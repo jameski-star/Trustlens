@@ -14,8 +14,6 @@ import blogRoutes from './routes/blog';
 import adminRoutes from './routes/admin';
 import contactRoutes from './routes/contact';
 import knowledgeRoutes from './routes/knowledge';
-import { logger } from './utils/logger';
-
 const app = express();
 
 app.use(helmetMiddleware);

@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { contactSchema, ContactInput } from '../validation/schemas';
 import { submitContact } from '../api/client';
 import { useState } from 'react';
-import { Mail, MessageSquare, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';

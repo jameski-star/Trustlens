@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useReducer } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getBlogPosts } from '../api/client';
@@ -8,34 +8,47 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { BlogSkeleton } from '../components/Skeleton';
 import { Loader2 } from 'lucide-react';
 
+interface BlogPostItem {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  author: string;
+  publishedAt: string;
+  coverImage: string;
+}
+
+function itemsReducer(state: BlogPostItem[], action: { items: BlogPostItem[]; page: number }) {
+  if (action.page === 1) return action.items;
+  const existingIds = new Set(state.map(p => p._id));
+  const newItems = action.items.filter(i => !existingIds.has(i._id));
+  return [...state, ...newItems];
+}
+
 const categories = ['All', 'Phishing', 'Crypto', 'Job Scams', 'SMS Scams', 'Romance Scams', 'Investment', 'Identity Theft', 'Online Safety'];
 
 export default function Blog() {
   const [category, setCategory] = useState('All');
   const [page, setPage] = useState(1);
-  const [allItems, setAllItems] = useState<any[]>([]);
+  const [allItems, dispatch] = useReducer(itemsReducer, []);
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['blog-posts', category, page],
     queryFn: () => getBlogPosts({ page, category: category === 'All' ? undefined : category }),
   });
 
+  useEffect(() => {
+    if (data?.items) {
+      dispatch({ items: data.items, page });
+    }
+  }, [data, page]);
+
   const handleCategoryChange = (cat: string) => {
     setCategory(cat);
     setPage(1);
-    setAllItems([]);
+    dispatch({ items: [], page: 1 });
   };
-
-  useEffect(() => {
-    if (data?.items) {
-      setAllItems(prev => {
-        if (page === 1) return data.items;
-        const existingIds = new Set(prev.map(p => p._id));
-        const newItems = data.items.filter((i: any) => !existingIds.has(i._id));
-        return [...prev, ...newItems];
-      });
-    }
-  }, [data]);
 
   const total = data?.total ?? 0;
   const hasMore = allItems.length < total;
@@ -79,7 +92,7 @@ export default function Blog() {
           {isLoading && page === 1 && <BlogSkeleton />}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allItems.map((post: any) => (
+            {allItems.map((post: BlogPostItem) => (
               <Link key={post._id} to={`/blog/${post.slug}`} className="card hover:shadow-card-hover transition-all duration-200 group">
                 <div className="h-48 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-xl mb-4 flex items-center justify-center">
                   <span className="text-4xl font-heading font-800 text-[var(--text-accent)]/20">{post.title[0]}</span>

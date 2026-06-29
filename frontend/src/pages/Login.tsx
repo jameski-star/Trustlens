@@ -24,8 +24,8 @@ export default function Login() {
       await login(data.email, data.password);
       toast.success('Welcome back!');
       navigate('/');
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Login failed');
+    } catch (err: unknown) {
+      toast.error((err as Record<string, unknown>)?.response?.data?.error || 'Login failed');
     } finally {
       setIsLoading(false);
     }

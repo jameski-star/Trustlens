@@ -4,8 +4,6 @@ import { Report } from '../models/Report';
 import { CommunityReport } from '../models/CommunityReport';
 import { BlogPost } from '../models/BlogPost';
 import { SearchHistory } from '../models/SearchHistory';
-import { logger } from '../utils/logger';
-
 export async function getDashboard(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const [totalUsers, totalScans, totalReports, totalPosts, scansToday] = await Promise.all([

@@ -13,7 +13,7 @@ export default function RiskScore({ score, size = 'md', showLabel = true }: Risk
     return { bg: '#991B1B', text: 'Critical', level: 'critical' as const };
   };
 
-  const { bg, text, level } = getColor();
+  const { bg, text } = getColor();
   const sizeMap = { sm: { container: 'w-16 h-16', text: 'text-lg' }, md: { container: 'w-24 h-24', text: 'text-2xl' }, lg: { container: 'w-32 h-32', text: 'text-3xl' } };
   const { container: containerSize, text: textSize } = sizeMap[size];
 

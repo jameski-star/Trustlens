@@ -116,7 +116,7 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
         { upsert: true, new: true },
       );
       logger.info({ title, slug }, 'Upserted blog post from RSS');
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.warn({ err, title }, 'Failed to upsert blog post from RSS');
     }
   }

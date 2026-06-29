@@ -29,7 +29,7 @@ function communityTarget(input: string, scanType: string): string {
     const parts = trimmed.split('@');
     return parts.length > 1 ? parts[1] : trimmed;
   }
-  return trimmed.replace(/[\s\-\(\)\.\+]/g, '');
+  return trimmed.replace(/[\s\-().+]/g, '');
 }
 
 async function getCommunityScore(input: string, scanType: string): Promise<{ score: number; count: number }> {
@@ -82,7 +82,7 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
       });
     }
 
-    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'url',
@@ -149,7 +149,7 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
       });
     }
 
-    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'email',
@@ -216,7 +216,7 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
       });
     }
 
-    let recommendations = generateRecommendations(phoneAnalysis.detectedRisks, finalScore);
+    const recommendations = generateRecommendations(phoneAnalysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'sms',
@@ -274,7 +274,7 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
       });
     }
 
-    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'phone',
@@ -452,7 +452,7 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
       });
     }
 
-    let recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
+    const recommendations = generateRecommendations(analysis.detectedRisks, finalScore);
 
     const report = await Report.create({
       type: 'qrcode',

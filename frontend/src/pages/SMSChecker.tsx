@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
@@ -18,7 +18,7 @@ export default function SMSChecker() {
 
   useEffect(() => {
     if (queryParam) mutation.mutate(queryParam);
-  }, [queryParam]);
+  }, [queryParam, mutation]);
 
   const handleSearch = (input: string) => {
     navigate(`/sms-checker?q=${encodeURIComponent(input)}`);
@@ -67,7 +67,7 @@ export default function SMSChecker() {
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risks</h3>
               {report.details?.detectedRisks?.length > 0 ? (
                 <ul className="space-y-2">
-                  {report.details.detectedRisks.map((risk: any, i: number) => (
+                  {report.details.detectedRisks.map((risk: Record<string, unknown>, i: number) => (
                     <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className="text-[#D97706]">&#8226;</span>
                       {risk.description}

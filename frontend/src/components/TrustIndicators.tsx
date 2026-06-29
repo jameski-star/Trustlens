@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, Users, RefreshCw, Lock, Search } from 'lucide-react';
+import { Users, RefreshCw, Lock, Search } from 'lucide-react';
 import { getCommunityReports } from '../api/client';
 
 export default function TrustIndicators() {

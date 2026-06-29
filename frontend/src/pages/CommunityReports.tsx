@@ -5,7 +5,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
-import { Flag, Plus, X, Loader2, ThumbsUp, Image as ImageIcon, Upload, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Flag, Plus, X, Loader2, ThumbsUp, Image as ImageIcon, Upload, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const reportTypes = [
@@ -125,8 +125,8 @@ export default function CommunityReports() {
       resetForm();
       setShowForm(false);
       queryClient.invalidateQueries({ queryKey: ['community-reports'] });
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to submit report');
+    } catch (err: unknown) {
+      toast.error((err as Record<string, unknown>)?.response?.data?.error || 'Failed to submit report');
     } finally {
       setIsSubmitting(false);
     }
@@ -265,7 +265,7 @@ export default function CommunityReports() {
           )}
 
           <div className="space-y-4 mt-8">
-            {data?.items?.map((report: any) => (
+            {data?.items?.map((report: Record<string, unknown>) => (
               <Card key={report._id}>
                 <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">

@@ -20,10 +20,10 @@ export default function SearchBar({
 
   const detectType = (value: string): 'url' | 'email' | 'phone' | 'sms' => {
     if (value.startsWith('http://') || value.startsWith('https://') || value.includes('.')) {
-      try { new URL(value.startsWith('http') ? value : 'https://' + value); return 'url'; } catch {}
+      try { new URL(value.startsWith('http') ? value : 'https://' + value); return 'url'; } catch { /* not a URL */ }
     }
     if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'email';
-    if (/^[\+\d\s\-\(\)\.]{7,20}$/.test(value.replace(/\s/g, ''))) return 'phone';
+    if (/^[+\d\s\-().]{7,20}$/.test(value.replace(/\s/g, ''))) return 'phone';
     return 'sms';
   };
 

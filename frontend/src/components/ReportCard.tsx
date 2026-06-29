@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { AlertCircle, CheckCircle, Info, Shield, ExternalLink } from 'lucide-react';
+import { AlertCircle, CheckCircle, Info, ExternalLink } from 'lucide-react';
 
 interface ReportCardProps {
   report: {

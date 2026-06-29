@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Search, FileText, MessageSquare, Camera, QrCode, TrendingUp, BookOpen, Flag } from 'lucide-react';
+import { ArrowRight, Search, FileText, MessageSquare, Camera, QrCode, Flag } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import TrustIndicators from '../components/TrustIndicators';

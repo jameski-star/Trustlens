@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, TrendingUp, Search, Type } from 'lucide-react';
+import { BarChart3, Search, Type } from 'lucide-react';
 import apiClient from '../api/client';
 import AdminLayout from './AdminLayout';
 

@@ -43,7 +43,7 @@ export default function ScamAlerts() {
 
           {!isLoading && alerts.length > 0 && (
             <div className="space-y-4">
-              {alerts.map((alert: any) => (
+              {alerts.map((alert: Record<string, unknown>) => (
                 <Card key={alert._id}>
                   <div className="flex items-start gap-4">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-lg flex-shrink-0 mt-0.5 ${

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { X, Loader2 } from 'lucide-react';
 import apiClient from '../api/client';
 import toast from 'react-hot-toast';
@@ -28,37 +28,21 @@ interface BlogEditorProps {
 }
 
 export default function BlogEditor({ post, onClose }: BlogEditorProps) {
-  const queryClient = useQueryClient();
   const isEdit = !!post?._id;
 
   const [form, setForm] = useState({
-    title: '', slug: '', excerpt: '', content: '', category: '',
-    tags: '' as string, coverImage: '', isPublished: false,
+    title: post?.title || '', slug: post?.slug || '', excerpt: post?.excerpt || '',
+    content: post?.content || '', category: post?.category || '',
+    tags: (post?.tags || []).join(', '), coverImage: post?.coverImage || '',
+    isPublished: post?.isPublished || false,
   });
-  const [tagList, setTagList] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (post) {
-      setForm({
-        title: post.title || '',
-        slug: post.slug || '',
-        excerpt: post.excerpt || '',
-        content: post.content || '',
-        category: post.category || '',
-        tags: (post.tags || []).join(', '),
-        coverImage: post.coverImage || '',
-        isPublished: post.isPublished || false,
-      });
-      setTagList(post.tags || []);
-    }
-  }, [post]);
 
   const generateSlug = (title: string) => {
     return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   };
 
   const mutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: Record<string, unknown>) => {
       if (isEdit) {
         await apiClient.put(`/admin/blog/${post._id}`, data);
       } else {

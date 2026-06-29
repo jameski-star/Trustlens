@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { CommunityReport } from '../models/CommunityReport';
-import { logger } from '../utils/logger';
-
 export async function createReport(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const screenshots: string[] = [];
@@ -24,7 +22,7 @@ export async function getReports(req: Request, res: Response, next: NextFunction
     const type = req.query.type as string;
     const category = req.query.category as string;
 
-    const filter: any = { status: 'published' };
+    const filter: Record<string, unknown> = { status: 'published' };
     if (type) filter.type = type;
     if (category) filter.category = category;
     if (req.query.minReports) filter.reports = { $gte: parseInt(req.query.minReports as string) };

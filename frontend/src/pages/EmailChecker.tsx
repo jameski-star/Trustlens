@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
@@ -18,7 +18,7 @@ export default function EmailChecker() {
 
   useEffect(() => {
     if (queryParam) mutation.mutate(queryParam);
-  }, [queryParam]);
+  }, [queryParam, mutation]);
 
   const handleSearch = (input: string) => {
     navigate(`/email-checker?q=${encodeURIComponent(input)}`);
@@ -73,7 +73,7 @@ export default function EmailChecker() {
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risk Indicators</h3>
               {report.details?.detectedRisks?.length > 0 ? (
                 <ul className="space-y-2">
-                  {report.details.detectedRisks.map((risk: any, i: number) => (
+                  {report.details.detectedRisks.map((risk: Record<string, unknown>, i: number) => (
                     <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
                         risk.severity === 'critical' ? 'bg-[#991B1B]' :

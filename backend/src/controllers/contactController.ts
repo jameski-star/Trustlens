@@ -13,7 +13,7 @@ function createTransporter() {
   });
 }
 
-export async function submitContact(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function submitContact(req: Request, res: Response, _next: NextFunction): Promise<void> {
   try {
     const { name, email, subject, message } = req.body;
 

@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
-import { QrCode, Upload, X, Loader2 } from 'lucide-react';
+import { QrCode, X, Loader2 } from 'lucide-react';
 import { scanUrl } from '../api/client';
-import { Link } from 'react-router-dom';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';

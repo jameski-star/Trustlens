@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { scanUrl, scanEmail, scanSms, scanPhone, scanScreenshot, scanQrcode, getReport, downloadPdf, getRecentSearches, getTrendingScams } from '../controllers/scanController';
-import { validate } from '../middleware/validate';
-import { scanSchema } from '../validation/schemas';
 import { scanLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
