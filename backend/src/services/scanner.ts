@@ -1,10 +1,9 @@
 import { logger } from '../utils/logger';
+import { config } from '../config';
 
 let whoisDisabled = false;
 let whoisFailureCount = 0;
 let whoisLastFailureTime = 0;
-const WHOIS_MAX_FAILURES = 3;
-const WHOIS_RETRY_INTERVAL = 5 * 60 * 1000;
 
 const RDAP_BOOTSTRAP = 'https://data.iana.org/rdap/dns.json';
 
@@ -77,7 +76,7 @@ async function lookupWhois(hostname: string): Promise<{
 }> {
   if (whoisDisabled) {
     const elapsed = Date.now() - whoisLastFailureTime;
-    if (elapsed < WHOIS_RETRY_INTERVAL) {
+    if (elapsed < config.whois.retryIntervalMs) {
       return fallbackWhoisData();
     }
     whoisDisabled = false;
@@ -89,7 +88,7 @@ async function lookupWhois(hostname: string): Promise<{
     const rdapUrl = RDAP_SERVERS[tld] || await findRdapServer(tld);
     if (!rdapUrl) throw new Error(`No RDAP server for .${tld}`);
 
-    const response = await fetchWithTimeout(`${rdapUrl}${domain}`, 8000, {
+    const response = await fetchWithTimeout(`${rdapUrl}${domain}`, config.whois.rdapTimeoutMs, {
       headers: { Accept: 'application/json' },
     });
 
@@ -131,7 +130,6 @@ async function lookupWhois(hostname: string): Promise<{
       }
     }
 
-    // Fallback: look through all entities for org/country
     if (org === 'Unknown' || country === 'Unknown') {
       for (const entity of entities) {
         const vcardArray = entity.vcardArray as Array<unknown>;
@@ -170,11 +168,11 @@ async function lookupWhois(hostname: string): Promise<{
   } catch (err) {
     whoisFailureCount++;
     whoisLastFailureTime = Date.now();
-    if (whoisFailureCount >= WHOIS_MAX_FAILURES) {
+    if (whoisFailureCount >= config.whois.maxFailures) {
       whoisDisabled = true;
-      logger.warn('WHOIS circuit breaker opened — skipping future lookups');
+      logger.warn({ hostname, failures: whoisFailureCount }, 'WHOIS circuit breaker opened — skipping future lookups');
     } else {
-      logger.debug({ err }, 'WHOIS lookup failed, using fallback');
+      logger.debug('WHOIS lookup failed for %s (%d/%d): %s', hostname, whoisFailureCount, config.whois.maxFailures, err instanceof Error ? err.message : String(err));
     }
     return fallbackWhoisData();
   }
@@ -182,7 +180,7 @@ async function lookupWhois(hostname: string): Promise<{
 
 async function findRdapServer(tld: string): Promise<string | null> {
   try {
-    const response = await fetchWithTimeout(RDAP_BOOTSTRAP, 5000, {
+    const response = await fetchWithTimeout(RDAP_BOOTSTRAP, config.whois.bootstrapTimeoutMs, {
       headers: { Accept: 'application/json' },
     });
     if (!response.ok) return null;
@@ -315,7 +313,7 @@ export async function analyzeUrl(url: string): Promise<{
 
   let whoisData: { domainAge: { created: Date; daysSinceCreation: number; monthsSinceCreation: number } | null; whois: { registrar: string; creationDate: Date | null; expirationDate: Date | null; lastUpdated: Date | null; country: string; organization: string } | null } = { domainAge: null, whois: null };
   if (hostname && !/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
-    whoisData = await withTimeout(() => lookupWhois(hostname), 10000, fallbackWhoisData());
+    whoisData = await withTimeout(() => lookupWhois(hostname), config.whois.lookupTimeoutMs, fallbackWhoisData());
   }
 
   const scored = Math.min(100, Math.max(0, 100 - riskScore));

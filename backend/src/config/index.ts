@@ -24,4 +24,17 @@ export const config = {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',
   },
+  whois: {
+    maxFailures: parseInt(process.env.WHOIS_MAX_FAILURES || '5', 10),
+    retryIntervalMs: parseInt(process.env.WHOIS_RETRY_INTERVAL_MS || '600000', 10),
+    rdapTimeoutMs: parseInt(process.env.WHOIS_RDAP_TIMEOUT_MS || '10000', 10),
+    lookupTimeoutMs: parseInt(process.env.WHOIS_LOOKUP_TIMEOUT_MS || '15000', 10),
+    bootstrapTimeoutMs: parseInt(process.env.WHOIS_BOOTSTRAP_TIMEOUT_MS || '5000', 10),
+  },
+  mistral: {
+    timeoutMs: parseInt(process.env.MISTRAL_TIMEOUT_MS || '15000', 10),
+    apiKey: process.env.MISTRAL_API_KEY || '',
+    model: process.env.MISTRAL_MODEL || 'open-mistral-nemo',
+    maxTokens: parseInt(process.env.MISTRAL_MAX_TOKENS || '200', 10),
+  },
 };

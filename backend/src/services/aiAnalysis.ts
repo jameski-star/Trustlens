@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger';
+import { config } from '../config';
 
 interface AIAnalysisResult {
   summary: string;
@@ -58,24 +59,23 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
 
   let aiSummary = '';
   try {
-    const mistralApiKey = process.env.MISTRAL_API_KEY || '';
-    if (mistralApiKey) {
+    if (config.mistral.apiKey) {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const timeoutId = setTimeout(() => controller.abort(), config.mistral.timeoutMs);
       try {
         const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${mistralApiKey}`,
+            'Authorization': `Bearer ${config.mistral.apiKey}`,
           },
           body: JSON.stringify({
-            model: 'open-mistral-nemo',
+            model: config.mistral.model,
             messages: [
               { role: 'system', content: 'You are a cybersecurity analysis AI. Analyze the following content for scam/fraud indicators. Provide a brief, factual analysis in 1-3 sentences.' },
               { role: 'user', content: `Analyze this ${type} for security risks: ${input.substring(0, 2000)}` },
             ],
-            max_tokens: 200,
+            max_tokens: config.mistral.maxTokens,
           }),
           signal: controller.signal,
         });
@@ -84,13 +84,15 @@ export async function performAIAnalysis(input: string, type: string): Promise<AI
           aiSummary = data.choices?.[0]?.message?.content || '';
         } else if (response.status === 401) {
           logger.warn('Mistral AI API key is invalid or unauthorized');
+        } else {
+          logger.debug('Mistral AI returned HTTP %d for %s analysis', response.status, type);
         }
       } finally {
         clearTimeout(timeoutId);
       }
     }
-  } catch {
-    logger.warn('Mistral AI analysis unavailable, using rule-based analysis');
+  } catch (err) {
+    logger.debug('Mistral AI unavailable for %s: %s', type, err instanceof Error ? err.message : String(err));
   }
 
   const summary = aiSummary || generateRuleBasedSummary(riskFactors, type);
