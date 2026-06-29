@@ -26,23 +26,33 @@ function slugify(text: string): string {
     .substring(0, 200);
 }
 
-function stripHtml(html: string): string {
-  return html
+function cleanRssContent(raw: string): string {
+  let html = raw
+    .replace(/<figure[\s\S]*?<\/figure>/gi, '')
+    .replace(/<div[^>]*yarpp[\s\S]*?<\/div>/gi, '')
+    .replace(/<div class=["']sharedaddy[\s\S]*?<\/div>/gi, '')
+    .replace(/<div id=["']jp-post-flair[\s\S]*?<\/div>/gi, '')
+    .replace(/<p>\s*The post\s.*?(?:appeared first on|was originally published on).*?<\/p>/gi, '')
+    .replace(/<p>\s*Last Updated on.*?by.*?<\/p>/gi, '')
+    .replace(/<p>\s*<\/p>/gi, '')
+    .trim();
+  return html;
+}
+
+function toPlainText(html: string): string {
+  let text = html
     .replace(/<[^>]*>/g, ' ')
     .replace(/&[^;]+;/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-function cleanRssContent(html: string): string {
-  return html
-    .replace(/<div class=['"]yarpp[\s\S]*?<\/div>/gi, '')
-    .replace(/<div id=['"]yarpp[\s\S]*?<\/div>/gi, '')
-    .replace(/<h3>Related posts:<\/h3>\s*<ol>[\s\S]*?<\/ol>/gi, '')
-    .replace(/The post <a[\s\S]*?appeared first on <a[\s\S]*?<\/a>\./gi, '')
-    .replace(/from <a[\s\S]*?<\/a>/gi, '')
-    .replace(/<p>\s*<\/p>/gi, '')
+  text = text
+    .replace(/The post\s.*?appeared first on\s.*?from\s.*?\./g, '')
+    .replace(/Last Updated on\s.*?by\s.*?\s/g, '')
+    .replace(/Related posts:[\s\S]*$/, '')
+    .replace(/YARPP[\s\S]*$/, '')
+    .replace(/\n{3,}/g, '\n\n')
     .trim();
+  return text;
 }
 
 async function processFeed(feed: { url: string; category: string }): Promise<void> {
@@ -63,7 +73,7 @@ async function processFeed(feed: { url: string; category: string }): Promise<voi
     const slug = slugify(title);
     const rawContent = item.content || item.contentSnippet || '';
     const cleanedHtml = cleanRssContent(rawContent);
-    const plainText = stripHtml(cleanedHtml);
+    const plainText = toPlainText(cleanedHtml);
     const excerpt = plainText.substring(0, 500);
     const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
     const coverImage = item.enclosure?.url || item['media:thumbnail']?.$.url || '';
