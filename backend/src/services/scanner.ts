@@ -1,4 +1,3 @@
-import whois from 'whois-json';
 import { logger } from '../utils/logger';
 
 let whoisDisabled = false;
@@ -6,6 +5,29 @@ let whoisFailureCount = 0;
 let whoisLastFailureTime = 0;
 const WHOIS_MAX_FAILURES = 3;
 const WHOIS_RETRY_INTERVAL = 5 * 60 * 1000;
+
+const RDAP_BOOTSTRAP = 'https://data.iana.org/rdap/dns.json';
+
+const RDAP_SERVERS: Record<string, string> = {
+  com: 'https://rdap.verisign.com/com/v1/domain/',
+  net: 'https://rdap.verisign.com/net/v1/domain/',
+  org: 'https://rdap.publicinterestregistry.org/rdap/domain/',
+  info: 'https://rdap.afilias.net/rdap/domain/',
+  biz: 'https://rdap.afilias.net/rdap/domain/',
+  io: 'https://rdap.nic.io/domain/',
+  co: 'https://rdap.nic.co/domain/',
+  uk: 'https://rdap.nic.uk/domain/',
+  de: 'https://rdap.denic.de/domain/',
+  eu: 'https://rdap.eu/domain/',
+  nl: 'https://rdap.sidn.nl/domain/',
+  fr: 'https://rdap.nic.fr/domain/',
+  br: 'https://rdap.registro.br/domain/',
+  au: 'https://rdap.auda.org.au/domain/',
+  app: 'https://rdap.nic.google/domain/',
+  dev: 'https://rdap.nic.google/domain/',
+  cloud: 'https://rdap.nic.cloud/domain/',
+  shop: 'https://rdap.nic.shop/domain/',
+};
 
 const SUSPICIOUS_TLDS = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.club', '.work', '.bid', '.loan', '.date', '.win', '.review', '.trade', '.webcam', '.science', '.download', '.men'];
 
@@ -53,27 +75,80 @@ async function lookupWhois(hostname: string): Promise<{
 
   try {
     const domain = extractDomain(hostname);
-    const result = await Promise.race([
-      whois(domain),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('WHOIS timeout')), 15000)),
-    ]);
+    const tld = domain.split('.').pop() || '';
+    const rdapUrl = RDAP_SERVERS[tld] || await findRdapServer(tld);
+    if (!rdapUrl) throw new Error(`No RDAP server for .${tld}`);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    let response: Response;
+    try {
+      response = await fetch(`${rdapUrl}${domain}`, {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (!response.ok) throw new Error(`RDAP HTTP ${response.status}`);
+    const data = await response.json() as Record<string, unknown>;
+
+    const events = (data.events as Array<{ eventAction: string; eventDate: string }>) || [];
+    const entities = (data.entities as Array<Record<string, unknown>>) || [];
+
+    const creationEvent = events.find((e: { eventAction: string }) => e.eventAction === 'registration');
+    const expirationEvent = events.find((e: { eventAction: string }) => e.eventAction === 'expiration');
+    const lastChanged = events.find((e: { eventAction: string }) => e.eventAction === 'last changed');
+
+    const creationDate = creationEvent ? new Date(creationEvent.eventDate) : null;
+    const expirationDate = expirationEvent ? new Date(expirationEvent.eventDate) : null;
+    const lastUpdated = lastChanged ? new Date(lastChanged.eventDate) : null;
+
+    let registrar = 'Unknown';
+    let org = 'Unknown';
+    let country = 'Unknown';
+
+    for (const entity of entities) {
+      const vcardArray = entity.vcardArray as Array<unknown>;
+      if (!vcardArray) continue;
+      const vcard = vcardArray[1] as Array<Array<unknown>>;
+      if (!vcard) continue;
+      for (const item of vcard) {
+        const [field, , , value] = item as [string, unknown, unknown, string];
+        if (field === 'fn' && entity.roles && (entity.roles as string[]).includes('registrar')) {
+          registrar = value;
+        }
+        if (field === 'fn' && entity.roles && (entity.roles as string[]).includes('registrant')) {
+          org = value;
+        }
+        if (field === 'adr') {
+          const parts = (value as string || '').split(';');
+          if (parts[5]) country = parts[5];
+        }
+      }
+    }
+
+    // Fallback: look through all entities for org/country
+    if (org === 'Unknown' || country === 'Unknown') {
+      for (const entity of entities) {
+        const vcardArray = entity.vcardArray as Array<unknown>;
+        if (!vcardArray) continue;
+        const vcard = vcardArray[1] as Array<Array<unknown>>;
+        if (!vcard) continue;
+        for (const item of vcard) {
+          const [field, , , value] = item as [string, unknown, unknown, string];
+          if (field === 'fn' && org === 'Unknown') org = value;
+          if (field === 'adr') {
+            const parts = (value as string || '').split(';');
+            if (parts[5]) country = parts[5];
+          }
+        }
+      }
+    }
 
     whoisFailureCount = 0;
     whoisDisabled = false;
-
-    const creationDate = result.creationDate
-      ? new Date(result.creationDate as string)
-      : result.created
-        ? new Date(result.created as string)
-        : null;
-
-    const expirationDate = result.expirationDate
-      ? new Date(result.expirationDate as string)
-      : null;
-
-    const lastUpdated = result.updatedDate
-      ? new Date(result.updatedDate as string)
-      : null;
 
     let domainAge = null;
     if (creationDate && !isNaN(creationDate.getTime())) {
@@ -88,14 +163,7 @@ async function lookupWhois(hostname: string): Promise<{
 
     return {
       domainAge,
-      whois: {
-        registrar: (result.registrar as string) || 'Unknown',
-        creationDate,
-        expirationDate,
-        lastUpdated,
-        country: (result.country as string) || 'Unknown',
-        organization: (result.org as string) || 'Unknown',
-      },
+      whois: { registrar, creationDate, expirationDate, lastUpdated, country, organization: org },
     };
   } catch (err) {
     whoisFailureCount++;
@@ -108,6 +176,33 @@ async function lookupWhois(hostname: string): Promise<{
     }
     return fallbackWhoisData();
   }
+}
+
+async function findRdapServer(tld: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    let response: Response;
+    try {
+      response = await fetch(RDAP_BOOTSTRAP, {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+    if (!response.ok) return null;
+    const bootstrap = await response.json() as { services?: Array<[string[], string[]]> };
+    const services = bootstrap.services || [];
+    for (const [tlds, urls] of services) {
+      if (tlds.includes(tld)) {
+        return urls[0] + 'domain/';
+      }
+    }
+  } catch {
+    // ignore bootstrap failure
+  }
+  return null;
 }
 
 export async function analyzeUrl(url: string): Promise<{

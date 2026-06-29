@@ -11,11 +11,14 @@ export default function QRCodeScanner() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewUrlRef = useRef<string | null>(null);
 
   const handleFile = (f: File) => {
     if (f.size > 10 * 1024 * 1024) return alert('File too large. Max 10MB.');
     setFile(f);
-    setPreview(URL.createObjectURL(f));
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = URL.createObjectURL(f);
+    setPreview(previewUrlRef.current);
     setResult(null);
   };
 
@@ -57,7 +60,7 @@ export default function QRCodeScanner() {
             {preview ? (
               <div className="relative">
                 <img src={preview} alt="Preview" className="max-h-80 mx-auto rounded-xl" />
-                <button onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); setResult(null); }} className="absolute top-2 right-2 p-1 bg-[var(--bg-surface)] rounded-full shadow"><X className="w-4 h-4" /></button>
+                <button onClick={(e) => { e.stopPropagation(); if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current); previewUrlRef.current = null; setFile(null); setPreview(null); setResult(null); }} className="absolute top-2 right-2 p-1 bg-[var(--bg-surface)] rounded-full shadow"><X className="w-4 h-4" /></button>
               </div>
             ) : (
               <div>

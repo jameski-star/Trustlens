@@ -1,16 +1,56 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 
-vi.mock('whois-json', () => ({
-  default: vi.fn().mockResolvedValue({
-    domainName: 'google.com',
-    registrar: 'MarkMonitor Inc.',
-    creationDate: '1997-09-15T00:00:00.000Z',
-    expirationDate: '2028-09-14T00:00:00.000Z',
-    updatedDate: '2023-09-19T00:00:00.000Z',
-    country: 'US',
-    org: 'Google LLC',
-  }),
-}));
+const mockRdapResponse = {
+  events: [
+    { eventAction: 'registration', eventDate: '1997-09-15T00:00:00.000Z' },
+    { eventAction: 'expiration', eventDate: '2028-09-14T00:00:00.000Z' },
+    { eventAction: 'last changed', eventDate: '2023-09-19T00:00:00.000Z' },
+  ],
+  entities: [
+    {
+      roles: ['registrar'],
+      vcardArray: [
+        'vcard',
+        [
+          ['fn', {}, 'text', 'MarkMonitor Inc.'],
+        ],
+      ],
+    },
+    {
+      roles: ['registrant'],
+      vcardArray: [
+        'vcard',
+        [
+          ['fn', {}, 'text', 'Google LLC'],
+          ['adr', {}, 'text', ';;;Mountain View;CA;US'],
+        ],
+      ],
+    },
+  ],
+};
+
+const originalFetch = globalThis.fetch;
+let fetchCallCount = 0;
+
+beforeAll(() => {
+  globalThis.fetch = vi.fn().mockImplementation(async (url: string) => {
+    fetchCallCount++;
+    if (url.includes('iana.org')) {
+      return {
+        ok: true,
+        json: async () => ({ services: [ [ ['com'], ['https://rdap.verisign.com/'] ] ] }),
+      } as Response;
+    }
+    return {
+      ok: true,
+      json: async () => mockRdapResponse,
+    } as Response;
+  });
+});
+
+afterAll(() => {
+  globalThis.fetch = originalFetch;
+});
 
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, calculateFinalScore, generateRecommendations } from '../services/scanner';
 
