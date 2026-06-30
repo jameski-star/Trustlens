@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { getCommunityReports, createCommunityReport, upvoteCommunityReport, downvoteCommunityReport } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
@@ -54,6 +55,21 @@ export default function CommunityReports() {
   const [category, setCategory] = useState('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    const target = searchParams.get('target');
+    if (type || target) {
+      setFormData(prev => ({
+        ...prev,
+        type: type || prev.type,
+        target: target || prev.target,
+      }));
+      setShowForm(true);
+      window.history.replaceState({}, '', '/community-reports');
+    }
+  }, [searchParams]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['community-reports', category],

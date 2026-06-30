@@ -15,7 +15,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { useScanSms, useScanPhone } from '../hooks/useScan';
-import { ShieldAlert, RefreshCw } from 'lucide-react';
+import { ShieldAlert, RefreshCw, Flag } from 'lucide-react';
 
 type ScanMode = 'sms' | 'phone';
 
@@ -126,14 +126,14 @@ export default function SMSChecker() {
         )}
 
         {report && (
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
+          <div className="max-w-4xl mx-auto break-words">
+            <div className="flex flex-col lg:flex-row items-start gap-6 md:gap-8 mb-6 md:mb-8">
               <RiskScore score={report.riskScore} size="lg" />
-              <div className="flex-1">
-                <h2 className="font-heading font-700 text-xl text-[var(--text-primary)] mb-2">
+              <div className="flex-1 min-w-0">
+                <h2 className="font-heading font-700 text-lg md:text-xl text-[var(--text-primary)] mb-2">
                   {modeParam === 'phone' ? 'Phone Number Analysis Result' : 'SMS Analysis Result'}
                 </h2>
-                <p className="text-[var(--text-secondary)] mb-4">{report.summary}</p>
+                <p className="text-[var(--text-secondary)] mb-4 leading-relaxed">{report.summary}</p>
               </div>
             </div>
 
@@ -196,6 +196,27 @@ export default function SMSChecker() {
                 ))}
               </ul>
             </Card>
+
+            {report.riskScore < 40 && (
+              <Card className="mb-8 border-[#DC2626]/20">
+                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                  <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Flag className="w-5 h-5 text-[#DC2626]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[var(--text-primary)]">Report this to the community</h3>
+                    <p className="text-sm text-[var(--text-secondary)] mt-0.5">Help others stay safe by sharing this threat</p>
+                  </div>
+                  <button
+                    onClick={() => navigate(`/community-reports?type=${modeParam}&target=${encodeURIComponent(queryParam || '')}`)}
+                    className="btn-primary text-sm w-full md:w-auto min-h-[44px]"
+                  >
+                    <Flag className="w-4 h-4 shrink-0" />
+                    <span className="whitespace-nowrap">Report to Community</span>
+                  </button>
+                </div>
+              </Card>
+            )}
           </div>
         )}
       </div>

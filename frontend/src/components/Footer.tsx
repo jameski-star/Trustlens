@@ -3,8 +3,8 @@ import { Shield } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-[var(--bg-surface)] border-t border-[var(--border)]">
-      <div className="container-page py-12">
+    <footer className="bg-[var(--bg-surface)] border-t border-[var(--border)] safe-area-bottom">
+      <div className="container-page py-8 md:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
