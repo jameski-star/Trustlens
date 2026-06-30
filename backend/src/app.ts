@@ -49,7 +49,7 @@ app.use(sanitizeMiddleware);
 app.use(xssClean);
 app.use(generalLimiter);
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/api/v1/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/v1', apiRoutes);
 

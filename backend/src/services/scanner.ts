@@ -388,9 +388,13 @@ export function analyzeEmail(email: string) {
   }
 
   const officialEmailCheck = isOfficialEmail(email);
+  let knownOrganization: string | undefined;
   if (officialEmailCheck.official) {
-    detectedRisks.push({ category: 'Official Contact', severity: 'low', description: `This appears to be an official contact for ${officialEmailCheck.contact?.name}. ${officialEmailCheck.notes}` });
+    knownOrganization = officialEmailCheck.contact?.name ?? officialEmailCheck.contact?.aliases[0];
+    detectedRisks.push({ category: 'Official Contact', severity: 'low', description: `This appears to be an official contact for ${knownOrganization}. ${officialEmailCheck.notes}` });
     riskScore += 20;
+  } else if (intel.organization) {
+    knownOrganization = intel.organization;
   }
 
   if (/^\d/.test(localPart)) {
@@ -410,7 +414,7 @@ export function analyzeEmail(email: string) {
   if (intel.isDisposable) summary += ' This is a disposable/temporary email address.';
   if (intel.provider) summary += ` Provider: ${intel.provider}.`;
 
-  return { riskScore, detectedRisks, summary, provider: intel.provider, isDisposable: intel.isDisposable, organization: intel.organization };
+  return { riskScore, detectedRisks, summary, provider: intel.provider, isDisposable: intel.isDisposable, organization: knownOrganization };
 }
 
 export function analyzePhoneNumber(phone: string) {
@@ -439,8 +443,10 @@ export function analyzePhoneNumber(phone: string) {
   }
 
   const officialCheck = isOfficialNumber(phone);
+  let organization: string | undefined;
   if (officialCheck.official) {
-    detectedRisks.push({ category: 'Official Contact', severity: 'low', description: `This number matches ${officialCheck.contact?.name} (${officialCheck.match} match).` });
+    organization = officialCheck.contact?.name;
+    detectedRisks.push({ category: 'Official Contact', severity: 'low', description: `This number matches ${organization} (${officialCheck.match} match).` });
     riskScore += 25;
   }
 
@@ -489,11 +495,12 @@ export function analyzePhoneNumber(phone: string) {
   else if (riskScore >= 40) summary = 'Shows some risk indicators. Exercise normal caution.';
   else summary = 'Multiple risk indicators including known scam patterns. Be cautious about engaging.';
 
+  if (organization) summary += ` Associated with: ${organization}.`;
   if (intel.provider) summary += ` Provider: ${intel.provider}.`;
   if (intel.country) summary += ` Location: ${intel.country.name}.`;
   if (intel.isVirtual) summary += ' This is a virtual number.';
 
-  return { riskScore, detectedRisks, summary, provider: intel.provider, country: intel.country?.name, isVirtual: intel.isVirtual };
+  return { riskScore, detectedRisks, summary, provider: intel.provider, country: intel.country?.name, isVirtual: intel.isVirtual, organization };
 }
 
 export function analyzeSmsContent(text: string) {

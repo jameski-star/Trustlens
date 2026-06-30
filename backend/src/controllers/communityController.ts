@@ -6,7 +6,7 @@ export async function createReport(req: Request, res: Response, next: NextFuncti
     const screenshots: string[] = [];
     if (req.files && Array.isArray(req.files)) {
       for (const file of req.files) {
-        screenshots.push(`/uploads/${file.filename}`);
+        screenshots.push(`/api/v1/uploads/${file.filename}`);
       }
     }
     const report = await CommunityReport.create({
@@ -36,7 +36,7 @@ export async function getReports(req: Request, res: Response, next: NextFunction
 
     const filter: Record<string, unknown> = {};
     if (status) filter.status = status;
-    else filter.status = 'published';
+    else filter.status = { $in: ['published', 'scam_alert'] };
     if (type) filter.type = type;
     if (category) filter.category = category;
 
@@ -63,23 +63,37 @@ export async function getReports(req: Request, res: Response, next: NextFunction
   }
 }
 
-export async function upvoteReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+async function handleVote(req: Request, res: Response, next: NextFunction, voteType: 'up' | 'down'): Promise<void> {
   try {
     const { id } = req.params;
-    const report = await CommunityReport.findByIdAndUpdate(
-      id,
-      { $inc: { upvotes: 1 } },
-      { new: true }
-    );
+    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+
+    const report = await CommunityReport.findById(id);
     if (!report) {
       res.status(404).json({ success: false, error: 'Report not found' });
       return;
     }
 
-    if (report.upvotes - report.downvotes >= 5 && report.status !== 'scam_alert') {
-      report.status = 'scam_alert';
-      await report.save();
+    const existingVote = report.voters.get(ip);
+
+    if (existingVote === voteType) {
+      res.status(409).json({ success: false, error: 'You have already voted this way' });
+      return;
     }
+
+    if (existingVote === 'up' && voteType === 'down') {
+      report.upvotes = Math.max(0, report.upvotes - 1);
+      report.downvotes += 1;
+    } else if (existingVote === 'down' && voteType === 'up') {
+      report.downvotes = Math.max(0, report.downvotes - 1);
+      report.upvotes += 1;
+    } else {
+      if (voteType === 'up') report.upvotes += 1;
+      else report.downvotes += 1;
+    }
+
+    report.voters.set(ip, voteType);
+    await report.save();
 
     res.json({ success: true, data: { report } });
   } catch (error) {
@@ -87,28 +101,12 @@ export async function upvoteReport(req: Request, res: Response, next: NextFuncti
   }
 }
 
+export async function upvoteReport(req: Request, res: Response, next: NextFunction): Promise<void> {
+  return handleVote(req, res, next, 'up');
+}
+
 export async function downvoteReport(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { id } = req.params;
-    const report = await CommunityReport.findByIdAndUpdate(
-      id,
-      { $inc: { downvotes: 1 } },
-      { new: true }
-    );
-    if (!report) {
-      res.status(404).json({ success: false, error: 'Report not found' });
-      return;
-    }
-
-    if (report.upvotes - report.downvotes >= 5 && report.status !== 'scam_alert') {
-      report.status = 'scam_alert';
-      await report.save();
-    }
-
-    res.json({ success: true, data: { report } });
-  } catch (error) {
-    next(error);
-  }
+  return handleVote(req, res, next, 'down');
 }
 
 export async function getReportById(req: Request, res: Response, next: NextFunction): Promise<void> {

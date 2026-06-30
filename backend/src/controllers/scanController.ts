@@ -4,6 +4,7 @@ import { SearchHistory } from '../models/SearchHistory';
 import { CommunityReport } from '../models/CommunityReport';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent, calculateFinalScore, generateRecommendations } from '../services/scanner';
 import { getPhoneIntel } from '../services/phoneIntel';
+import { isOfficialNumber, isImpersonatingOfficial } from '../services/knownContacts';
 import { performAIAnalysis } from '../services/aiAnalysis';
 import { analyzeScreenshot } from '../services/screenshotAnalysis';
 import { comprehensiveWhois } from '../services/whoisFallback';
@@ -218,6 +219,7 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
         },
         communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
+        organization: (analysis as any).organization,
       },
       recommendations,
       confidenceScore: aiResult.confidence,
@@ -247,10 +249,11 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
     ]);
     const smsAnalysis = analyzeSmsContent(input);
 
-    let phoneInfo: { provider?: string; country?: string; isVirtual: boolean } | null = null;
+    let phoneInfo: { provider?: string; country?: string; isVirtual: boolean; organization?: string } | null = null;
     const phoneMatch = input.match(/\+?\d[\d\-().\s]{7,15}/);
     if (phoneMatch) {
-      const intel = getPhoneIntel(phoneMatch[0]);
+      const phoneNumber = phoneMatch[0];
+      const intel = getPhoneIntel(phoneNumber);
       phoneInfo = { provider: intel.provider, country: intel.country?.name, isVirtual: intel.isVirtual };
       if (intel.isVirtual) {
         smsAnalysis.detectedRisks.push({
@@ -271,6 +274,23 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
           category: 'Phone Provider',
           severity: 'low',
           description: `Phone provider: ${intel.provider}.`,
+        });
+      }
+      const officialCheck = isOfficialNumber(phoneNumber);
+      if (officialCheck.official) {
+        phoneInfo.organization = officialCheck.contact?.name;
+        smsAnalysis.detectedRisks.push({
+          category: 'Official Contact',
+          severity: 'low',
+          description: `This number belongs to ${officialCheck.contact?.name} (${officialCheck.match} match).`,
+        });
+      }
+      const impersonationCheck = isImpersonatingOfficial(phoneNumber);
+      if (impersonationCheck.impersonating) {
+        smsAnalysis.detectedRisks.push({
+          category: 'Impersonation Alert',
+          severity: 'critical',
+          description: impersonationCheck.details,
         });
       }
     }
@@ -378,6 +398,7 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
           provider: (analysis as any).provider,
           country: (analysis as any).country,
           isVirtual: (analysis as any).isVirtual,
+          organization: (analysis as any).organization,
         },
       },
       recommendations,

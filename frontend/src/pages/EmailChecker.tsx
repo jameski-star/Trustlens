@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { Mail, Building2, ShieldCheck } from 'lucide-react';
 
 interface RiskItem {
   category: string;

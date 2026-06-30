@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MessageSquare, Phone, MapPin, Wifi } from 'lucide-react';
+import { MessageSquare, Phone, MapPin, Wifi, Building2 } from 'lucide-react';
 
 interface RiskItem {
   category: string;
@@ -101,6 +101,12 @@ export default function SMSChecker() {
               <Card className="mb-8">
                 <h3 className="font-semibold text-[var(--text-primary)] mb-3">Phone Number Information</h3>
                 <div className="space-y-2 text-sm">
+                  {((report.details as any).phoneInfo.organization) && (
+                    <div className="flex items-center gap-2 text-[#2563EB]">
+                      <Building2 className="w-4 h-4" />
+                      <span className="font-medium">{(report.details as any).phoneInfo.organization}</span>
+                    </div>
+                  )}
                   {((report.details as any).phoneInfo.country) && (
                     <div className="flex items-center gap-2 text-[var(--text-secondary)]">
                       <MapPin className="w-4 h-4" />

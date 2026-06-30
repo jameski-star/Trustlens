@@ -45,6 +45,8 @@ const categories = [
   'Other',
 ];
 
+const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, '') || '';
+
 export default function CommunityReports() {
   const [showForm, setShowForm] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -64,8 +66,15 @@ export default function CommunityReports() {
       if (type === 'upvote') await upvoteCommunityReport(id);
       else await downvoteCommunityReport(id);
       queryClient.invalidateQueries({ queryKey: ['community-reports'] });
-      toast.success(type === 'upvote' ? 'Agreed!' : 'Disagreed!');
-    } catch {
+      queryClient.invalidateQueries({ queryKey: ['scam-alerts'] });
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosErr = err as { response?: { status?: number; data?: { error?: string } } };
+        if (axiosErr.response?.status === 409) {
+          toast.error(axiosErr.response?.data?.error || 'You have already voted this way');
+          return;
+        }
+      }
       toast.error('Failed to vote');
     }
   };
@@ -319,7 +328,7 @@ export default function CommunityReports() {
                   {item.screenshots && item.screenshots.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
                       {item.screenshots.map((src, i) => (
-                        <img key={i} src={src} alt={`Screenshot ${i + 1}`} className="w-40 h-32 object-cover rounded-lg border border-[var(--border)]" />
+                        <img key={i} src={src.startsWith('http') ? src : `${API_BASE}${src}`} alt={`Screenshot ${i + 1}`} className="w-40 h-32 object-cover rounded-lg border border-[var(--border)]" />
                       ))}
                     </div>
                   )}
