@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getCommunityReports, createCommunityReport, upvoteCommunityReport } from '../api/client';
+import { getCommunityReports, createCommunityReport, upvoteCommunityReport, downvoteCommunityReport } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
-import { Flag, Plus, X, Loader2, ThumbsUp, Image as ImageIcon, Upload, ShieldCheck } from 'lucide-react';
+import { Flag, Plus, X, Loader2, ThumbsUp, ThumbsDown, Image as ImageIcon, Upload, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const reportTypes = [
@@ -23,6 +23,8 @@ interface CommunityReportItem {
   target: string;
   description: string;
   type: string;
+  upvotes: number;
+  downvotes: number;
   reports: number;
   isVerified: boolean;
   screenshots: string[];
@@ -57,13 +59,14 @@ export default function CommunityReports() {
     staleTime: 120_000,
   });
 
-  const handleUpvote = async (id: string) => {
+  const handleVote = async (id: string, type: 'upvote' | 'downvote') => {
     try {
-      await upvoteCommunityReport(id);
+      if (type === 'upvote') await upvoteCommunityReport(id);
+      else await downvoteCommunityReport(id);
       queryClient.invalidateQueries({ queryKey: ['community-reports'] });
-      toast.success('Upvoted!');
+      toast.success(type === 'upvote' ? 'Agreed!' : 'Disagreed!');
     } catch {
-      toast.error('Failed to upvote');
+      toast.error('Failed to vote');
     }
   };
 
@@ -280,38 +283,68 @@ export default function CommunityReports() {
 
           <div className="space-y-4 mt-8">
             {data?.items?.map((item: CommunityReportItem) => (
-              <Card key={item._id}>
-                <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Flag className="w-5 h-5 text-[#DC2626]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[var(--text-primary)]">{item.title}</h3>
-                    {item.target && (
-                      <p className="text-xs font-mono text-[var(--text-secondary)] mt-1 truncate">{item.target}</p>
-                    )}
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">{item.description.substring(0, 200)}</p>
-                    <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="text-xs font-mono bg-[var(--bg-subtle)] px-2 py-1 rounded-lg">{item.type}</span>
-                      <span className="text-xs text-[var(--text-secondary)]">{item.reports} reports</span>
-                      {item.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
-                      {item.screenshots?.length > 0 && (
-                        <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
-                          <ImageIcon className="w-3 h-3" />
-                          {item.screenshots.length} screenshot{item.screenshots.length > 1 ? 's' : ''}
-                        </span>
-                      )}
+              <details key={item._id} className="group">
+                <summary className="cursor-pointer list-none">
+                  <Card className="transition-colors group-open:ring-1 group-open:ring-[#2563EB]/30">
+                    <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center flex-shrink-0">
+                          <Flag className="w-5 h-5 text-[#DC2626]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-[var(--text-primary)]">{item.title}</h3>
+                        {item.target && (
+                          <p className="text-xs font-mono text-[var(--text-secondary)] mt-1 truncate">{item.target}</p>
+                        )}
+                        <p className="text-sm text-[var(--text-secondary)] mt-1">{item.description.substring(0, 200)}{item.description.length > 200 ? '...' : ''}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className="text-xs font-mono bg-[var(--bg-subtle)] px-2 py-1 rounded-lg">{item.type}</span>
+                          <span className="text-xs text-[var(--text-secondary)]">{item.reports} reports</span>
+                          {item.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
+                          {item.screenshots?.length > 0 && (
+                            <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
+                              <ImageIcon className="w-3 h-3" />
+                              {item.screenshots.length} screenshot{item.screenshots.length > 1 ? 's' : ''}
+                            </span>
+                          )}
+                          <span className="text-xs text-[var(--text-secondary)] ml-auto opacity-0 group-open:opacity-100 transition-opacity">Click to collapse</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </summary>
+                <Card className="mt-1 border-t-0 rounded-t-none">
+                  {item.description.length > 200 && (
+                    <p className="text-sm text-[var(--text-primary)] mb-4">{item.description}</p>
+                  )}
+                  {item.screenshots && item.screenshots.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {item.screenshots.map((src, i) => (
+                        <img key={i} src={src} alt={`Screenshot ${i + 1}`} className="w-40 h-32 object-cover rounded-lg border border-[var(--border)]" />
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)]">
+                    <span className="text-xs text-[var(--text-secondary)]">{new Date(item.createdAt).toLocaleDateString()}</span>
+                    {item.target && <span className="text-xs font-mono text-[var(--text-secondary)] truncate">{item.target}</span>}
+                    <div className="flex items-center gap-1 ml-auto">
                       <button
-                        onClick={() => handleUpvote(item._id)}
-                        className="flex items-center gap-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors"
+                        onClick={(e) => { e.preventDefault(); handleVote(item._id, 'upvote'); }}
+                        className="flex items-center gap-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[#16A34A] transition-colors"
                       >
                         <ThumbsUp className="w-3.5 h-3.5" />
-                        Upvote
+                        <span>{item.upvotes || 0}</span>
+                      </button>
+                      <button
+                        onClick={(e) => { e.preventDefault(); handleVote(item._id, 'downvote'); }}
+                        className="flex items-center gap-1 text-xs font-medium text-[var(--text-secondary)] hover:text-[#DC2626] transition-colors"
+                      >
+                        <ThumbsDown className="w-3.5 h-3.5" />
+                        <span>{item.downvotes || 0}</span>
                       </button>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </details>
             ))}
             {data?.items?.length === 0 && (
               <Card><p className="text-[var(--text-secondary)] text-center py-8">No reports yet. Be the first to report!</p></Card>

@@ -46,10 +46,14 @@ communityReportSchema.pre('findOneAndUpdate', async function () {
   const update = this.getUpdate() as Record<string, unknown>;
   if (update && typeof update.$inc === 'object' && update.$inc !== null) {
     const inc = update.$inc as Record<string, number>;
-    if (inc.upvotes) {
-      const doc = await this.model.findOne(this.getQuery()).select('upvotes status');
-      if (doc && doc.upvotes + inc.upvotes >= 5 && doc.status !== 'scam_alert') {
-        this.set('status', 'scam_alert');
+    if (inc.upvotes || inc.downvotes) {
+      const doc = await this.model.findOne(this.getQuery()).select('upvotes downvotes status');
+      if (doc && doc.status !== 'scam_alert') {
+        const newUpvotes = doc.upvotes + (inc.upvotes || 0);
+        const newDownvotes = doc.downvotes + (inc.downvotes || 0);
+        if (newUpvotes - newDownvotes >= 5) {
+          this.set('status', 'scam_alert');
+        }
       }
     }
   }

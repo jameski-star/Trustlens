@@ -76,7 +76,7 @@ export async function upvoteReport(req: Request, res: Response, next: NextFuncti
       return;
     }
 
-    if (report.upvotes >= 5 && report.status !== 'scam_alert') {
+    if (report.upvotes - report.downvotes >= 5 && report.status !== 'scam_alert') {
       report.status = 'scam_alert';
       await report.save();
     }
@@ -99,6 +99,12 @@ export async function downvoteReport(req: Request, res: Response, next: NextFunc
       res.status(404).json({ success: false, error: 'Report not found' });
       return;
     }
+
+    if (report.upvotes - report.downvotes >= 5 && report.status !== 'scam_alert') {
+      report.status = 'scam_alert';
+      await report.save();
+    }
+
     res.json({ success: true, data: { report } });
   } catch (error) {
     next(error);

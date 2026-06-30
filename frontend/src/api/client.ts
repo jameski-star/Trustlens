@@ -100,6 +100,11 @@ export async function upvoteCommunityReport(id: string) {
   return data.data;
 }
 
+export async function downvoteCommunityReport(id: string) {
+  const { data } = await apiClient.post(`/community/${id}/downvote`);
+  return data.data;
+}
+
 export async function createCommunityReport(formData: FormData) {
   const { data } = await apiClient.post('/community', formData);
   return data.data;

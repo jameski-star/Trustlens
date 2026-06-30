@@ -3,6 +3,7 @@ import { Report } from '../models/Report';
 import { SearchHistory } from '../models/SearchHistory';
 import { CommunityReport } from '../models/CommunityReport';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent, calculateFinalScore, generateRecommendations } from '../services/scanner';
+import { getPhoneIntel } from '../services/phoneIntel';
 import { performAIAnalysis } from '../services/aiAnalysis';
 import { analyzeScreenshot } from '../services/screenshotAnalysis';
 import { comprehensiveWhois } from '../services/whoisFallback';
@@ -246,6 +247,34 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
     ]);
     const smsAnalysis = analyzeSmsContent(input);
 
+    let phoneInfo: { provider?: string; country?: string; isVirtual: boolean } | null = null;
+    const phoneMatch = input.match(/\+?\d[\d\-().\s]{7,15}/);
+    if (phoneMatch) {
+      const intel = getPhoneIntel(phoneMatch[0]);
+      phoneInfo = { provider: intel.provider, country: intel.country?.name, isVirtual: intel.isVirtual };
+      if (intel.isVirtual) {
+        smsAnalysis.detectedRisks.push({
+          category: 'Virtual Number',
+          severity: 'medium',
+          description: 'Phone number in SMS appears to be a virtual/VoIP/disposable number — often used by scammers.',
+        });
+      }
+      if (intel.country) {
+        smsAnalysis.detectedRisks.push({
+          category: 'Phone Location',
+          severity: 'low',
+          description: `Phone country: ${intel.country.name} (${intel.country.region}).`,
+        });
+      }
+      if (intel.provider) {
+        smsAnalysis.detectedRisks.push({
+          category: 'Phone Provider',
+          severity: 'low',
+          description: `Phone provider: ${intel.provider}.`,
+        });
+      }
+    }
+
     const finalScore = Math.round(
       smsAnalysis.riskScore * 0.50 + community.score * 0.25 + aiResult.confidence * 0.25
     );
@@ -283,6 +312,7 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
         communityReports: community.count,
         detectedRisks: smsAnalysis.detectedRisks,
         scamPatterns: smsAnalysis.detectedRisks.filter(r => r.category === 'Scam Pattern').map(r => r.description),
+        phoneInfo,
       },
       recommendations,
       confidenceScore: aiResult.confidence,
@@ -344,6 +374,11 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
         },
         communityReports: community.count,
         detectedRisks: analysis.detectedRisks,
+        phoneInfo: {
+          provider: (analysis as any).provider,
+          country: (analysis as any).country,
+          isVirtual: (analysis as any).isVirtual,
+        },
       },
       recommendations,
       confidenceScore: aiResult.confidence,

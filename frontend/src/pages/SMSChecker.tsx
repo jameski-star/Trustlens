@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Phone, MapPin, Wifi } from 'lucide-react';
 
 interface RiskItem {
   category: string;
@@ -96,6 +96,32 @@ export default function SMSChecker() {
                 <p className="text-sm text-[#16A34A]">No risks detected</p>
               )}
             </Card>
+
+            {(report.details as any)?.phoneInfo && (
+              <Card className="mb-8">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3">Phone Number Information</h3>
+                <div className="space-y-2 text-sm">
+                  {((report.details as any).phoneInfo.country) && (
+                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                      <MapPin className="w-4 h-4" />
+                      <span>Location: {(report.details as any).phoneInfo.country}</span>
+                    </div>
+                  )}
+                  {((report.details as any).phoneInfo.provider) && (
+                    <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+                      <Phone className="w-4 h-4" />
+                      <span>Provider: {(report.details as any).phoneInfo.provider}</span>
+                    </div>
+                  )}
+                  {((report.details as any).phoneInfo.isVirtual) && (
+                    <div className="flex items-center gap-2 text-[#D97706]">
+                      <Wifi className="w-4 h-4" />
+                      <span className="font-medium">Virtual/VoIP Number — often used by scammers</span>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
 
             <Card className="mb-8">
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Recommendations</h3>
