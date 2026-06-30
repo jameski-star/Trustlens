@@ -3,7 +3,7 @@ import { Report } from '../models/Report';
 import { SearchHistory } from '../models/SearchHistory';
 import { CommunityReport } from '../models/CommunityReport';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent, calculateFinalScore, generateRecommendations } from '../services/scanner';
-import { performAIAnalysis, type AnalysisContext } from '../services/aiAnalysis';
+import { performAIAnalysis } from '../services/aiAnalysis';
 import { logger } from '../utils/logger';
 
 const communityTypeMap: Record<string, string[]> = {
@@ -77,28 +77,11 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
   try {
     const { input } = req.body;
 
-    const [analysis, community] = await Promise.all([
+    const [analysis, community, aiResult] = await Promise.all([
       analyzeUrl(input),
       getCommunityScore(input, 'url'),
+      performAIAnalysis(input, 'url'),
     ]);
-
-    const aiContext: AnalysisContext = {
-      siteTitle: analysis.siteScrape?.title,
-      siteDescription: analysis.siteScrape?.description,
-      hasForms: analysis.siteScrape?.hasForms,
-      hasPasswordField: analysis.siteScrape?.hasPasswordField,
-      hasPrivacyPolicy: analysis.siteScrape?.hasPrivacyPolicy,
-      hasContactPage: analysis.siteScrape?.hasContactPage,
-      contentLength: analysis.siteScrape?.contentLength,
-      siteRisks: analysis.detectedRisks.filter(r => r.category === 'Site Content').map(r => r.description),
-      domainAgeDays: analysis.domainAge?.daysSinceCreation,
-      whoisCountry: analysis.whois?.country,
-      whoisOrg: analysis.whois?.organization,
-      blacklistedSources: analysis.blacklists.filter(b => b.listed).map(b => b.source),
-      communityReports: community,
-    };
-
-    const aiResult = await performAIAnalysis(input, 'url', aiContext);
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,
@@ -164,18 +147,11 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
   try {
     const { input } = req.body;
 
-    const [community] = await Promise.all([
+    const [community, aiResult] = await Promise.all([
       getCommunityScore(input, 'email'),
+      performAIAnalysis(input, 'email'),
     ]);
     const analysis = analyzeEmail(input);
-
-    const aiContext: AnalysisContext = {
-      detectedRisks: analysis.detectedRisks.map(r => r.description),
-      scamTemplates: analysis.detectedRisks.filter(r => r.category === 'Brand Impersonation').map(r => r.description),
-      communityReports: community,
-    };
-
-    const aiResult = await performAIAnalysis(input, 'email', aiContext);
 
     const finalScore = calculateFinalScore({
       ssl: 0,
@@ -240,18 +216,11 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
   try {
     const { input } = req.body;
 
-    const [community] = await Promise.all([
+    const [community, aiResult] = await Promise.all([
       getCommunityScore(input, 'sms'),
+      performAIAnalysis(input, 'sms'),
     ]);
     const smsAnalysis = analyzeSmsContent(input);
-
-    const aiContext: AnalysisContext = {
-      detectedRisks: smsAnalysis.detectedRisks.map(r => r.description),
-      scamTemplates: smsAnalysis.detectedRisks.filter(r => r.category === 'Scam Pattern').map(r => r.description),
-      communityReports: community,
-    };
-
-    const aiResult = await performAIAnalysis(input, 'sms', aiContext);
 
     const finalScore = Math.round(
       smsAnalysis.riskScore * 0.50 + community.score * 0.25 + aiResult.confidence * 0.25
@@ -313,14 +282,10 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
   try {
     const { input } = req.body;
     const analysis = analyzePhoneNumber(input);
-    const community = await getCommunityScore(input, 'phone');
-
-    const aiContext: AnalysisContext = {
-      detectedRisks: analysis.detectedRisks.map(r => r.description),
-      communityReports: community,
-    };
-
-    const aiResult = await performAIAnalysis(input, 'phone', aiContext);
+    const [community, aiResult] = await Promise.all([
+      getCommunityScore(input, 'phone'),
+      performAIAnalysis(input, 'phone'),
+    ]);
 
     const finalScore = Math.round(analysis.riskScore * 0.4 + community.score * 0.3 + aiResult.confidence * 0.3);
     const riskLevel = getRiskLevel(finalScore);
@@ -453,28 +418,11 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
 export async function scanQrcode(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { input } = req.body;
-    const [analysis, community] = await Promise.all([
+    const [analysis, community, aiResult] = await Promise.all([
       analyzeUrl(input),
       getCommunityScore(input, 'qrcode'),
+      performAIAnalysis(input, 'url'),
     ]);
-
-    const aiContext: AnalysisContext = {
-      siteTitle: analysis.siteScrape?.title,
-      siteDescription: analysis.siteScrape?.description,
-      hasForms: analysis.siteScrape?.hasForms,
-      hasPasswordField: analysis.siteScrape?.hasPasswordField,
-      hasPrivacyPolicy: analysis.siteScrape?.hasPrivacyPolicy,
-      hasContactPage: analysis.siteScrape?.hasContactPage,
-      contentLength: analysis.siteScrape?.contentLength,
-      siteRisks: analysis.detectedRisks.filter(r => r.category === 'Site Content').map(r => r.description),
-      domainAgeDays: analysis.domainAge?.daysSinceCreation,
-      whoisCountry: analysis.whois?.country,
-      whoisOrg: analysis.whois?.organization,
-      blacklistedSources: analysis.blacklists.filter(b => b.listed).map(b => b.source),
-      communityReports: community,
-    };
-
-    const aiResult = await performAIAnalysis(input, 'url', aiContext);
 
     const finalScore = calculateFinalScore({
       ssl: analysis.ssl ? 80 : 30,

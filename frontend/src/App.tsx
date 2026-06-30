@@ -1,73 +1,83 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import Layout from './components/Layout';
-import Home from './pages/Home';
-import Result from './pages/Result';
-import URLChecker from './pages/URLChecker';
-import EmailChecker from './pages/EmailChecker';
-import SMSChecker from './pages/SMSChecker';
-import ScreenshotScanner from './pages/ScreenshotScanner';
-import QRCodeScanner from './pages/QRCodeScanner';
-import CommunityReports from './pages/CommunityReports';
-import ScamAlerts from './pages/ScamAlerts';
-import TrendingScams from './pages/TrendingScams';
-import KnowledgeCenter from './pages/KnowledgeCenter';
-import KnowledgeArticle from './pages/KnowledgeArticle';
-import Blog from './pages/Blog';
-import BlogPostPage from './pages/BlogPost';
-import About from './pages/About';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
-import Contact from './pages/Contact';
-import FAQ from './pages/FAQ';
-import APIDocs from './pages/APIDocs';
-import Status from './pages/Status';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import NotFound from './pages/NotFound';
-import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminDashboard from './admin/AdminDashboard';
-import AdminUsers from './admin/AdminUsers';
-import AdminReports from './admin/AdminReports';
-import AdminBlog from './admin/AdminBlog';
-import AdminAnalytics from './admin/AdminAnalytics';
+
+const Home = lazy(() => import('./pages/Home'));
+const Result = lazy(() => import('./pages/Result'));
+const URLChecker = lazy(() => import('./pages/URLChecker'));
+const EmailChecker = lazy(() => import('./pages/EmailChecker'));
+const SMSChecker = lazy(() => import('./pages/SMSChecker'));
+const ScreenshotScanner = lazy(() => import('./pages/ScreenshotScanner'));
+const QRCodeScanner = lazy(() => import('./pages/QRCodeScanner'));
+const CommunityReports = lazy(() => import('./pages/CommunityReports'));
+const ScamAlerts = lazy(() => import('./pages/ScamAlerts'));
+const TrendingScams = lazy(() => import('./pages/TrendingScams'));
+const KnowledgeCenter = lazy(() => import('./pages/KnowledgeCenter'));
+const KnowledgeArticle = lazy(() => import('./pages/KnowledgeArticle'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPostPage = lazy(() => import('./pages/BlogPost'));
+const About = lazy(() => import('./pages/About'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Contact = lazy(() => import('./pages/Contact'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const APIDocs = lazy(() => import('./pages/APIDocs'));
+const Status = lazy(() => import('./pages/Status'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
+const AdminUsers = lazy(() => import('./admin/AdminUsers'));
+const AdminReports = lazy(() => import('./admin/AdminReports'));
+const AdminBlog = lazy(() => import('./admin/AdminBlog'));
+const AdminAnalytics = lazy(() => import('./admin/AdminAnalytics'));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="w-6 h-6 border-2 border-[var(--text-accent)] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <>
       <ScrollToTop />
       <Routes>
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/users" element={<ProtectedRoute requireAdmin><AdminUsers /></ProtectedRoute>} />
-        <Route path="/admin/reports" element={<ProtectedRoute requireAdmin><AdminReports /></ProtectedRoute>} />
-        <Route path="/admin/blog" element={<ProtectedRoute requireAdmin><AdminBlog /></ProtectedRoute>} />
-        <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AdminAnalytics /></ProtectedRoute>} />
-        <Route path="*" element={<Layout><NotFound /></Layout>} />
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/result/:shareId" element={<Layout><Result /></Layout>} />
-        <Route path="/url-checker" element={<Layout><URLChecker /></Layout>} />
-        <Route path="/email-checker" element={<Layout><EmailChecker /></Layout>} />
-        <Route path="/sms-checker" element={<Layout><SMSChecker /></Layout>} />
-        <Route path="/screenshot-scanner" element={<Layout><ScreenshotScanner /></Layout>} />
-        <Route path="/qr-scanner" element={<Layout><QRCodeScanner /></Layout>} />
-        <Route path="/community-reports" element={<Layout><CommunityReports /></Layout>} />
-        <Route path="/scam-alerts" element={<Layout><ScamAlerts /></Layout>} />
-        <Route path="/trending-scams" element={<Layout><TrendingScams /></Layout>} />
-        <Route path="/knowledge-center" element={<Layout><KnowledgeCenter /></Layout>} />
-        <Route path="/knowledge-center/:slug" element={<Layout><KnowledgeArticle /></Layout>} />
-        <Route path="/blog" element={<Layout><Blog /></Layout>} />
-        <Route path="/blog/:slug" element={<Layout><BlogPostPage /></Layout>} />
-        <Route path="/about" element={<Layout><About /></Layout>} />
-        <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
-        <Route path="/terms" element={<Layout><Terms /></Layout>} />
-        <Route path="/contact" element={<Layout><Contact /></Layout>} />
-        <Route path="/faq" element={<Layout><FAQ /></Layout>} />
-        <Route path="/api-docs" element={<Layout><APIDocs /></Layout>} />
-        <Route path="/status" element={<Layout><Status /></Layout>} />
-        <Route path="/login" element={<Layout><Login /></Layout>} />
-        <Route path="/register" element={<Layout><Register /></Layout>} />
+        <Route path="/admin/login" element={<Suspense fallback={<PageLoader />}><AdminLogin /></Suspense>} />
+        <Route path="/admin" element={<Suspense fallback={<PageLoader />}><ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute></Suspense>} />
+        <Route path="/admin/users" element={<Suspense fallback={<PageLoader />}><ProtectedRoute requireAdmin><AdminUsers /></ProtectedRoute></Suspense>} />
+        <Route path="/admin/reports" element={<Suspense fallback={<PageLoader />}><ProtectedRoute requireAdmin><AdminReports /></ProtectedRoute></Suspense>} />
+        <Route path="/admin/blog" element={<Suspense fallback={<PageLoader />}><ProtectedRoute requireAdmin><AdminBlog /></ProtectedRoute></Suspense>} />
+        <Route path="/admin/analytics" element={<Suspense fallback={<PageLoader />}><ProtectedRoute requireAdmin><AdminAnalytics /></ProtectedRoute></Suspense>} />
+        <Route path="*" element={<Suspense fallback={<PageLoader />}><Layout><NotFound /></Layout></Suspense>} />
+        <Route path="/" element={<Suspense fallback={<PageLoader />}><Layout><Home /></Layout></Suspense>} />
+        <Route path="/result/:shareId" element={<Suspense fallback={<PageLoader />}><Layout><Result /></Layout></Suspense>} />
+        <Route path="/url-checker" element={<Suspense fallback={<PageLoader />}><Layout><URLChecker /></Layout></Suspense>} />
+        <Route path="/email-checker" element={<Suspense fallback={<PageLoader />}><Layout><EmailChecker /></Layout></Suspense>} />
+        <Route path="/sms-checker" element={<Suspense fallback={<PageLoader />}><Layout><SMSChecker /></Layout></Suspense>} />
+        <Route path="/screenshot-scanner" element={<Suspense fallback={<PageLoader />}><Layout><ScreenshotScanner /></Layout></Suspense>} />
+        <Route path="/qr-scanner" element={<Suspense fallback={<PageLoader />}><Layout><QRCodeScanner /></Layout></Suspense>} />
+        <Route path="/community-reports" element={<Suspense fallback={<PageLoader />}><Layout><CommunityReports /></Layout></Suspense>} />
+        <Route path="/scam-alerts" element={<Suspense fallback={<PageLoader />}><Layout><ScamAlerts /></Layout></Suspense>} />
+        <Route path="/trending-scams" element={<Suspense fallback={<PageLoader />}><Layout><TrendingScams /></Layout></Suspense>} />
+        <Route path="/knowledge-center" element={<Suspense fallback={<PageLoader />}><Layout><KnowledgeCenter /></Layout></Suspense>} />
+        <Route path="/knowledge-center/:slug" element={<Suspense fallback={<PageLoader />}><Layout><KnowledgeArticle /></Layout></Suspense>} />
+        <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Layout><Blog /></Layout></Suspense>} />
+        <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><Layout><BlogPostPage /></Layout></Suspense>} />
+        <Route path="/about" element={<Suspense fallback={<PageLoader />}><Layout><About /></Layout></Suspense>} />
+        <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><Layout><Privacy /></Layout></Suspense>} />
+        <Route path="/terms" element={<Suspense fallback={<PageLoader />}><Layout><Terms /></Layout></Suspense>} />
+        <Route path="/contact" element={<Suspense fallback={<PageLoader />}><Layout><Contact /></Layout></Suspense>} />
+        <Route path="/faq" element={<Suspense fallback={<PageLoader />}><Layout><FAQ /></Layout></Suspense>} />
+        <Route path="/api-docs" element={<Suspense fallback={<PageLoader />}><Layout><APIDocs /></Layout></Suspense>} />
+        <Route path="/status" element={<Suspense fallback={<PageLoader />}><Layout><Status /></Layout></Suspense>} />
+        <Route path="/login" element={<Suspense fallback={<PageLoader />}><Layout><Login /></Layout></Suspense>} />
+        <Route path="/register" element={<Suspense fallback={<PageLoader />}><Layout><Register /></Layout></Suspense>} />
       </Routes>
     </>
   );
