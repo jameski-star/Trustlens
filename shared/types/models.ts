@@ -9,6 +9,18 @@ export interface IUser {
   updatedAt: Date;
 }
 
+export interface SiteScrape {
+  title: string;
+  description: string;
+  hasForms: boolean;
+  hasPasswordField: boolean;
+  hasPrivacyPolicy: boolean;
+  hasContactPage: boolean;
+  techStack: string[];
+  contentLength: number;
+  redirects: string[];
+}
+
 export interface IReport {
   _id: string;
   type: 'url' | 'email' | 'sms' | 'phone' | 'screenshot' | 'qrcode';
@@ -25,6 +37,7 @@ export interface IReport {
     aiAnalysis: AIAnalysis | null;
     communityReports: number;
     detectedRisks: Risk[];
+    siteScrape: SiteScrape | null;
   };
   recommendations: string[];
   confidenceScore: number;

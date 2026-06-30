@@ -168,26 +168,18 @@ function createGeminiProvider(type: string, input: string): AIProvider | null {
 
 async function raceAIProviders(providers: AIProvider[], signal?: AbortSignal): Promise<string> {
   if (providers.length === 0) return '';
-  if (providers.length === 1) {
-    try {
-      return await providers[0]();
-    } catch { return ''; }
-  }
-
-  const errors: unknown[] = [];
 
   const raced = providers.map((p) =>
     p().then((r) => {
       if (signal?.aborted) return '';
       return r;
-    }).catch((err) => {
-      errors.push(err);
-      throw err;
     })
   );
 
-  const result = await Promise.race(raced).catch(() => '');
-  if (result) return result;
+  const results = await Promise.allSettled(raced);
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) return r.value;
+  }
 
   return '';
 }

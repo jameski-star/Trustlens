@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Shield, Users, Search, Flag, FileText, Activity } from 'lucide-react';
+import { Shield, Users, Search, Flag, FileText, Activity, BarChart3 } from 'lucide-react';
 import apiClient from '../api/client';
 import AdminLayout from './AdminLayout';
 
@@ -10,6 +10,7 @@ interface DashboardStats {
     totalReports: number;
     totalPosts: number;
     scansToday: number;
+    scamAlerts: number;
   };
 }
 
@@ -30,6 +31,7 @@ export default function AdminDashboard() {
     { label: 'Total Scans', value: stats?.totalScans ?? '—', icon: Search, color: 'bg-[#F0FDF4] text-[#16A34A]' },
     { label: 'Scans Today', value: stats?.scansToday ?? '—', icon: Activity, color: 'bg-[#FFFBEB] text-[#D97706]' },
     { label: 'Community Reports', value: stats?.totalReports ?? '—', icon: Flag, color: 'bg-[#FEF2F2] text-[#DC2626]' },
+    { label: 'Scam Alerts', value: stats?.scamAlerts ?? '—', icon: Shield, color: 'bg-[#FEF2F2] text-[#DC2626]' },
     { label: 'Blog Posts', value: stats?.totalPosts ?? '—', icon: FileText, color: 'bg-[#F5F3FF] text-[#7C3AED]' },
   ];
 
@@ -80,15 +82,5 @@ export default function AdminDashboard() {
         </div>
       </div>
     </AdminLayout>
-  );
-}
-
-function BarChart3( props: React.SVGProps<SVGSVGElement> ) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="20" x2="12" y2="10" />
-      <line x1="18" y1="20" x2="18" y2="4" />
-      <line x1="6" y1="20" x2="6" y2="16" />
-    </svg>
   );
 }

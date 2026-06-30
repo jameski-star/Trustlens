@@ -2,15 +2,13 @@ import dns from 'dns/promises';
 import { logger } from '../utils/logger';
 import { config } from '../config';
 import { scrapeSite } from './siteScraper';
-import { comprehensiveWhois } from './whoisFallback';
+import { comprehensiveWhois, type WhoisResult, type DomainAgeResult } from './whoisFallback';
 import { scanAllReputations } from './reputationChecker';
 import { detectScamTemplates, isKnownScamDomain, isHighRiskPhone } from './scamPatterns';
 import { isOfficialNumber, isOfficialEmail, isImpersonatingOfficial } from './knownContacts';
 
-let whoisDisabled = false;
-let whoisFailureCount = 0;
-let whoisLastFailureTime = 0;
-let whoisInProgress = false;
+const whoisCache = new Map<string, { result: WhoisLookupResult; expires: number }>();
+const WHOIS_CACHE_TTL = 300_000;
 
 const RDAP_SERVERS: Record<string, string> = {
   com: 'https://rdap.verisign.com/com/v1/domain/',
@@ -46,32 +44,63 @@ function extractDomain(hostname: string): string {
   return parts.slice(-2).join('.');
 }
 
-function fallbackWhoisData() {
+interface WhoisLookupResult {
+  domainAge: DomainAgeResult | null;
+  whois: WhoisResult | null;
+}
+
+function fallbackWhoisData(): WhoisLookupResult {
   return { domainAge: null, whois: null };
 }
 
-async function lookupWhois(hostname: string) {
-  if (whoisInProgress) return fallbackWhoisData();
-  if (whoisDisabled) {
-    const elapsed = Date.now() - whoisLastFailureTime;
-    if (elapsed < config.whois.retryIntervalMs) return fallbackWhoisData();
-    whoisDisabled = false;
-    whoisFailureCount = 0;
+async function lookupWhois(hostname: string): Promise<WhoisLookupResult> {
+  if (!hostname) return fallbackWhoisData();
+  const isIp = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname);
+  if (isIp) return fallbackWhoisData();
+
+  const domain = extractDomain(hostname);
+
+  const cached = whoisCache.get(domain);
+  if (cached && cached.expires > Date.now()) return cached.result;
+
+  const [rdapResult, whoisResult] = await Promise.allSettled([
+    tryPrimaryRdap(domain),
+    comprehensiveWhois(hostname),
+  ]);
+
+  if (rdapResult.status === 'fulfilled' && rdapResult.value) {
+    const val = rdapResult.value;
+    if (val.domainAge || (val.whois && val.whois.registrar !== 'Unknown')) {
+      whoisCache.set(domain, { result: val, expires: Date.now() + WHOIS_CACHE_TTL });
+      return val;
+    }
   }
-  whoisInProgress = true;
+
+  if (whoisResult.status === 'fulfilled' && whoisResult.value) {
+    const val = whoisResult.value;
+    if (val.domainAge || val.whois) {
+      const result: WhoisLookupResult = { domainAge: val.domainAge, whois: val.whois };
+      whoisCache.set(domain, { result, expires: Date.now() + WHOIS_CACHE_TTL });
+      return result;
+    }
+  }
+
+  whoisCache.set(domain, { result: { domainAge: null, whois: null }, expires: Date.now() + 60_000 });
+  return { domainAge: null, whois: null };
+}
+
+async function tryPrimaryRdap(domain: string): Promise<WhoisLookupResult | null> {
+  const tld = domain.split('.').pop() || '';
+  const rdapUrl = RDAP_SERVERS[tld];
+  if (!rdapUrl) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
   try {
-    const domain = extractDomain(hostname);
-    const tld = domain.split('.').pop() || '';
-    const rdapUrl = RDAP_SERVERS[tld];
-    if (!rdapUrl) throw new Error(`No RDAP server for .${tld}`);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), config.whois.rdapTimeoutMs);
     const response = await fetch(`${rdapUrl}${domain}`, {
       signal: controller.signal,
       headers: { Accept: 'application/json' },
     });
-    clearTimeout(timer);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) return null;
     const data = await response.json() as Record<string, unknown>;
     const events = (data.events as Array<{ eventAction: string; eventDate: string }>) || [];
     const entities = (data.entities as Array<Record<string, unknown>>) || [];
@@ -97,48 +126,34 @@ async function lookupWhois(hostname: string) {
         }
       }
     }
-    if (org === 'Unknown' || country === 'Unknown') {
-      for (const entity of entities) {
-        const vcardArray = entity.vcardArray as Array<unknown>;
-        if (!vcardArray) continue;
-        const vcard = vcardArray[1] as Array<Array<unknown>>;
-        if (!vcard) continue;
-        for (const item of vcard) {
-          const [field, , , value] = item as [string, unknown, unknown, string];
-          if (field === 'fn' && org === 'Unknown') org = value;
-          if (field === 'adr') {
-            const parts = (value as string || '').split(';');
-            if (parts[5]) country = parts[5];
-          }
+    for (const entity of entities) {
+      const vcardArray = entity.vcardArray as Array<unknown>;
+      if (!vcardArray) continue;
+      const vcard = vcardArray[1] as Array<Array<unknown>>;
+      if (!vcard) continue;
+      for (const item of vcard) {
+        const [field, , , value] = item as [string, unknown, unknown, string];
+        if (field === 'fn' && org === 'Unknown') org = value;
+        if (field === 'adr') {
+          const parts = (value as string || '').split(';');
+          if (parts[5]) country = parts[5];
         }
       }
     }
-    whoisFailureCount = 0;
-    whoisDisabled = false;
-    whoisInProgress = false;
     let domainAge = null;
     if (creationDate && !isNaN(creationDate.getTime())) {
       const diff = Date.now() - creationDate.getTime();
       domainAge = {
         created: creationDate,
-        daysSinceCreation: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        monthsSinceCreation: Math.floor(diff / (1000 * 60 * 60 * 24 * 30.44)),
+        daysSinceCreation: Math.floor(diff / 86400000),
+        monthsSinceCreation: Math.floor(diff / 2629746000),
       };
     }
     return { domainAge, whois: { registrar, creationDate, expirationDate, lastUpdated, country, organization: org } };
-  } catch (err) {
-    whoisFailureCount++;
-    whoisLastFailureTime = Date.now();
-    whoisInProgress = false;
-    if (whoisFailureCount >= config.whois.maxFailures) {
-      whoisDisabled = true;
-      logger.warn({ hostname, error: err instanceof Error ? err.message : String(err) }, 'WHOIS disabled, using fallbacks');
-    }
-    const fallback = await comprehensiveWhois(hostname);
-    if (fallback.domainAge || fallback.whois) {
-      return { domainAge: fallback.domainAge, whois: fallback.whois };
-    }
-    return fallbackWhoisData();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -211,7 +226,10 @@ export async function analyzeUrl(url: string) {
     hostname ? scanAllReputations(hostname, ip) : Promise.resolve({ results: [], communityReports: { count: 0, positive: 0, negative: 0 } }),
   ]);
 
-  if (siteData?.risks.length) {
+  if (siteData === null) {
+    detectedRisks.push({ category: 'Site Content', severity: 'medium', description: 'Could not fetch site content — the page may be unavailable, blocking scrapers, or loading slowly.' });
+    riskScore += 10;
+  } else if (siteData.risks.length) {
     for (const risk of siteData.risks) {
       detectedRisks.push({ category: 'Site Content', severity: 'medium', description: risk });
       riskScore += 8;

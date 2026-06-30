@@ -9,7 +9,17 @@ export async function createReport(req: Request, res: Response, next: NextFuncti
         screenshots.push(`/uploads/${file.filename}`);
       }
     }
-    const report = await CommunityReport.create({ ...req.body, screenshots });
+    const report = await CommunityReport.create({
+      ...req.body,
+      screenshots,
+      title: req.body.title || `Report: ${req.body.target}`,
+      category: req.body.category || 'Other',
+      status: 'pending',
+      upvotes: 0,
+      downvotes: 0,
+      reports: 1,
+      isVerified: false,
+    });
     res.status(201).json({ success: true, data: { report } });
   } catch (error) {
     next(error);
@@ -22,8 +32,11 @@ export async function getReports(req: Request, res: Response, next: NextFunction
     const limit = parseInt(req.query.limit as string) || 20;
     const type = req.query.type as string;
     const category = req.query.category as string;
+    const status = req.query.status as string;
 
-    const filter: Record<string, unknown> = { status: 'published' };
+    const filter: Record<string, unknown> = {};
+    if (status) filter.status = status;
+    else filter.status = 'published';
     if (type) filter.type = type;
     if (category) filter.category = category;
 
@@ -62,6 +75,12 @@ export async function upvoteReport(req: Request, res: Response, next: NextFuncti
       res.status(404).json({ success: false, error: 'Report not found' });
       return;
     }
+
+    if (report.upvotes >= 5 && report.status !== 'scam_alert') {
+      report.status = 'scam_alert';
+      await report.save();
+    }
+
     res.json({ success: true, data: { report } });
   } catch (error) {
     next(error);
@@ -101,10 +120,11 @@ export async function getReportById(req: Request, res: Response, next: NextFunct
 
 export async function getReportStats(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const [totalReports, byType] = await Promise.all([
+    const [publishedReports, scamAlerts, byType] = await Promise.all([
       CommunityReport.countDocuments({ status: 'published' }),
+      CommunityReport.countDocuments({ status: 'scam_alert' }),
       CommunityReport.aggregate([
-        { $match: { status: 'published' } },
+        { $match: { status: { $in: ['published', 'scam_alert'] } } },
         { $group: { _id: '$type', count: { $sum: 1 } } },
       ]),
     ]);
@@ -112,7 +132,8 @@ export async function getReportStats(_req: Request, res: Response, next: NextFun
     res.json({
       success: true,
       data: {
-        totalReports,
+        totalReports: publishedReports + scamAlerts,
+        scamAlerts,
         byType,
       },
     });

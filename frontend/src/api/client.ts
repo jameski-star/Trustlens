@@ -66,7 +66,7 @@ export async function scanPhone(input: string) {
 }
 
 export async function getReport(shareId: string) {
-  const { data } = await apiClient.get(`/scan/report/${shareId}`);
+  const { data } = await apiClient.get(`/report/${shareId}`);
   return data.data.report;
 }
 
@@ -96,7 +96,7 @@ export async function getCommunityReports(params?: { page?: number; limit?: numb
 }
 
 export async function upvoteCommunityReport(id: string) {
-  const { data } = await apiClient.patch(`/community/${id}/upvote`);
+  const { data } = await apiClient.post(`/community/${id}/upvote`);
   return data.data;
 }
 
@@ -194,5 +194,10 @@ export async function getKnowledgeArticle(slug: string) {
 
 export async function getProfile() {
   const { data } = await apiClient.get('/auth/profile');
+  return data.data;
+}
+
+export async function getScamAlerts(params?: { page?: number; limit?: number }) {
+  const { data } = await apiClient.get('/community/scam-alerts', { params });
   return data.data;
 }

@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
-import { Camera, Upload, X, Loader2 } from 'lucide-react';
+import { Camera, Upload, X } from 'lucide-react';
 import { scanScreenshot } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
+import ScanAnimation from '../components/ScanAnimation';
+import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function ScreenshotScanner() {
@@ -50,6 +52,7 @@ export default function ScreenshotScanner() {
   return (
     <>
       <SEOHead title="Screenshot Scanner - Analyze Images for Threats" description="Upload screenshots to scan for phishing attempts, scam content, and security threats using OCR technology." />
+      <ErrorBoundary>
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Screenshot Scanner' }]} />
         <div className="max-w-3xl mx-auto">
@@ -80,12 +83,14 @@ export default function ScreenshotScanner() {
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
           </div>
 
-          {file && !result && (
-            <button onClick={handleAnalyze} disabled={analyzing} className="btn-primary mt-6 w-full">
-              {analyzing && <Loader2 className="w-4 h-4 animate-spin" />}
+          {file && !result && !analyzing && (
+            <button onClick={handleAnalyze} className="btn-primary mt-6 w-full">
+              <Camera className="w-4 h-4" />
               Analyze Screenshot
             </button>
           )}
+
+          {analyzing && <ScanAnimation type="screenshot" />}
 
           {result && (
             <Card className="mt-6">
@@ -96,6 +101,7 @@ export default function ScreenshotScanner() {
           )}
         </div>
       </div>
+      </ErrorBoundary>
     </>
   );
 }

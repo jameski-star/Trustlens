@@ -17,12 +17,14 @@ export async function getDashboard(_req: Request, res: Response, next: NextFunct
       }),
     ]);
 
-    res.json({
-      success: true,
-      data: {
-        stats: { totalUsers, totalScans, totalReports, totalPosts, scansToday },
-      },
-    });
+    const scamAlerts = await CommunityReport.countDocuments({ status: 'scam_alert' });
+
+  res.json({
+    success: true,
+    data: {
+      stats: { totalUsers, totalScans, totalReports, totalPosts, scansToday, scamAlerts },
+    },
+  });
   } catch (error) {
     next(error);
   }

@@ -1,6 +1,6 @@
-import * as cheerio from 'cheerio';
 import { CommunityReport } from '../models/CommunityReport';
 import { cacheWrap } from '../utils/cache';
+import { config } from '../config';
 
 const CACHE_TTL_REP = 120_000;
 
@@ -20,20 +20,6 @@ async function fetchJson(url: string, timeoutMs = 5000): Promise<unknown> {
       headers: { 'User-Agent': 'TrustLens/1.0', 'Accept': 'application/json' },
     });
     return await res.json() as unknown;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-async function fetchText(url: string, timeoutMs = 5000): Promise<string> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'TrustLens/1.0' },
-    });
-    return await res.text();
   } finally {
     clearTimeout(timer);
   }
@@ -138,35 +124,15 @@ export async function checkCommunityReports(hostname: string): Promise<{ count: 
   }
 }
 
-export async function scrapeScamDoc(domain: string): Promise<ReputationResult> {
-  return cacheWrap(`scamdoc:${domain}`, async () => {
-    try {
-      const html = await fetchText(`https://www.scamadviser.com/check-website/${domain}`, 8000);
-      const $ = cheerio.load(html);
-      const text = $('body').text().toLowerCase();
-      if (text.includes('trust') && (text.includes('high') || text.includes('100'))) {
-        return { source: 'ScamAdviser', listed: false, details: 'Trust score appears positive', url: `https://www.scamadviser.com/check-website/${domain}` };
-      }
-      if (text.includes('untrust') || text.includes('risk') || text.includes('danger') || text.includes('scam')) {
-        return { source: 'ScamAdviser', listed: true, details: 'Flagged as potentially risky', url: `https://www.scamadviser.com/check-website/${domain}` };
-      }
-      return { source: 'ScamAdviser', listed: false, details: 'No clear risk signal', url: `https://www.scamadviser.com/check-website/${domain}` };
-    } catch {
-      return { source: 'ScamAdviser', listed: false, details: 'Lookup failed', url: '' };
-    }
-  }, CACHE_TTL_REP);
-}
-
 export async function scanAllReputations(hostname: string, ip: string): Promise<{
   results: ReputationResult[];
   communityReports: { count: number; positive: number; negative: number };
 }> {
-  const [gsb, phish, urlscan, abuse, scamdoc, community] = await Promise.allSettled([
-    checkGoogleSafeBrowsing(`https://${hostname}`, ''),
+  const [gsb, phish, urlscan, abuse, community] = await Promise.allSettled([
+    checkGoogleSafeBrowsing(`https://${hostname}`, config.googleSafeBrowsingApiKey || ''),
     checkPhishTank(hostname),
     checkUrlScanIo(hostname),
-    checkAbuseIpDb(ip, ''),
-    scrapeScamDoc(hostname),
+    checkAbuseIpDb(ip, config.abuseIpDbApiKey || ''),
     checkCommunityReports(hostname),
   ]);
 
@@ -175,7 +141,6 @@ export async function scanAllReputations(hostname: string, ip: string): Promise<
   if (phish.status === 'fulfilled') results.push(phish.value);
   if (urlscan.status === 'fulfilled') results.push(urlscan.value);
   if (abuse.status === 'fulfilled') results.push(abuse.value);
-  if (scamdoc.status === 'fulfilled') results.push(scamdoc.value);
 
   const communityResult = community.status === 'fulfilled' ? community.value : { count: 0, positive: 0, negative: 0 };
 

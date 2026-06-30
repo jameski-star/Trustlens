@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
-import { QrCode, X, Loader2 } from 'lucide-react';
+import { QrCode, X } from 'lucide-react';
 import { scanQrcode } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
+import ScanAnimation from '../components/ScanAnimation';
+import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
 
 export default function QRCodeScanner() {
@@ -44,6 +46,7 @@ export default function QRCodeScanner() {
   return (
     <>
       <SEOHead title="QR Code Scanner - Check QR Codes Before Scanning" description="Scan QR codes for security threats before opening them. Free QR code security analysis." />
+      <ErrorBoundary>
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'QR Code Scanner' }]} />
         <div className="max-w-3xl mx-auto">
@@ -72,12 +75,14 @@ export default function QRCodeScanner() {
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
           </div>
 
-          {file && !result && (
-            <button onClick={handleAnalyze} disabled={analyzing} className="btn-primary mt-6 w-full">
-              {analyzing && <Loader2 className="w-4 h-4 animate-spin" />}
+          {file && !result && !analyzing && (
+            <button onClick={handleAnalyze} className="btn-primary mt-6 w-full">
+              <QrCode className="w-4 h-4" />
               Analyze QR Code
             </button>
           )}
+
+          {analyzing && <ScanAnimation type="qrcode" />}
 
           {result && (
             <Card className="mt-6">
@@ -90,6 +95,7 @@ export default function QRCodeScanner() {
           )}
         </div>
       </div>
+      </ErrorBoundary>
     </>
   );
 }

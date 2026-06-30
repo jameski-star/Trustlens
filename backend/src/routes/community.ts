@@ -8,6 +8,10 @@ const router = Router();
 
 router.get('/', getReports);
 router.get('/stats', getReportStats);
+router.get('/scam-alerts', (req, res, next) => {
+  req.query.status = 'scam_alert';
+  return getReports(req, res, next);
+});
 router.get('/:id', getReportById);
 router.post('/', uploadScreenshots.array('screenshots', 5), validate(communityReportSchema), createReport);
 router.post('/:id/upvote', upvoteReport);

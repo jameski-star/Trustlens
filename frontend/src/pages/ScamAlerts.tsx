@@ -12,7 +12,7 @@ interface ScamAlertItem {
   category: string;
   createdAt: string;
 }
-import { getCommunityReports } from '../api/client';
+import { getScamAlerts } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -30,7 +30,7 @@ const severityMap: Record<string, string> = {
 export default function ScamAlerts() {
   const { data, isLoading } = useQuery({
     queryKey: ['scam-alerts'],
-    queryFn: () => getCommunityReports({ page: 1, limit: 50, minReports: 5 }),
+    queryFn: () => getScamAlerts({ page: 1, limit: 50 }),
   });
 
   const alerts = data?.items || [];

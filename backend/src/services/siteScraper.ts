@@ -2,7 +2,7 @@ import * as cheerio from 'cheerio';
 import { logger } from '../utils/logger';
 import { cacheWrap } from '../utils/cache';
 
-const SCRAPE_TIMEOUT = 5000;
+const SCRAPE_TIMEOUT = 15_000;
 const CACHE_TTL_SCRAPE = 120_000;
 
 export interface SiteScrapeResult {

@@ -27,13 +27,13 @@ export default function Home() {
         description="TrustLens helps you determine if websites, emails, SMS messages, and online offers are safe or potentially fraudulent. Free security analysis."
       />
 
-      <section className="container-page pt-12 pb-8 md:pt-20 md:pb-12">
+      <section className="container-page pt-8 pb-8 md:pt-20 md:pb-12">
         <div className="max-w-3xl mx-auto text-center mb-8">
-          <h1 className="font-heading font-800 text-[clamp(1.75rem,1.25rem+3vw,3.75rem)] md:text-5xl lg:text-6xl text-[var(--text-primary)] leading-tight mb-4">
+          <h1 className="font-heading font-800 text-[clamp(1.5rem,1rem+3vw,3.75rem)] md:text-5xl lg:text-6xl text-[var(--text-primary)] leading-tight mb-3">
             Know Before<br />
             <span className="text-[var(--text-accent)]">You Click</span>
           </h1>
-          <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-8">
+          <p className="text-base md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-6">
             Free security analysis for websites, emails, SMS messages, and more.
             Protect yourself from scams and phishing attempts.
           </p>

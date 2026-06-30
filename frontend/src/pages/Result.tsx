@@ -10,10 +10,12 @@ interface BlacklistItem {
 import SEOHead from '../components/SEOHead';
 import RiskScore from '../components/RiskScore';
 import Card from '../components/Card';
-import { ReportSkeleton } from '../components/Skeleton';
+import ScanAnimation from '../components/ScanAnimation';
+import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Download } from 'lucide-react';
+import { Download, ShieldAlert, RefreshCw, ExternalLink } from 'lucide-react';
 import apiClient from '../api/client';
+import { Link } from 'react-router-dom';
 
 export default function Result() {
   const { shareId } = useParams<{ shareId: string }>();
@@ -48,14 +50,39 @@ export default function Result() {
         title={report?.input ? `Analysis Report: ${report.input.substring(0, 50)}` : 'Security Analysis Report'}
         description="Detailed security analysis report with risk score, SSL check, domain information, and recommendations."
       />
+      <ErrorBoundary>
       <div className="container-page py-8">
         <Breadcrumbs items={[
           { label: 'Analysis Report', href: '#' },
           { label: shareId || '' },
         ]} />
 
-        {isLoading && <ReportSkeleton />}
-        {error && <Card><p className="text-[#DC2626]">Report not found</p></Card>}
+        {isLoading && (
+          <div className="max-w-3xl mx-auto">
+            <ScanAnimation type="report" />
+          </div>
+        )}
+        {error && (
+          <div className="max-w-3xl mx-auto">
+            <Card className="text-center py-10">
+              <div className="w-12 h-12 mx-auto mb-4 bg-[#FEF2F2] rounded-2xl flex items-center justify-center">
+                <ShieldAlert className="w-6 h-6 text-[#DC2626]" />
+              </div>
+              <h3 className="font-heading font-600 text-lg text-[var(--text-primary)] mb-1">Report not found</h3>
+              <p className="text-[var(--text-secondary)] text-sm mb-4">This report may have expired or the link is invalid.</p>
+              <div className="flex gap-3 justify-center">
+                <button onClick={() => window.location.reload()} className="btn-primary gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Try Again
+                </button>
+                <Link to="/" className="btn-secondary gap-2">
+                  <ExternalLink className="w-4 h-4" />
+                  New Scan
+                </Link>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {report && (
           <div className="max-w-4xl mx-auto">
@@ -142,6 +169,7 @@ export default function Result() {
           </div>
         )}
       </div>
+      </ErrorBoundary>
     </>
   );
 }

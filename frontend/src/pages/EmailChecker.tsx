@@ -12,8 +12,10 @@ import SearchBar from '../components/SearchBar';
 import RiskScore from '../components/RiskScore';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { ReportSkeleton } from '../components/Skeleton';
+import ScanAnimation from '../components/ScanAnimation';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { useScanEmail } from '../hooks/useScan';
+import { ShieldAlert, RefreshCw } from 'lucide-react';
 
 export default function EmailChecker() {
   const [searchParams] = useSearchParams();
@@ -36,6 +38,7 @@ export default function EmailChecker() {
         title="Email Checker - Is This Email a Scam?"
         description="Analyze email addresses for phishing and scam indicators. Free email security analysis with AI-powered detection."
       />
+      <ErrorBoundary>
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Email Checker' }]} />
         <div className="max-w-3xl mx-auto mb-10">
@@ -52,12 +55,22 @@ export default function EmailChecker() {
         </div>
 
         {mutation.isPending && (
-          <div className="max-w-3xl mx-auto"><ReportSkeleton /></div>
+          <div className="max-w-3xl mx-auto"><ScanAnimation type="email" /></div>
         )}
 
         {mutation.isError && (
           <div className="max-w-3xl mx-auto">
-            <Card><p className="text-[#DC2626]">Analysis failed. Please try again.</p></Card>
+            <Card className="text-center py-10">
+              <div className="w-12 h-12 mx-auto mb-4 bg-[#FEF2F2] rounded-2xl flex items-center justify-center">
+                <ShieldAlert className="w-6 h-6 text-[#DC2626]" />
+              </div>
+              <h3 className="font-heading font-600 text-lg text-[var(--text-primary)] mb-1">Analysis failed</h3>
+              <p className="text-[var(--text-secondary)] text-sm mb-4">Unable to complete the scan. The service may be temporarily unavailable.</p>
+              <button onClick={() => mutation.mutate(queryParam!)} className="btn-primary gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Retry Scan
+              </button>
+            </Card>
           </div>
         )}
 
@@ -114,6 +127,7 @@ export default function EmailChecker() {
           </div>
         )}
       </div>
+      </ErrorBoundary>
     </>
   );
 }

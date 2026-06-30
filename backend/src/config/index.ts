@@ -33,21 +33,21 @@ export const config = {
   },
   mistral: {
     apiKey: process.env.MISTRAL_API_KEY || '',
-    model: process.env.MISTRAL_MODEL || 'open-mistral-nemo',
-    timeoutMs: parseInt(process.env.MISTRAL_TIMEOUT_MS || '15000', 10),
-    maxTokens: parseInt(process.env.MISTRAL_MAX_TOKENS || '200', 10),
+    model: process.env.MISTRAL_MODEL || 'mistral-small-latest',
+    timeoutMs: parseInt(process.env.MISTRAL_TIMEOUT_MS || '20000', 10),
+    maxTokens: parseInt(process.env.MISTRAL_MAX_TOKENS || '300', 10),
     rateLimitIntervalMs: parseInt(process.env.MISTRAL_RATE_LIMIT_INTERVAL_MS || '60000', 10),
   },
   nvidia: {
     apiKey: process.env.NVIDIA_API_KEY || '',
     model: process.env.NVIDIA_MODEL || 'nvidia/llama-3.1-nemotron-70b-instruct',
-    timeoutMs: parseInt(process.env.NVIDIA_TIMEOUT_MS || '15000', 10),
-    maxTokens: parseInt(process.env.NVIDIA_MAX_TOKENS || '200', 10),
+    timeoutMs: parseInt(process.env.NVIDIA_TIMEOUT_MS || '20000', 10),
+    maxTokens: parseInt(process.env.NVIDIA_MAX_TOKENS || '300', 10),
   },
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
-    model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-    timeoutMs: parseInt(process.env.GEMINI_TIMEOUT_MS || '15000', 10),
+    model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+    timeoutMs: parseInt(process.env.GEMINI_TIMEOUT_MS || '20000', 10),
     maxTokens: parseInt(process.env.GEMINI_MAX_TOKENS || '300', 10),
   },
   upload: {
@@ -62,4 +62,6 @@ export const config = {
       return [];
     }
   })(),
+  googleSafeBrowsingApiKey: process.env.GOOGLE_SAFE_BROWSING_API_KEY || '',
+  abuseIpDbApiKey: process.env.ABUSEIPDB_API_KEY || '',
 };

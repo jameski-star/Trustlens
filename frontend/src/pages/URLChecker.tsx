@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 
@@ -12,13 +12,26 @@ interface RiskItem {
   severity: string;
   description: string;
 }
+interface SiteScrapeInfo {
+  title: string;
+  description: string;
+  hasForms: boolean;
+  hasPasswordField: boolean;
+  hasPrivacyPolicy: boolean;
+  hasContactPage: boolean;
+  techStack: string[];
+  contentLength: number;
+  redirects: string[];
+}
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import RiskScore from '../components/RiskScore';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { ReportSkeleton } from '../components/Skeleton';
+import ScanAnimation from '../components/ScanAnimation';
+import ErrorBoundary from '../components/ErrorBoundary';
 import { useScanUrl } from '../hooks/useScan';
+import { ShieldAlert, RefreshCw } from 'lucide-react';
 
 export default function URLChecker() {
   const [searchParams] = useSearchParams();
@@ -26,12 +39,25 @@ export default function URLChecker() {
   const mutation = useScanUrl();
   const queryParam = searchParams.get('q');
   const report = mutation.data;
+  const [showLoader, setShowLoader] = useState(false);
+  const loaderRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (queryParam) {
+      setShowLoader(true);
       mutation.mutate(queryParam);
     }
   }, [queryParam, mutation]);
+
+  useEffect(() => {
+    if (mutation.isPending) {
+      setShowLoader(true);
+      clearTimeout(loaderRef.current);
+    } else if (showLoader) {
+      loaderRef.current = setTimeout(() => setShowLoader(false), 800);
+    }
+    return () => clearTimeout(loaderRef.current);
+  }, [mutation.isPending]);
 
   const handleSearch = (input: string) => {
     navigate(`/url-checker?q=${encodeURIComponent(input)}`);
@@ -44,6 +70,7 @@ export default function URLChecker() {
         description="Check if a website is safe or fraudulent. Free URL security analysis with detailed risk assessment, SSL check, domain age, and more."
       />
 
+      <ErrorBoundary>
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'URL Checker' }]} />
 
@@ -67,14 +94,22 @@ export default function URLChecker() {
 
         {mutation.isPending && (
           <div className="max-w-3xl mx-auto">
-            <ReportSkeleton />
+            <ScanAnimation type="url" />
           </div>
         )}
 
         {mutation.isError && (
           <div className="max-w-3xl mx-auto">
-            <Card>
-              <p className="text-[#DC2626]">Analysis failed. Please try again.</p>
+            <Card className="text-center py-10">
+              <div className="w-12 h-12 mx-auto mb-4 bg-[#FEF2F2] rounded-2xl flex items-center justify-center">
+                <ShieldAlert className="w-6 h-6 text-[#DC2626]" />
+              </div>
+              <h3 className="font-heading font-600 text-lg text-[var(--text-primary)] mb-1">Analysis failed</h3>
+              <p className="text-[var(--text-secondary)] text-sm mb-4">Unable to complete the scan. The service may be temporarily unavailable.</p>
+              <button onClick={() => mutation.mutate(queryParam!)} className="btn-primary gap-2">
+                <RefreshCw className="w-4 h-4" />
+                Retry Scan
+              </button>
             </Card>
           </div>
         )}
@@ -154,6 +189,31 @@ export default function URLChecker() {
               </Card>
             </div>
 
+            {(report.details?.siteScrape as SiteScrapeInfo | null) && (
+              <Card className="mb-8">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-3">Site Content</h3>
+                <div className="space-y-2 text-sm text-[var(--text-secondary)]">
+                  {(report.details.siteScrape as SiteScrapeInfo).title && (
+                    <p><span className="font-medium text-[var(--text-primary)]">Title:</span> {(report.details.siteScrape as SiteScrapeInfo).title}</p>
+                  )}
+                  {(report.details.siteScrape as SiteScrapeInfo).description && (
+                    <p><span className="font-medium text-[var(--text-primary)]">Description:</span> {(report.details.siteScrape as SiteScrapeInfo).description}</p>
+                  )}
+                  {(report.details.siteScrape as SiteScrapeInfo).techStack.length > 0 && (
+                    <p><span className="font-medium text-[var(--text-primary)]">Tech Stack:</span> {(report.details.siteScrape as SiteScrapeInfo).techStack.join(', ')}</p>
+                  )}
+                  <p><span className="font-medium text-[var(--text-primary)]">Content Length:</span> {(report.details.siteScrape as SiteScrapeInfo).contentLength.toLocaleString()} characters</p>
+                  <p><span className="font-medium text-[var(--text-primary)]">Has Privacy Policy:</span> {(report.details.siteScrape as SiteScrapeInfo).hasPrivacyPolicy ? 'Yes' : 'No'}</p>
+                  <p><span className="font-medium text-[var(--text-primary)]">Has Contact Page:</span> {(report.details.siteScrape as SiteScrapeInfo).hasContactPage ? 'Yes' : 'No'}</p>
+                  <p><span className="font-medium text-[var(--text-primary)]">Has Forms:</span> {(report.details.siteScrape as SiteScrapeInfo).hasForms ? 'Yes' : 'No'}</p>
+                  <p><span className="font-medium text-[var(--text-primary)]">Has Password Field:</span> {(report.details.siteScrape as SiteScrapeInfo).hasPasswordField ? 'Yes' : 'No'}</p>
+                  {(report.details.siteScrape as SiteScrapeInfo).redirects.length > 1 && (
+                    <p><span className="font-medium text-[var(--text-primary)]">Redirects:</span> {(report.details.siteScrape as SiteScrapeInfo).redirects.join(' → ')}</p>
+                  )}
+                </div>
+              </Card>
+            )}
+
             <Card className="mb-8">
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Recommendations</h3>
               <ul className="space-y-2">
@@ -168,6 +228,7 @@ export default function URLChecker() {
           </div>
         )}
       </div>
+      </ErrorBoundary>
     </>
   );
 }

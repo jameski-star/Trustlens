@@ -195,8 +195,18 @@ export async function comprehensiveWhois(hostname: string): Promise<{
     for (const result of results) {
       if (result.status === 'fulfilled' && result.value) {
         const val = result.value as ({ domainAge: DomainAgeResult | null; whois: WhoisResult | null });
-        if (val.whois) return { ...val, fallbackMethod: 'alternate_rdap' };
-        if (val.domainAge) return { domainAge: val.domainAge, whois: null, fallbackMethod: 'dns_soa' };
+        if (val.whois && val.whois.registrar !== 'Unknown') {
+          return { ...val, fallbackMethod: 'alternate_rdap' };
+        }
+      }
+    }
+
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        const val = result.value as ({ domainAge: DomainAgeResult | null; whois: WhoisResult | null });
+        if (val.domainAge) {
+          return { domainAge: val.domainAge, whois: null, fallbackMethod: 'dns_soa' };
+        }
       }
     }
 
@@ -207,6 +217,6 @@ export async function comprehensiveWhois(hostname: string): Promise<{
       }
     }
 
-    return { domainAge: null, whois: null, fallbackMethod: 'none' };
+    return { domainAge: null, whois: { registrar: 'Unknown', creationDate: null, expirationDate: null, lastUpdated: null, country: 'Unknown', organization: 'Unknown' }, fallbackMethod: 'none' };
   }, CACHE_TTL_WHOIS);
 }

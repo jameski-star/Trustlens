@@ -67,14 +67,14 @@ export default function SearchBar({
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="btn-primary gap-1.5 px-3 sm:px-6"
+            className="btn-primary gap-1.5 px-4 sm:px-6"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Shield className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">Analyze</span>
+            <span className="inline text-sm">Analyze</span>
           </button>
         </div>
       </div>
