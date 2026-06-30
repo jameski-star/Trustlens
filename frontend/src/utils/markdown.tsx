@@ -7,6 +7,8 @@ export function renderMarkdown(text: string): string {
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-formatter-link">$1</a>');
+  html = html.replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)])(?=[\s<.,;:!?)]|$)/gi, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-formatter-link">$1</a>');
 
   const lines = html.split('\n');
   const result: string[] = [];

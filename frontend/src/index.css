@@ -105,4 +105,36 @@
     background-color: var(--bg-subtle);
     @apply rounded-lg animate-pulse;
   }
+
+  .text-formatter-link {
+    color: var(--text-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: opacity 0.15s;
+  }
+  .text-formatter-link:hover {
+    opacity: 0.8;
+  }
+
+  .text-formatter-link::after {
+    content: '\2197';
+    display: inline-block;
+    margin-left: 2px;
+    font-size: 0.75em;
+  }
+
+  .text-formatter-heading {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+    letter-spacing: -0.02em;
+  }
+
+  .text-formatter-paragraph {
+    margin-bottom: 0.75em;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
 }

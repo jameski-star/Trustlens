@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { AlertCircle, CheckCircle, Info, ExternalLink } from 'lucide-react';
+import { formatTextInline } from '../utils/textFormatter';
 
 interface ReportCardProps {
   report: {
@@ -43,7 +44,7 @@ export default function ReportCard({ report }: ReportCardProps) {
             </span>
           </div>
           <h3 className="font-semibold text-[var(--text-primary)] truncate mb-2">{report.input}</h3>
-          <p className="text-sm text-[var(--text-secondary)] line-clamp-2">{report.summary}</p>
+          <p className="text-sm text-[var(--text-secondary)] line-clamp-2" dangerouslySetInnerHTML={{ __html: formatTextInline(report.summary) }} />
         </div>
         <div className="flex flex-col items-center gap-1 flex-shrink-0">
           <span className={`text-2xl font-heading font-800 ${getColor(report.riskScore)}`}>

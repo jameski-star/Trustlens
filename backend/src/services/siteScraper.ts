@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { logger } from '../utils/logger';
 import { cacheWrap } from '../utils/cache';
+import { cleanTrackingParams, cleanContentTags, isAdContent, extractMainContent } from './contentFormatter';
 
 const SCRAPE_TIMEOUT = 15_000;
 const CACHE_TTL_SCRAPE = 120_000;
@@ -59,7 +60,9 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       let finalUrl = url;
       const redirects: string[] = [url];
 
-      const response = await fetch(url, {
+      const cleanUrl = cleanTrackingParams(url);
+
+      const response = await fetch(cleanUrl, {
         signal: controller.signal,
         redirect: 'manual',
         headers: {
@@ -72,7 +75,8 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       if (response.status >= 300 && response.status < 400) {
         const location = response.headers.get('location');
         if (location) {
-          finalUrl = new URL(location, url).href;
+          const resolved = new URL(location, url).href;
+          finalUrl = cleanTrackingParams(resolved);
           redirects.push(finalUrl);
         }
       }
@@ -81,12 +85,13 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       clearTimeout(timeoutId);
 
       const $ = cheerio.load(html);
+      cleanContentTags($, cheerio);
       const risks: string[] = [];
 
-      const title = $('title').first().text().trim() ||
-        $('meta[property="og:title"]').attr('content') || '';
-      const description = $('meta[name="description"]').attr('content') ||
-        $('meta[property="og:description"]').attr('content') || '';
+      const title = ($('title').first().text().trim() ||
+        $('meta[property="og:title"]').attr('content') || '').replace(/^Advertisement\s*[:-]\s*/i, '');
+      const description = ($('meta[name="description"]').attr('content') ||
+        $('meta[property="og:description"]').attr('content') || '').replace(/^Advertisement\s*[:-]\s*/i, '');
       const keywords = ($('meta[name="keywords"]').attr('content') || '')
         .split(',').map(k => k.trim()).filter(Boolean);
 
@@ -121,7 +126,7 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       const socialMediaLinks: string[] = [];
       $('a[href]').each((_, el) => {
         const href = $(el).attr('href') || '';
-        if (SOCIAL_DOMAINS.some(d => href.includes(d))) socialMediaLinks.push(href);
+        if (SOCIAL_DOMAINS.some(d => href.includes(d))) socialMediaLinks.push(cleanTrackingParams(href));
       });
 
       const pageLanguage = $('html').attr('lang') ||
@@ -134,7 +139,7 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       const contentSamples: string[] = [];
       $('p').each((_, el) => {
         const text = $(el).text().trim();
-        if (text.length > 50) contentSamples.push(text.substring(0, 200));
+        if (text.length > 50 && !isAdContent(text)) contentSamples.push(text.substring(0, 200));
       });
 
       const techStack: string[] = [];
@@ -154,7 +159,9 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       if (!hasContactPage) risks.push('No contact page found — reduces accountability');
       if (externalIframes.length > 2) risks.push('Excessive external iframes — could be serving third-party content');
       if (formActions.length > 0 && formActions.some(a => a === '' || a === '#' || a.startsWith('http://'))) risks.push('Forms submit to insecure or empty actions — potential data harvesting');
-      if (redirects.length > 2) risks.push('Multiple redirects detected — may be hiding the final destination');
+      const cleanedRedirects = redirects.map(cleanTrackingParams);
+      const uniqueRedirects = [...new Set(cleanedRedirects)];
+      if (uniqueRedirects.length > 2) risks.push('Multiple redirects detected — may be hiding the final destination');
       if (externalScripts.length > 20) risks.push('Excessive external scripts — potential tracking or malware delivery');
       if (keywords.length === 0 && contentLength > 0) risks.push('No meta keywords — poor SEO, common in low-effort scam sites');
 
@@ -165,7 +172,7 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       return {
         title, description, keywords,
         hasForms, formActions, externalScripts, externalIframes,
-        redirects, hasPrivacyPolicy, hasContactPage,
+        redirects: uniqueRedirects, hasPrivacyPolicy, hasContactPage,
         hasLoginForm, hasPasswordField,
         contentLength, pageLanguage, socialMediaLinks,
         techStack, contentSamples: contentSamples.slice(0, 5),
