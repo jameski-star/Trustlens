@@ -74,9 +74,28 @@ export default function BlogPostPage() {
               <img src={post.coverImage} alt={post.title} className="w-full h-64 md:h-96 object-cover rounded-2xl mb-8" />
             )}
 
-            <Card className="mb-8">
+            <Card className="mb-8 overflow-hidden border border-[var(--border)] shadow-sm">
               <div
-                className="prose prose-sm md:prose-base max-w-none dark:prose-invert prose-headings:text-[var(--text-primary)] prose-a:text-[var(--text-accent)] prose-a:no-underline hover:prose-a:underline prose-strong:text-[var(--text-primary)] prose-code:bg-[var(--bg-subtle)] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-normal prose-pre:bg-[var(--bg-subtle)] prose-pre:text-[var(--text-primary)] prose-blockquote:border-l-[var(--text-accent)] prose-blockquote:text-[var(--text-secondary)] prose-li:text-[var(--text-secondary)] leading-relaxed"
+                className="
+                  prose prose-slate max-w-none dark:prose-invert
+                  text-[var(--text-secondary)] leading-relaxed antialiased
+
+                  prose-headings:font-heading prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-[var(--text-primary)]
+                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 md:prose-h2:text-3xl
+                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+
+                  prose-p:text-base prose-p:mb-5 prose-p:leading-8
+
+                  prose-a:text-[var(--text-accent)] prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+
+                  prose-code:bg-[var(--bg-subtle)] prose-code:text-[#DC2626] dark:prose-code:text-[#F87171]
+                  prose-code:px-2 prose-code:py-0.5 prose-code:rounded-lg prose-code:text-sm prose-code:font-mono prose-code:before:content-[''] prose-code:after:content-['']
+
+                  prose-ol:list-decimal prose-ol:pl-5 prose-ol:mb-5
+                  prose-ul:list-disc prose-ul:pl-5 prose-ul:mb-5
+                  prose-li:my-1.5 prose-li:text-[var(--text-secondary)]
+                  prose-blockquote:border-l-4 prose-blockquote:border-[var(--text-accent)] prose-blockquote:bg-[var(--bg-muted)] prose-blockquote:px-4 prose-blockquote:py-1 prose-blockquote:rounded-r-xl
+                "
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
               {isFromRss && post.seo?.canonicalUrl && (

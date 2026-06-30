@@ -13,6 +13,12 @@ export interface ICommunityReportDocument extends Document {
   screenshots: string[];
   isVerified: boolean;
   reports: number;
+  scanStatus: 'pending' | 'scanning' | 'completed' | 'failed';
+  scanResult?: {
+    riskScore: number;
+    riskLevel: string;
+    summary: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +44,12 @@ const communityReportSchema = new Schema<ICommunityReportDocument>({
   screenshots: [{ type: String }],
   isVerified: { type: Boolean, default: false },
   reports: { type: Number, default: 1 },
+  scanStatus: { type: String, enum: ['pending', 'scanning', 'completed', 'failed'], default: 'pending' },
+  scanResult: {
+    riskScore: { type: Number },
+    riskLevel: { type: String },
+    summary: { type: String },
+  },
 }, {
   timestamps: true,
   toJSON: {

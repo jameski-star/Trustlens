@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail, Building2, ShieldCheck } from 'lucide-react';
+import { Mail, ShieldCheck } from 'lucide-react';
 
 interface RiskItem {
   category: string;
@@ -14,6 +14,7 @@ import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
+import ScoreBreakdown from '../components/ScoreBreakdown';
 import { useScanEmail } from '../hooks/useScan';
 import { ShieldAlert, RefreshCw, Flag } from 'lucide-react';
 
@@ -25,7 +26,7 @@ export default function EmailChecker() {
 
   useEffect(() => {
     if (queryParam) scan(queryParam);
-  }, [queryParam]);
+  }, [queryParam, scan]);
 
   const handleSearch = (input: string) => {
     navigate(`/email-checker?q=${encodeURIComponent(input)}`);
@@ -51,6 +52,12 @@ export default function EmailChecker() {
             Check if an email address or email message is part of a phishing attempt or scam campaign.
           </p>
           <SearchBar placeholder="Enter an email address or email content..." onSubmit={handleSearch} isLoading={isPending} />
+          <div className="flex items-start gap-2 mt-4 p-3 bg-[#F0FDF4] rounded-xl">
+            <ShieldCheck className="w-4 h-4 text-[#16A34A] mt-0.5 shrink-0" />
+            <p className="text-xs text-[#166534] leading-relaxed">
+              <strong>Privacy first.</strong> Email addresses are checked against known phishing databases in real-time. We do not store, log, or share your queries.
+            </p>
+          </div>
         </div>
 
         {isPending && (
@@ -86,6 +93,12 @@ export default function EmailChecker() {
                 </div>
               </div>
             </div>
+
+            {report.scoreBreakdown && (
+              <div className="mb-8">
+                <ScoreBreakdown factors={report.scoreBreakdown} totalScore={report.riskScore} />
+              </div>
+            )}
 
             <Card className="mb-8">
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risk Indicators</h3>

@@ -14,11 +14,6 @@ interface DetectedRisk {
   description: string;
 }
 
-interface ScamPattern {
-  matched: string;
-  label: string;
-}
-
 interface ScannedItem {
   url?: string;
   email?: string;
@@ -149,6 +144,13 @@ export default function ScreenshotScanner() {
               </div>
             )}
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+          </div>
+
+          <div className="flex items-start gap-2 mt-4 p-3 bg-[#F0FDF4] rounded-xl">
+            <Shield className="w-4 h-4 text-[#16A34A] mt-0.5 shrink-0" />
+            <p className="text-xs text-[#166534] leading-relaxed">
+              <strong>Your privacy is protected.</strong> Screenshots are processed entirely in-memory and deleted immediately after analysis. We do not store, cache, or share your images.
+            </p>
           </div>
 
           {file && !result && !analyzing && (

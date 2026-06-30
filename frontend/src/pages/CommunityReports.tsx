@@ -6,8 +6,9 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
-import { Flag, Plus, X, Loader2, ThumbsUp, ThumbsDown, Image as ImageIcon, Upload, ShieldCheck } from 'lucide-react';
+import { Flag, Plus, X, Loader2, ThumbsUp, ThumbsDown, Image as ImageIcon, Upload, ShieldCheck, Eye, EyeOff, Shield, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../hooks/useAuth';
 
 const reportTypes = [
   { value: 'url', label: 'URL / Website' },
@@ -18,6 +19,11 @@ const reportTypes = [
   { value: 'investment', label: 'Investment Platform' },
 ];
 
+interface ScanResult {
+  riskScore: number;
+  riskLevel: string;
+  summary: string;
+}
 interface CommunityReportItem {
   _id: string;
   title: string;
@@ -30,7 +36,10 @@ interface CommunityReportItem {
   isVerified: boolean;
   screenshots: string[];
   category: string;
+  status: string;
   createdAt: string;
+  scanStatus?: 'pending' | 'scanning' | 'completed' | 'failed';
+  scanResult?: ScanResult;
 }
 
 const categories = [
@@ -49,27 +58,28 @@ const categories = [
 const API_BASE = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, '') || '';
 
 export default function CommunityReports() {
-  const [showForm, setShowForm] = useState(false);
+  const [searchParams] = useSearchParams();
+  const prefillType = searchParams.get('type') || '';
+  const prefillTarget = searchParams.get('target') || '';
+  const hasPrefill = Boolean(prefillType || prefillTarget);
+
+  const urlCleaned = useRef(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const [visibleScreenshots, setVisibleScreenshots] = useState<Set<string>>(new Set());
+  const [showForm, setShowForm] = useState(hasPrefill);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadPreviews, setUploadPreviews] = useState<string[]>([]);
   const [category, setCategory] = useState('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const type = searchParams.get('type');
-    const target = searchParams.get('target');
-    if (type || target) {
-      setFormData(prev => ({
-        ...prev,
-        type: type || prev.type,
-        target: target || prev.target,
-      }));
-      setShowForm(true);
+    if (hasPrefill && !urlCleaned.current) {
+      urlCleaned.current = true;
       window.history.replaceState({}, '', '/community-reports');
     }
-  }, [searchParams]);
+  }, [hasPrefill]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['community-reports', category],
@@ -127,8 +137,8 @@ export default function CommunityReports() {
   };
 
   const [formData, setFormData] = useState({
-    type: '',
-    target: '',
+    type: prefillType,
+    target: prefillTarget,
     title: '',
     category: '',
     description: '',
@@ -324,12 +334,43 @@ export default function CommunityReports() {
                         <div className="flex items-center gap-2 mt-2 flex-wrap">
                           <span className="text-xs font-mono bg-[var(--bg-subtle)] px-2 py-1 rounded-lg">{item.type}</span>
                           <span className="text-xs text-[var(--text-secondary)]">{item.reports} reports</span>
-                          {item.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
+                                  {item.isVerified && <span className="text-xs text-[#16A34A]">Verified</span>}
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            item.status === 'scam_alert' ? 'bg-[#FEF2F2] text-[#DC2626]' :
+                            item.status === 'published' ? 'bg-[#F0FDF4] text-[#16A34A]' :
+                            item.status === 'rejected' ? 'bg-[#F1F5F9] text-[#94A3B8]' :
+                            'bg-[#FFFBEB] text-[#D97706]'
+                          }`}>
+                            {item.status === 'scam_alert' ? 'Scam Alert' :
+                             item.status === 'published' ? 'Published' :
+                             item.status === 'rejected' ? 'Rejected' :
+                             'Pending Verification'}
+                          </span>
                           {item.screenshots?.length > 0 && (
                             <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
                               <ImageIcon className="w-3 h-3" />
                               {item.screenshots.length} screenshot{item.screenshots.length > 1 ? 's' : ''}
+                              <span className="text-[#94A3B8]">· moderator only</span>
                             </span>
+                          )}
+                          {item.scanStatus === 'completed' && item.scanResult && (
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              item.scanResult.riskLevel === 'safe' || item.scanResult.riskLevel === 'low'
+                                ? 'bg-[#F0FDF4] text-[#16A34A]'
+                                : 'bg-[#FEF2F2] text-[#DC2626]'
+                            }`}>
+                              <Shield className="w-3 h-3 inline mr-0.5" />
+                              Scanner: {item.scanResult.riskScore}/100
+                            </span>
+                          )}
+                          {item.scanStatus === 'scanning' && (
+                            <span className="text-xs text-[#D97706] flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              Scanning...
+                            </span>
+                          )}
+                          {item.scanStatus === 'failed' && (
+                            <span className="text-xs text-[#94A3B8]">Scan unavailable</span>
                           )}
                           <span className="text-xs text-[var(--text-secondary)] ml-auto opacity-0 group-open:opacity-100 transition-opacity">Click to collapse</span>
                         </div>
@@ -342,10 +383,28 @@ export default function CommunityReports() {
                     <p className="text-sm text-[var(--text-primary)] mb-4">{item.description}</p>
                   )}
                   {item.screenshots && item.screenshots.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {item.screenshots.map((src, i) => (
-                        <img key={i} src={src.startsWith('http') ? src : `${API_BASE}${src}`} alt={`Screenshot ${i + 1}`} className="w-40 h-32 object-cover rounded-lg border border-[var(--border)]" />
-                      ))}
+                    <div className="mb-3">
+                      {isAdmin || visibleScreenshots.has(item._id) ? (
+                        <div className="flex flex-wrap gap-2">
+                          {item.screenshots.map((src, i) => (
+                            <img key={i} src={src.startsWith('http') ? src : `${API_BASE}${src}`} alt={`Evidence ${i + 1}`} className="w-40 h-32 object-cover rounded-lg border border-[var(--border)]" loading="lazy" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 p-3 bg-[#FFFBEB] rounded-xl">
+                          <EyeOff className="w-4 h-4 text-[#D97706] shrink-0" />
+                          <p className="text-xs text-[#92400E]">
+                            Screenshots are visible to moderators only to protect reporter privacy and prevent misuse.
+                          </p>
+                          <button
+                            onClick={() => setVisibleScreenshots(prev => new Set(prev).add(item._id))}
+                            className="text-xs font-medium text-[#2563EB] hover:underline shrink-0 whitespace-nowrap"
+                          >
+                            <Eye className="w-3.5 h-3.5 inline mr-1" />
+                            Show
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="flex items-center gap-2 pt-2 border-t border-[var(--border)]">

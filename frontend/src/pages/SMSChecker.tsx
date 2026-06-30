@@ -7,6 +7,28 @@ interface RiskItem {
   severity: string;
   description: string;
 }
+interface PhoneInfo {
+  organization?: string;
+  country?: string;
+  provider?: string;
+  isVirtual?: boolean;
+}
+interface ScoreFactor {
+  label: string;
+  score: number;
+  weight: number;
+  contribution: number;
+}
+interface SmsReport {
+  riskScore: number;
+  summary: string;
+  scoreBreakdown?: ScoreFactor[];
+  details?: {
+    phoneInfo?: PhoneInfo;
+    detectedRisks?: RiskItem[];
+  };
+  recommendations?: string[];
+}
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import RiskScore from '../components/RiskScore';
@@ -14,8 +36,9 @@ import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
+import ScoreBreakdown from '../components/ScoreBreakdown';
 import { useScanSms, useScanPhone } from '../hooks/useScan';
-import { ShieldAlert, RefreshCw, Flag } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, RefreshCw, Flag } from 'lucide-react';
 
 type ScanMode = 'sms' | 'phone';
 
@@ -28,13 +51,14 @@ export default function SMSChecker() {
   const modeParam = (searchParams.get('mode') as ScanMode) || 'sms';
 
   const scan = modeParam === 'phone' ? scanPhone.mutate : scanSms.mutate;
-  const report = modeParam === 'phone' ? scanPhone.data : scanSms.data;
+  const rawReport = modeParam === 'phone' ? scanPhone.data : scanSms.data;
+  const report = rawReport as SmsReport | undefined;
   const isPending = modeParam === 'phone' ? scanPhone.isPending : scanSms.isPending;
   const isError = modeParam === 'phone' ? scanPhone.isError : scanSms.isError;
 
   useEffect(() => {
     if (queryParam) scan(queryParam);
-  }, [queryParam, modeParam]);
+  }, [queryParam, modeParam, scan]);
 
   const handleSearch = (input: string) => {
     navigate(`/sms-checker?q=${encodeURIComponent(input)}&mode=${modeParam}`);
@@ -105,6 +129,16 @@ export default function SMSChecker() {
           </p>
 
           <SearchBar placeholder={placeholder} onSubmit={handleSearch} isLoading={isPending} />
+
+          <div className="flex items-start gap-2 mt-4 p-3 bg-[#F0FDF4] rounded-xl">
+            <ShieldCheck className="w-4 h-4 text-[#16A34A] mt-0.5 shrink-0" />
+            <p className="text-xs text-[#166534] leading-relaxed">
+              {modeParam === 'phone'
+                ? <><strong>Privacy first.</strong> Phone numbers are checked against known scam databases only. We do not store or share your queries.</>
+                : <><strong>Privacy first.</strong> Messages are scanned for scam patterns in real-time and are not stored, logged, or shared with third parties.</>
+              }
+            </p>
+          </div>
         </div>
 
         {isPending && <div className="max-w-3xl mx-auto"><ScanAnimation type="sms" /></div>}
@@ -137,29 +171,35 @@ export default function SMSChecker() {
               </div>
             </div>
 
-            {(report.details as any)?.phoneInfo && (
+            {report?.scoreBreakdown && (
+              <div className="mb-8">
+                <ScoreBreakdown factors={report.scoreBreakdown} totalScore={report.riskScore} />
+              </div>
+            )}
+
+            {report?.details?.phoneInfo && (
               <Card className="mb-8">
                 <h3 className="font-semibold text-[var(--text-primary)] mb-3">Phone Number Information</h3>
                 <div className="space-y-2 text-sm">
-                  {((report.details as any).phoneInfo.organization) && (
+                  {report.details.phoneInfo.organization && (
                     <div className="flex items-center gap-2 text-[#2563EB]">
                       <Building2 className="w-4 h-4" />
-                      <span className="font-medium">{(report.details as any).phoneInfo.organization}</span>
+                      <span className="font-medium">{report.details.phoneInfo.organization}</span>
                     </div>
                   )}
-                  {((report.details as any).phoneInfo.country) && (
+                  {report.details.phoneInfo.country && (
                     <div className="flex items-center gap-2 text-[var(--text-secondary)]">
                       <MapPin className="w-4 h-4" />
-                      <span>Location: {(report.details as any).phoneInfo.country}</span>
+                      <span>Location: {report.details.phoneInfo.country}</span>
                     </div>
                   )}
-                  {((report.details as any).phoneInfo.provider) && (
+                  {report.details.phoneInfo.provider && (
                     <div className="flex items-center gap-2 text-[var(--text-secondary)]">
                       <Phone className="w-4 h-4" />
-                      <span>Provider: {(report.details as any).phoneInfo.provider}</span>
+                      <span>Provider: {report.details.phoneInfo.provider}</span>
                     </div>
                   )}
-                  {((report.details as any).phoneInfo.isVirtual) && (
+                  {report.details.phoneInfo.isVirtual && (
                     <div className="flex items-center gap-2 text-[#D97706]">
                       <Wifi className="w-4 h-4" />
                       <span className="font-medium">Virtual/VoIP Number — often used by scammers</span>
@@ -171,9 +211,9 @@ export default function SMSChecker() {
 
             <Card className="mb-8">
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risks</h3>
-              {(report.details as any)?.detectedRisks?.length > 0 ? (
+              {report?.details?.detectedRisks && report.details.detectedRisks.length > 0 ? (
                 <ul className="space-y-2">
-                  {((report.details as any).detectedRisks as RiskItem[] | undefined)?.map((risk: RiskItem, i: number) => (
+                  {report.details.detectedRisks.map((risk, i) => (
                     <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
                       <span className="text-[#D97706]">&#8226;</span>
                       {risk.description}

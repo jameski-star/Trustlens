@@ -91,12 +91,20 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
       ? analysis.domainAge.daysSinceCreation > 365 ? 80 : analysis.domainAge.daysSinceCreation > 30 ? 50 : 20
       : 30;
 
+    const scoreFactors = {
+      ssl: { score: analysis.ssl ? 50 : 20, weight: 0.05, label: 'SSL Certificate' },
+      domainAge: { score: domainAgeScore, weight: 0.10, label: 'Domain Age' },
+      blacklists: { score: analysis.blacklists.some(b => b.listed) ? 5 : 80, weight: 0.30, label: 'Blacklist Status' },
+      aiAnalysis: { score: aiResult.confidence, weight: 0.15, label: 'AI Analysis' },
+      communityReports: { score: community.score, weight: 0.40, label: 'Community Reports' },
+    };
+
     const finalScore = calculateFinalScore({
-      ssl: analysis.ssl ? 50 : 20,
-      domainAge: domainAgeScore,
-      blacklists: analysis.blacklists.some(b => b.listed) ? 5 : 80,
-      aiAnalysis: aiResult.confidence,
-      communityReports: community.score,
+      ssl: scoreFactors.ssl.score,
+      domainAge: scoreFactors.domainAge.score,
+      blacklists: scoreFactors.blacklists.score,
+      aiAnalysis: scoreFactors.aiAnalysis.score,
+      communityReports: scoreFactors.communityReports.score,
     });
 
     const riskLevel = getRiskLevel(finalScore);
@@ -187,12 +195,20 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
       ? whoisResult.domainAge.daysSinceCreation > 365 ? 80 : whoisResult.domainAge.daysSinceCreation > 30 ? 50 : 20
       : 30;
 
+    const emailScoreFactors = {
+      ssl: { score: 50, weight: 0.05, label: 'Email Authentication' },
+      domainAge: { score: emailDomainAgeScore, weight: 0.10, label: 'Domain Age' },
+      blacklists: { score: 80, weight: 0.30, label: 'General Reputation' },
+      aiAnalysis: { score: aiResult.confidence, weight: 0.15, label: 'AI Analysis' },
+      communityReports: { score: community.score, weight: 0.40, label: 'Community Reports' },
+    };
+
     const finalScore = calculateFinalScore({
-      ssl: 50,
-      domainAge: emailDomainAgeScore,
-      blacklists: 80,
-      aiAnalysis: aiResult.confidence,
-      communityReports: community.score,
+      ssl: emailScoreFactors.ssl.score,
+      domainAge: emailScoreFactors.domainAge.score,
+      blacklists: emailScoreFactors.blacklists.score,
+      aiAnalysis: emailScoreFactors.aiAnalysis.score,
+      communityReports: emailScoreFactors.communityReports.score,
     });
 
     const riskLevel = getRiskLevel(finalScore);
@@ -212,6 +228,7 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
       input: input.substring(0, 500),
       riskScore: finalScore,
       riskLevel,
+      scoreBreakdown: Object.values(emailScoreFactors).map(f => ({ label: f.label, score: f.score, weight: f.weight, contribution: Math.round(f.score * f.weight) })),
       status: 'completed',
       summary: analysis.summary,
       details: {
@@ -303,8 +320,16 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
       }
     }
 
+    const smsScoreFactors = {
+      contentAnalysis: { score: smsAnalysis.riskScore, weight: 0.50, label: 'Content Pattern Analysis' },
+      communityReports: { score: community.score, weight: 0.25, label: 'Community Reports' },
+      aiAnalysis: { score: aiResult.confidence, weight: 0.25, label: 'AI Analysis' },
+    };
+
     const finalScore = Math.round(
-      smsAnalysis.riskScore * 0.50 + community.score * 0.25 + aiResult.confidence * 0.25
+      smsScoreFactors.contentAnalysis.score * smsScoreFactors.contentAnalysis.weight +
+      smsScoreFactors.communityReports.score * smsScoreFactors.communityReports.weight +
+      smsScoreFactors.aiAnalysis.score * smsScoreFactors.aiAnalysis.weight
     );
 
     const riskLevel = getRiskLevel(finalScore);
@@ -324,6 +349,7 @@ export async function scanSms(req: Request, res: Response, next: NextFunction): 
       input: input.substring(0, 500),
       riskScore: finalScore,
       riskLevel,
+      scoreBreakdown: Object.values(smsScoreFactors).map(f => ({ label: f.label, score: f.score, weight: f.weight, contribution: Math.round(f.score * f.weight) })),
       status: 'completed',
       summary: smsAnalysis.summary,
       details: {
@@ -369,7 +395,17 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
       performAIAnalysis(input, 'phone'),
     ]);
 
-    const finalScore = Math.round(analysis.riskScore * 0.4 + community.score * 0.3 + aiResult.confidence * 0.3);
+    const phoneScoreFactors = {
+      numberAnalysis: { score: analysis.riskScore, weight: 0.40, label: 'Number Pattern Analysis' },
+      communityReports: { score: community.score, weight: 0.30, label: 'Community Reports' },
+      aiAnalysis: { score: aiResult.confidence, weight: 0.30, label: 'AI Analysis' },
+    };
+
+    const finalScore = Math.round(
+      phoneScoreFactors.numberAnalysis.score * phoneScoreFactors.numberAnalysis.weight +
+      phoneScoreFactors.communityReports.score * phoneScoreFactors.communityReports.weight +
+      phoneScoreFactors.aiAnalysis.score * phoneScoreFactors.aiAnalysis.weight
+    );
     const riskLevel = getRiskLevel(finalScore);
 
     if (community.count > 0) {
@@ -387,6 +423,7 @@ export async function scanPhone(req: Request, res: Response, next: NextFunction)
       input: input.substring(0, 500),
       riskScore: finalScore,
       riskLevel,
+      scoreBreakdown: Object.values(phoneScoreFactors).map(f => ({ label: f.label, score: f.score, weight: f.weight, contribution: Math.round(f.score * f.weight) })),
       status: 'completed',
       summary: analysis.summary,
       details: {
@@ -502,11 +539,18 @@ export async function scanScreenshot(req: Request, res: Response, next: NextFunc
       riskScore
     );
 
+    const screenshotBreakdown = [
+      { label: 'OCR Text Analysis', score: detectedRisks.length > 0 ? Math.max(10, 100 - detectedRisks.length * 20) : 80, weight: 0.40, contribution: 0 },
+      { label: 'URL Risk Assessment', score: riskScore, weight: 0.30, contribution: 0 },
+      { label: 'Scam Pattern Match', score: detectedRisks.length > 0 ? 20 : 80, weight: 0.30, contribution: 0 },
+    ].map(f => ({ ...f, contribution: Math.round(f.score * f.weight) }));
+
     const report = await Report.create({
       type: 'screenshot',
       input: (input || 'uploaded screenshot').substring(0, 500),
       riskScore,
       riskLevel,
+      scoreBreakdown: screenshotBreakdown,
       status: 'completed',
       summary,
       details,
@@ -535,12 +579,20 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
       ? analysis.domainAge.daysSinceCreation > 365 ? 80 : analysis.domainAge.daysSinceCreation > 30 ? 50 : 20
       : 30;
 
+    const qrScoreFactors = {
+      ssl: { score: analysis.ssl ? 50 : 20, weight: 0.05, label: 'SSL Certificate' },
+      domainAge: { score: qrDomainAgeScore, weight: 0.10, label: 'Domain Age' },
+      blacklists: { score: analysis.blacklists.some(b => b.listed) ? 5 : 80, weight: 0.30, label: 'Blacklist Status' },
+      aiAnalysis: { score: aiResult.confidence, weight: 0.15, label: 'AI Analysis' },
+      communityReports: { score: community.score, weight: 0.40, label: 'Community Reports' },
+    };
+
     const finalScore = calculateFinalScore({
-      ssl: analysis.ssl ? 50 : 20,
-      domainAge: qrDomainAgeScore,
-      blacklists: analysis.blacklists.some(b => b.listed) ? 5 : 80,
-      aiAnalysis: aiResult.confidence,
-      communityReports: community.score,
+      ssl: qrScoreFactors.ssl.score,
+      domainAge: qrScoreFactors.domainAge.score,
+      blacklists: qrScoreFactors.blacklists.score,
+      aiAnalysis: qrScoreFactors.aiAnalysis.score,
+      communityReports: qrScoreFactors.communityReports.score,
     });
 
     const riskLevel = getRiskLevel(finalScore);
@@ -560,6 +612,7 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
       input: input.substring(0, 500),
       riskScore: finalScore,
       riskLevel,
+      scoreBreakdown: Object.values(qrScoreFactors).map(f => ({ label: f.label, score: f.score, weight: f.weight, contribution: Math.round(f.score * f.weight) })),
       status: 'completed',
       summary: `QR code leads to: ${analysis.summary}`,
       details: {

@@ -1,5 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+interface ScoreFactor {
+  label: string;
+  score: number;
+  weight: number;
+  contribution: number;
+}
+
 export interface IReport extends Document {
   type: 'url' | 'email' | 'sms' | 'phone' | 'screenshot' | 'qrcode';
   input: string;
@@ -11,6 +18,7 @@ export interface IReport extends Document {
   recommendations: string[];
   confidenceScore: number;
   shareId: string;
+  scoreBreakdown?: ScoreFactor[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +34,7 @@ const ReportSchema = new Schema<IReport>({
   recommendations: [{ type: String }],
   confidenceScore: { type: Number, default: 70 },
   shareId: { type: String, unique: true, required: true },
+  scoreBreakdown: [{ label: String, score: Number, weight: Number, contribution: Number }],
 }, { timestamps: true });
 
 ReportSchema.index({ type: 1, createdAt: -1 });

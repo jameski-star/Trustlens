@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
 
@@ -30,6 +30,7 @@ import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
+import ScoreBreakdown from '../components/ScoreBreakdown';
 import { useScanUrl } from '../hooks/useScan';
 import { ShieldAlert, RefreshCw, Flag } from 'lucide-react';
 
@@ -39,25 +40,10 @@ export default function URLChecker() {
   const navigate = useNavigate();
   const { mutate: scan, data: report, isPending, isError } = useScanUrl();
   const queryParam = searchParams.get('q');
-  const [showLoader, setShowLoader] = useState(false);
-  const loaderRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
-    if (queryParam) {
-      setShowLoader(true);
-      scan(queryParam);
-    }
-  }, [queryParam]);
-
-  useEffect(() => {
-    if (isPending) {
-      setShowLoader(true);
-      clearTimeout(loaderRef.current);
-    } else if (showLoader) {
-      loaderRef.current = setTimeout(() => setShowLoader(false), 800);
-    }
-    return () => clearTimeout(loaderRef.current);
-  }, [isPending]);
+    if (queryParam) scan(queryParam);
+  }, [queryParam, scan]);
 
   const handleSearch = (input: string) => {
     navigate(`/url-checker?q=${encodeURIComponent(input)}`);
@@ -92,7 +78,7 @@ export default function URLChecker() {
           />
         </div>
 
-        {isPending && (
+        {(isPending || (queryParam && !report && !isError)) && (
           <div className="max-w-3xl mx-auto">
             <ScanAnimation type="url" />
           </div>
@@ -130,6 +116,12 @@ export default function URLChecker() {
                 </div>
               </div>
             </div>
+
+            {report.scoreBreakdown && (
+              <div className="mb-8">
+                <ScoreBreakdown factors={report.scoreBreakdown} totalScore={report.riskScore} />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {report.details?.ssl && (

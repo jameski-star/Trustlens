@@ -40,14 +40,18 @@
   body {
     background-color: var(--bg-page);
     color: var(--text-primary);
-    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    letter-spacing: -0.011em;
+    line-height: 1.75;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     overflow-x: hidden;
-    @apply font-body leading-relaxed;
+    @apply font-body;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.025em;
+    font-weight: 700;
     @apply font-heading;
   }
 }
