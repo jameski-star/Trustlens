@@ -37,15 +37,14 @@ export default function Home() {
         description="TrustLens helps you determine if websites, emails, SMS messages, and online offers are safe or potentially fraudulent. Free security analysis."
       />
 
-      <section className="container-page pt-8 pb-8 md:pt-20 md:pb-12">
-        <div className="max-w-3xl mx-auto text-center mb-8">
-          <h1 className="font-heading font-800 text-[clamp(1.5rem,1rem+3vw,3.75rem)] md:text-5xl lg:text-6xl text-[var(--text-primary)] leading-tight mb-3">
+      <section className="container-page pt-4 pb-4 md:pt-20 md:pb-12">
+        <div className="max-w-3xl mx-auto text-center mb-4 md:mb-8">
+          <h1 className="font-heading font-800 text-[clamp(1.25rem,1rem+2.5vw,3.75rem)] md:text-5xl lg:text-6xl text-[var(--text-primary)] leading-tight mb-1 md:mb-3">
             Know Before<br />
             <span className="text-[var(--text-accent)]">You Click</span>
           </h1>
-          <p className="text-base md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-6">
+          <p className="text-sm md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-3 md:mb-6">
             Free security analysis for websites, emails, SMS messages, and more.
-            Protect yourself from scams and phishing attempts.
           </p>
           <div className="max-w-2xl mx-auto">
             <SearchBar large />
@@ -53,12 +52,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-page pb-12">
+      <section className="container-page pb-4 md:pb-12">
         <TrustIndicators />
       </section>
 
-      <section className="container-page pb-12">
-        <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)] mb-6">Popular Searches</h2>
+      <section className="container-page pb-8 md:pb-12">
+        <h2 className="font-heading font-700 text-lg md:text-2xl text-[var(--text-primary)] mb-3 md:mb-6">Popular Searches</h2>
         <div className="flex flex-wrap gap-2">
           {popularSearches.length > 0 ? popularSearches.map((item: Record<string, unknown>) => {
             const label = (item._id as string) || (item.type as string) || '';
@@ -77,9 +76,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container-page pb-16">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)]">Security Tools</h2>
+      <section className="container-page pb-8 md:pb-16">
+        <div className="flex items-center justify-between mb-4 md:mb-8">
+          <h2 className="font-heading font-700 text-lg md:text-2xl text-[var(--text-primary)]">Security Tools</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tools.map((tool) => (
