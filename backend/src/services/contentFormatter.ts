@@ -60,6 +60,7 @@ export function cleanScrapedContent(text: string): string {
         cleaned = cleaned.replace(regex, '');
       }
     } catch {
+      // selector may be invalid for regex approach, skip
     }
   }
 
@@ -69,7 +70,7 @@ export function cleanScrapedContent(text: string): string {
   return cleaned;
 }
 
-export function cleanContentTags($: any, $cheerio: any): void {
+export function cleanContentTags($: any): void {
   const adClasses = [
     '.advertisement', '.ad-container', '.ad-wrapper', '.ad-slot',
     '.sponsored-content', '.promoted', '.paid-content',
@@ -81,6 +82,7 @@ export function cleanContentTags($: any, $cheerio: any): void {
     try {
       $(cls).remove();
     } catch {
+      // cheerio throws on malformed selectors, skip
     }
   }
 
@@ -104,16 +106,4 @@ function isAdIframe(src: string): boolean {
   return adIframePatterns.some(pattern => src.includes(pattern));
 }
 
-export function extractMainContent(html: string): string {
-  const articleMatch = html.match(/<article[\s\S]*?<\/article>/i);
-  if (articleMatch) return articleMatch[0];
 
-  const mainMatch = html.match(/<main[\s\S]*?<\/main>/i);
-  if (mainMatch) return mainMatch[0];
-
-  const contentMatch = html.match(/<div[^>]*(?:id|class)=["'](?:content|post|article|entry|main)["'][^>]*>[\s\S]*?<\/div>/i);
-  if (contentMatch) return contentMatch[0];
-
-  const bodyMatch = html.match(/<body[\s\S]*?<\/body>/i);
-  return bodyMatch ? bodyMatch[0] : html;
-}

@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { logger } from '../utils/logger';
 import { cacheWrap } from '../utils/cache';
-import { cleanTrackingParams, cleanContentTags, isAdContent, extractMainContent } from './contentFormatter';
+import { cleanTrackingParams, cleanContentTags, isAdContent } from './contentFormatter';
 
 const SCRAPE_TIMEOUT = 15_000;
 const CACHE_TTL_SCRAPE = 120_000;
@@ -85,7 +85,7 @@ export async function scrapeSite(url: string): Promise<SiteScrapeResult | null> 
       clearTimeout(timeoutId);
 
       const $ = cheerio.load(html);
-      cleanContentTags($, cheerio);
+      cleanContentTags($);
       const risks: string[] = [];
 
       const title = ($('title').first().text().trim() ||
