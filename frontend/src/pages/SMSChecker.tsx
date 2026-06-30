@@ -14,43 +14,97 @@ import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { useScanSms } from '../hooks/useScan';
+import { useScanSms, useScanPhone } from '../hooks/useScan';
 import { ShieldAlert, RefreshCw } from 'lucide-react';
 
+type ScanMode = 'sms' | 'phone';
+
 export default function SMSChecker() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { mutate: scan, data: report, isPending, isError } = useScanSms();
+  const scanSms = useScanSms();
+  const scanPhone = useScanPhone();
   const queryParam = searchParams.get('q');
+  const modeParam = (searchParams.get('mode') as ScanMode) || 'sms';
+
+  const scan = modeParam === 'phone' ? scanPhone.mutate : scanSms.mutate;
+  const report = modeParam === 'phone' ? scanPhone.data : scanSms.data;
+  const isPending = modeParam === 'phone' ? scanPhone.isPending : scanSms.isPending;
+  const isError = modeParam === 'phone' ? scanPhone.isError : scanSms.isError;
 
   useEffect(() => {
     if (queryParam) scan(queryParam);
-  }, [queryParam]);
+  }, [queryParam, modeParam]);
 
   const handleSearch = (input: string) => {
-    navigate(`/sms-checker?q=${encodeURIComponent(input)}`);
+    navigate(`/sms-checker?q=${encodeURIComponent(input)}&mode=${modeParam}`);
   };
+
+  const switchMode = (m: ScanMode) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('mode', m);
+    setSearchParams(params);
+  };
+
+  const placeholder = modeParam === 'phone'
+    ? 'Enter a phone number (e.g. +254712345678)...'
+    : 'Enter an SMS message text...';
 
   return (
     <>
       <SEOHead
-        title="SMS Checker - Is This Text a Scam?"
-        description="Check if an SMS message or phone number is associated with known scams. Free SMS security analysis."
+        title={modeParam === 'phone' ? 'Phone Number Checker - Is This Number Safe?' : 'SMS Checker - Is This Text a Scam?'}
+        description="Check if a phone number or SMS message is associated with known scams. Free security analysis."
       />
       <ErrorBoundary>
       <div className="container-page py-8">
-        <Breadcrumbs items={[{ label: 'SMS Checker' }]} />
+        <Breadcrumbs items={[{ label: modeParam === 'phone' ? 'Phone Checker' : 'SMS Checker' }]} />
         <div className="max-w-3xl mx-auto mb-10">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[#FFFBEB] rounded-xl flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-[#D97706]" />
+              {modeParam === 'phone' ? (
+                <Phone className="w-5 h-5 text-[#D97706]" />
+              ) : (
+                <MessageSquare className="w-5 h-5 text-[#D97706]" />
+              )}
             </div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">SMS & Phone Checker</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">
+              {modeParam === 'phone' ? 'Phone Number Checker' : 'SMS & Phone Checker'}
+            </h1>
           </div>
+
+          <div className="flex gap-2 mb-4">
+            <button
+              onClick={() => switchMode('sms')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                modeParam === 'sms'
+                  ? 'bg-[var(--text-accent)] text-white'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4 inline mr-1.5" />
+              SMS Message
+            </button>
+            <button
+              onClick={() => switchMode('phone')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                modeParam === 'phone'
+                  ? 'bg-[var(--text-accent)] text-white'
+                  : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              <Phone className="w-4 h-4 inline mr-1.5" />
+              Phone Number
+            </button>
+          </div>
+
           <p className="text-[var(--text-secondary)] mb-6">
-            Check if an SMS message, phone number, or WhatsApp message is part of a scam campaign.
+            {modeParam === 'phone'
+              ? 'Verify a phone number — check if it belongs to a known organisation or has been reported as suspicious.'
+              : 'Check if an SMS message, phone number, or WhatsApp message is part of a scam campaign.'}
           </p>
-          <SearchBar placeholder="Enter a phone number or SMS message text..." onSubmit={handleSearch} isLoading={isPending} />
+
+          <SearchBar placeholder={placeholder} onSubmit={handleSearch} isLoading={isPending} />
         </div>
 
         {isPending && <div className="max-w-3xl mx-auto"><ScanAnimation type="sms" /></div>}
@@ -76,26 +130,12 @@ export default function SMSChecker() {
             <div className="flex flex-col lg:flex-row items-start gap-8 mb-8">
               <RiskScore score={report.riskScore} size="lg" />
               <div className="flex-1">
-                <h2 className="font-heading font-700 text-xl text-[var(--text-primary)] mb-2">SMS Analysis Result</h2>
+                <h2 className="font-heading font-700 text-xl text-[var(--text-primary)] mb-2">
+                  {modeParam === 'phone' ? 'Phone Number Analysis Result' : 'SMS Analysis Result'}
+                </h2>
                 <p className="text-[var(--text-secondary)] mb-4">{report.summary}</p>
               </div>
             </div>
-
-            <Card className="mb-8">
-              <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risks</h3>
-              {report.details?.detectedRisks?.length > 0 ? (
-                <ul className="space-y-2">
-                  {(report.details?.detectedRisks as RiskItem[] | undefined)?.map((risk: RiskItem, i: number) => (
-                    <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
-                      <span className="text-[#D97706]">&#8226;</span>
-                      {risk.description}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-[#16A34A]">No risks detected</p>
-              )}
-            </Card>
 
             {(report.details as any)?.phoneInfo && (
               <Card className="mb-8">
@@ -128,6 +168,22 @@ export default function SMSChecker() {
                 </div>
               </Card>
             )}
+
+            <Card className="mb-8">
+              <h3 className="font-semibold text-[var(--text-primary)] mb-3">Detected Risks</h3>
+              {(report.details as any)?.detectedRisks?.length > 0 ? (
+                <ul className="space-y-2">
+                  {((report.details as any).detectedRisks as RiskItem[] | undefined)?.map((risk: RiskItem, i: number) => (
+                    <li key={i} className="text-sm text-[var(--text-secondary)] flex items-start gap-2">
+                      <span className="text-[#D97706]">&#8226;</span>
+                      {risk.description}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[#16A34A]">No risks detected</p>
+              )}
+            </Card>
 
             <Card className="mb-8">
               <h3 className="font-semibold text-[var(--text-primary)] mb-3">Recommendations</h3>

@@ -43,7 +43,8 @@ export default function SearchBar({
       phone: '/sms-checker',
       sms: '/sms-checker',
     };
-    navigate(`${endpoints[type]}?q=${encodeURIComponent(input.trim())}`);
+    const modeParam = type === 'phone' ? '&mode=phone' : '';
+    navigate(`${endpoints[type]}?q=${encodeURIComponent(input.trim())}${modeParam}`);
   };
 
   return (

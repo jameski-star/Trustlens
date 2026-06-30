@@ -51,13 +51,13 @@ async function getCommunityScore(input: string, scanType: string): Promise<{ sco
     ]);
 
     let score: number;
-    if (malicious >= 3) score = 5;
-    else if (malicious >= 1) score = 15;
-    else if (safe >= 3) score = 85;
-    else if (total >= 5) score = 30;
-    else if (total >= 3) score = 40;
-    else if (total >= 1) score = 55;
-    else score = 85;
+    if (malicious >= 3) score = 0;
+    else if (malicious >= 1) score = 10;
+    else if (safe >= 3) score = 100;
+    else if (total >= 5) score = 20;
+    else if (total >= 3) score = 30;
+    else if (total >= 1) score = 45;
+    else score = 90;
 
     return { score, count: total, malicious, safe };
   } catch {
@@ -87,10 +87,14 @@ export async function scanUrl(req: Request, res: Response, next: NextFunction): 
       performAIAnalysis(input, 'url'),
     ]);
 
+    const domainAgeScore = analysis.domainAge?.daysSinceCreation
+      ? analysis.domainAge.daysSinceCreation > 365 ? 80 : analysis.domainAge.daysSinceCreation > 30 ? 50 : 20
+      : 30;
+
     const finalScore = calculateFinalScore({
-      ssl: analysis.ssl ? 80 : 30,
-      domainAge: analysis.domainAge ? 60 : 30,
-      blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
+      ssl: analysis.ssl ? 50 : 20,
+      domainAge: domainAgeScore,
+      blacklists: analysis.blacklists.some(b => b.listed) ? 5 : 80,
       aiAnalysis: aiResult.confidence,
       communityReports: community.score,
     });
@@ -179,10 +183,14 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
       if (daysSinceCreation < 30) analysis.detectedRisks[analysis.detectedRisks.length - 1].severity = 'high';
     }
 
+    const emailDomainAgeScore = whoisResult?.domainAge?.daysSinceCreation
+      ? whoisResult.domainAge.daysSinceCreation > 365 ? 80 : whoisResult.domainAge.daysSinceCreation > 30 ? 50 : 20
+      : 30;
+
     const finalScore = calculateFinalScore({
-      ssl: 0,
-      domainAge: whoisResult?.domainAge ? whoisResult.domainAge.daysSinceCreation : 0,
-      blacklists: 0,
+      ssl: 50,
+      domainAge: emailDomainAgeScore,
+      blacklists: 80,
       aiAnalysis: aiResult.confidence,
       communityReports: community.score,
     });
@@ -523,10 +531,14 @@ export async function scanQrcode(req: Request, res: Response, next: NextFunction
       performAIAnalysis(input, 'url'),
     ]);
 
+    const qrDomainAgeScore = analysis.domainAge?.daysSinceCreation
+      ? analysis.domainAge.daysSinceCreation > 365 ? 80 : analysis.domainAge.daysSinceCreation > 30 ? 50 : 20
+      : 30;
+
     const finalScore = calculateFinalScore({
-      ssl: analysis.ssl ? 80 : 30,
-      domainAge: analysis.domainAge ? 60 : 30,
-      blacklists: analysis.blacklists.filter(b => b.listed).length > 0 ? 20 : 80,
+      ssl: analysis.ssl ? 50 : 20,
+      domainAge: qrDomainAgeScore,
+      blacklists: analysis.blacklists.some(b => b.listed) ? 5 : 80,
       aiAnalysis: aiResult.confidence,
       communityReports: community.score,
     });

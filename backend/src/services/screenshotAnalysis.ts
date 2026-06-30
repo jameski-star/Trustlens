@@ -147,7 +147,9 @@ export async function analyzeScreenshot(base64Data: string): Promise<ScreenshotA
     })
   );
 
-  const aiResult = await performAIAnalysis(fullText, 'screenshot');
+  const [aiResult] = await Promise.all([
+    performAIAnalysis(fullText, 'screenshot'),
+  ]);
 
   const resolvedUrls = urlResults
     .filter(r => r.status === 'fulfilled')
@@ -184,6 +186,13 @@ export async function analyzeScreenshot(base64Data: string): Promise<ScreenshotA
     for (const sp of scamPatterns) {
       overallRisk = Math.min(overallRisk + 8, 100);
       detectedRisks.push({ category: 'Scam Pattern', severity: 'high', description: `Matched known scam template: "${sp.label}"` });
+    }
+  }
+
+  for (const rf of aiResult.riskFactors) {
+    if (!detectedRisks.some(d => d.description.includes(rf))) {
+      detectedRisks.push({ category: 'AI Analysis', severity: 'medium', description: rf });
+      overallRisk = Math.min(overallRisk + 8, 100);
     }
   }
 

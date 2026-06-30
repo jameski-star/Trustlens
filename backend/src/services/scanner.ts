@@ -584,7 +584,7 @@ export function analyzeSmsContent(text: string) {
 
 export function calculateFinalScore(checks: { ssl: number; domainAge: number; blacklists: number; aiAnalysis: number; communityReports: number }): number {
   return Math.round(
-    checks.ssl * 0.15 + checks.domainAge * 0.10 + checks.blacklists * 0.25 + checks.aiAnalysis * 0.25 + checks.communityReports * 0.25
+    checks.ssl * 0.05 + checks.domainAge * 0.10 + checks.blacklists * 0.30 + checks.aiAnalysis * 0.15 + checks.communityReports * 0.40
   );
 }
 
