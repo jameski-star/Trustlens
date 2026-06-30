@@ -117,7 +117,7 @@ export async function submitContact(formData: { name: string; email: string; sub
   return data;
 }
 
-export async function getBlogPosts(params?: { page?: number; category?: string }): Promise<{ items: Record<string, unknown>[]; total: number }> {
+export async function getBlogPosts(params?: { page?: number; limit?: number; category?: string }): Promise<{ items: Record<string, unknown>[]; total: number }> {
   const { data } = await apiClient.get('/blog', { params });
   return data.data;
 }

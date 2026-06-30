@@ -42,9 +42,9 @@ export default function KnowledgeCenter() {
           <p className="text-[var(--text-secondary)] mb-8">Learn how to protect yourself from online scams, phishing, identity theft, and other cybersecurity threats.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {(items.length > 0 ? items : fallbackCategories).map((cat) => {
+            {(items.length > 0 ? items : fallbackCategories).map((cat: Record<string, unknown>) => {
               if ('slug' in cat) {
-                const article = cat as Record<string, unknown>;
+                const article = cat;
                 const IconComp = iconMap[article.icon as string] || BookOpen;
                 return (
                   <Link key={article.slug as string} to={`/knowledge-center/${article.slug as string}`} className="card hover:shadow-card-hover transition-all duration-200 group">

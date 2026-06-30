@@ -60,8 +60,8 @@ export default function Home() {
       <section className="container-page pb-12">
         <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)] mb-6">Popular Searches</h2>
         <div className="flex flex-wrap gap-2">
-          {popularSearches.length > 0 ? popularSearches.map((item) => {
-            const label = (item as Record<string, string>)._id || (item as Record<string, string>).type || '';
+          {popularSearches.length > 0 ? popularSearches.map((item: Record<string, unknown>) => {
+            const label = (item._id as string) || (item.type as string) || '';
             return (
               <Link
                 key={label}
