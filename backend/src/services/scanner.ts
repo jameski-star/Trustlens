@@ -9,6 +9,19 @@ import { isOfficialNumber, isOfficialEmail, isImpersonatingOfficial } from './kn
 
 const whoisCache = new Map<string, { result: WhoisLookupResult; expires: number }>();
 const WHOIS_CACHE_TTL = 300_000;
+const WHOIS_CACHE_MAX = 500;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of whoisCache) {
+    if (now > v.expires) whoisCache.delete(k);
+  }
+  if (whoisCache.size > WHOIS_CACHE_MAX) {
+    const sorted = [...whoisCache.entries()].sort((a, b) => a[1].expires - b[1].expires);
+    const toDelete = sorted.slice(0, sorted.length - WHOIS_CACHE_MAX);
+    for (const [k] of toDelete) whoisCache.delete(k);
+  }
+}, 120_000).unref?.();
 
 const RDAP_SERVERS: Record<string, string> = {
   com: 'https://rdap.verisign.com/com/v1/domain/',

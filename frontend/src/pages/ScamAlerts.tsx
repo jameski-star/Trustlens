@@ -31,6 +31,7 @@ export default function ScamAlerts() {
   const { data, isLoading } = useQuery({
     queryKey: ['scam-alerts'],
     queryFn: () => getScamAlerts({ page: 1, limit: 50 }),
+    staleTime: 120_000,
   });
 
   const alerts = data?.items || [];

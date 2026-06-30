@@ -15,5 +15,6 @@ const searchHistorySchema = new Schema<ISearchHistoryDocument>({
 
 searchHistorySchema.index({ createdAt: -1 });
 searchHistorySchema.index({ query: 'text' });
+searchHistorySchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });
 
 export const SearchHistory = mongoose.model<ISearchHistoryDocument>('SearchHistory', searchHistorySchema);

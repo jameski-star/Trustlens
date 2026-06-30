@@ -4,6 +4,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { config } from './config';
+import { logger } from './utils/logger';
 import { helmetMiddleware, sanitizeMiddleware, xssClean } from './middleware/sanitize';
 import { generalLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
@@ -12,6 +13,18 @@ import apiRoutes from './routes/index';
 const app = express();
 
 app.set('trust proxy', 1);
+
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    if (req.path.startsWith('/api/v1')) {
+      logger.info({ method: req.method, path: req.path, status: res.statusCode, duration: `${duration}ms` }, 'Request');
+    }
+  });
+  next();
+});
+
 app.use(helmetMiddleware);
 app.use(cors({
   origin(origin, callback) {

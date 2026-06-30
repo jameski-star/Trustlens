@@ -30,5 +30,6 @@ const ReportSchema = new Schema<IReport>({
 
 ReportSchema.index({ type: 1, createdAt: -1 });
 ReportSchema.index({ riskLevel: 1 });
+ReportSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7776000 });
 
 export const Report = mongoose.model<IReport>('Report', ReportSchema);

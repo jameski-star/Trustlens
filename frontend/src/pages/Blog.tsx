@@ -36,6 +36,7 @@ export default function Blog() {
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ['blog-posts', category, page],
     queryFn: () => getBlogPosts({ page, category: category === 'All' ? undefined : category }),
+    staleTime: 120_000,
   });
 
   useEffect(() => {

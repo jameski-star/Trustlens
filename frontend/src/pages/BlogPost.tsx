@@ -14,6 +14,7 @@ export default function BlogPostPage() {
     queryKey: ['blog-post', slug],
     queryFn: () => getBlogPost(slug!),
     enabled: !!slug,
+    staleTime: 300_000,
   });
 
   const isFromRss = post?.author === 'TrustLens Security Team';

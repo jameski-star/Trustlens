@@ -10,7 +10,7 @@ interface BlacklistItem {
 import SEOHead from '../components/SEOHead';
 import RiskScore from '../components/RiskScore';
 import Card from '../components/Card';
-import ScanAnimation from '../components/ScanAnimation';
+import { ReportSkeleton } from '../components/Skeleton';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { Download, ShieldAlert, RefreshCw, ExternalLink } from 'lucide-react';
@@ -24,6 +24,8 @@ export default function Result() {
     queryKey: ['report', shareId],
     queryFn: () => getReport(shareId!),
     enabled: !!shareId,
+    staleTime: 60_000,
+    gcTime: 300_000,
   });
 
   const handleDownloadPdf = async () => {
@@ -58,8 +60,8 @@ export default function Result() {
         ]} />
 
         {isLoading && (
-          <div className="max-w-3xl mx-auto">
-            <ScanAnimation type="report" />
+          <div className="max-w-3xl mx-auto mt-8">
+            <ReportSkeleton />
           </div>
         )}
         {error && (

@@ -54,6 +54,7 @@ export default function CommunityReports() {
   const { data, isLoading } = useQuery({
     queryKey: ['community-reports', category],
     queryFn: () => getCommunityReports({ page: 1, category: category === 'All' ? undefined : category }),
+    staleTime: 120_000,
   });
 
   const handleUpvote = async (id: string) => {
