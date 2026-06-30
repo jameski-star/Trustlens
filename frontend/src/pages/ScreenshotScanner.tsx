@@ -1,17 +1,69 @@
 import { useState, useRef } from 'react';
-import { Camera, Upload, X } from 'lucide-react';
+import { Camera, Upload, X, ExternalLink, Mail, Phone, AlertTriangle, FileText, Shield, CheckCircle2, Link } from 'lucide-react';
 import { scanScreenshot } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
+import RiskScore from '../components/RiskScore';
+
+interface DetectedRisk {
+  category: string;
+  severity: string;
+  description: string;
+}
+
+interface ScamPattern {
+  matched: string;
+  label: string;
+}
+
+interface ScannedItem {
+  url?: string;
+  email?: string;
+  phone?: string;
+  riskScore: number;
+  summary: string;
+  risks: string[];
+  provider?: string;
+  country?: string;
+  isVirtual?: boolean;
+  isDisposable?: boolean;
+  organization?: string;
+}
+
+interface ScreenshotResult {
+  summary: string;
+  riskScore: number;
+  riskLevel: string;
+  details: {
+    ocrText?: string;
+    urlsFound?: ScannedItem[];
+    emailsFound?: ScannedItem[];
+    phonesFound?: ScannedItem[];
+    scamPatterns?: ScannedPattern[];
+    detectedRisks?: DetectedRisk[];
+  };
+}
+
+interface ScannedPattern {
+  matched: string;
+  label: string;
+}
+
+const severityColors: Record<string, string> = {
+  critical: 'bg-red-100 text-red-800',
+  high: 'bg-orange-100 text-orange-800',
+  medium: 'bg-yellow-100 text-yellow-800',
+  low: 'bg-blue-100 text-blue-800',
+};
 
 export default function ScreenshotScanner() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [result, setResult] = useState<null | { text: string; risk: string }>(null);
+  const [result, setResult] = useState<ScreenshotResult | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef<string | null>(null);
 
@@ -41,13 +93,29 @@ export default function ScreenshotScanner() {
         reader.readAsDataURL(file);
       });
       const report = await scanScreenshot(base64);
-      setResult({ text: report.summary || 'Analysis completed successfully.', risk: report.riskLevel });
+      setResult({
+        summary: report.summary || 'Analysis completed successfully.',
+        riskScore: report.riskScore,
+        riskLevel: report.riskLevel,
+        details: report.details || {},
+      });
     } catch {
-      setResult({ text: 'Analysis failed. Please try again.', risk: 'unknown' });
+      setResult({
+        summary: 'Analysis failed. Please try again.',
+        riskScore: 50,
+        riskLevel: 'unknown',
+        details: {},
+      });
     } finally {
       setAnalyzing(false);
     }
   };
+
+  const risks = result?.details?.detectedRisks || [];
+  const urls = result?.details?.urlsFound || [];
+  const emails = result?.details?.emailsFound || [];
+  const phones = result?.details?.phonesFound || [];
+  const patterns = result?.details?.scamPatterns || [];
 
   return (
     <>
@@ -93,11 +161,176 @@ export default function ScreenshotScanner() {
           {analyzing && <ScanAnimation type="screenshot" />}
 
           {result && (
-            <Card className="mt-6">
-              <h3 className="font-semibold mb-2">Analysis Result</h3>
-              <p className="text-sm text-[var(--text-secondary)]">{result.text}</p>
-              {result.risk === 'safe' && <span className="inline-block mt-2 text-xs font-medium text-[#16A34A] bg-[#F0FDF4] px-2 py-1 rounded-lg">No threats detected</span>}
-            </Card>
+            <div className="mt-6 space-y-4">
+              <Card>
+                <div className="flex items-start gap-6 flex-wrap">
+                  <RiskScore score={result.riskScore} size="md" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-heading font-600 text-lg mb-1">Analysis Result</h3>
+                    <p className="text-sm text-[var(--text-secondary)]">{result.summary}</p>
+                  </div>
+                </div>
+              </Card>
+
+              {risks.length > 0 && (
+                <Card>
+                  <div className="flex items-center gap-2 mb-3">
+                    <AlertTriangle className="w-5 h-5 text-[#D97706]" />
+                    <h3 className="font-heading font-600">Detected Risks ({risks.length})</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {risks.map((r, i) => (
+                      <div key={i} className="flex items-start gap-3 text-sm p-2 rounded-lg bg-[var(--bg-subtle)]">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium shrink-0 ${severityColors[r.severity] || 'bg-gray-100 text-gray-800'}`}>
+                          {r.severity}
+                        </span>
+                        <span className="text-[var(--text-primary)]">{r.description}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {urls.length > 0 && (
+                <Card>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Link className="w-5 h-5 text-[#2563EB]" />
+                    <h3 className="font-heading font-600">URLs Found ({urls.length})</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {urls.map((item, i) => (
+                      <div key={i} className="text-sm p-3 rounded-lg bg-[var(--bg-subtle)] space-y-1">
+                        <div className="flex items-center gap-2">
+                          <ExternalLink className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                          <code className="text-xs break-all">{item.url}</code>
+                          <RiskScore score={item.riskScore} size="sm" showLabel={false} />
+                        </div>
+                        <p className="text-xs text-[var(--text-secondary)]">{item.summary}</p>
+                        {item.risks.length > 0 && (
+                          <ul className="mt-1 space-y-0.5">
+                            {item.risks.map((risk, j) => (
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-[#DC2626]">
+                                <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
+                                <span>{risk}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {emails.length > 0 && (
+                <Card>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Mail className="w-5 h-5 text-[#2563EB]" />
+                    <h3 className="font-heading font-600">Emails Found ({emails.length})</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {emails.map((item, i) => (
+                      <div key={i} className="text-sm p-3 rounded-lg bg-[var(--bg-subtle)] space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                          <code className="text-xs break-all">{item.email}</code>
+                          <RiskScore score={item.riskScore} size="sm" showLabel={false} />
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {item.provider && <span className="text-xs text-[var(--text-secondary)]">Provider: {item.provider}</span>}
+                          {item.organization && <span className="text-xs text-[#2563EB]">{item.organization}</span>}
+                          {item.isDisposable && <span className="text-xs text-[#D97706] font-medium">Disposable/Temp Email</span>}
+                        </div>
+                        <p className="text-xs text-[var(--text-secondary)]">{item.summary}</p>
+                        {item.risks.length > 0 && (
+                          <ul className="mt-1 space-y-0.5">
+                            {item.risks.map((risk, j) => (
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-[#DC2626]">
+                                <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
+                                <span>{risk}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {phones.length > 0 && (
+                <Card>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Phone className="w-5 h-5 text-[#2563EB]" />
+                    <h3 className="font-heading font-600">Phone Numbers Found ({phones.length})</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {phones.map((item, i) => (
+                      <div key={i} className="text-sm p-3 rounded-lg bg-[var(--bg-subtle)] space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+                          <code className="text-xs break-all">{item.phone}</code>
+                          <RiskScore score={item.riskScore} size="sm" showLabel={false} />
+                        </div>
+                        {item.country && <span className="inline-block text-xs text-[var(--text-secondary)]">Location: {item.country}</span>}
+                        {item.provider && <span className="inline-block text-xs text-[var(--text-secondary)] ml-2">Provider: {item.provider}</span>}
+                        {item.isVirtual && <span className="inline-block text-xs text-[#D97706] ml-2 font-medium">Virtual/VoIP Number</span>}
+                        <p className="text-xs text-[var(--text-secondary)]">{item.summary}</p>
+                        {item.risks.length > 0 && (
+                          <ul className="mt-1 space-y-0.5">
+                            {item.risks.map((risk, j) => (
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-[#DC2626]">
+                                <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
+                                <span>{risk}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {patterns.length > 0 && (
+                <Card>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Shield className="w-5 h-5 text-[#D97706]" />
+                    <h3 className="font-heading font-600">Scam Patterns Detected ({patterns.length})</h3>
+                  </div>
+                  <div className="space-y-1.5">
+                    {patterns.map((p, i) => (
+                      <div key={i} className="text-xs p-2 rounded-lg bg-[var(--bg-subtle)] flex items-center gap-2">
+                        <AlertTriangle className="w-3 h-3 text-[#DC2626] shrink-0" />
+                        <span className="text-[var(--text-primary)]">{p.label}</span>
+                        {p.matched && <code className="text-[var(--text-secondary)] truncate">"{p.matched}"</code>}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {result.details.ocrText && (
+                <Card>
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="w-5 h-5 text-[var(--text-secondary)]" />
+                    <h3 className="font-heading font-600">Extracted Text</h3>
+                  </div>
+                  <pre className="text-xs text-[var(--text-secondary)] whitespace-pre-wrap break-words max-h-60 overflow-y-auto p-3 rounded-lg bg-[var(--bg-subtle)]">
+                    {result.details.ocrText}
+                  </pre>
+                </Card>
+              )}
+
+              {risks.length === 0 && urls.length === 0 && emails.length === 0 && phones.length === 0 && patterns.length === 0 && (
+                <Card>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-[#16A34A]" />
+                    <span className="font-medium text-[#16A34A]">No threats detected</span>
+                  </div>
+                </Card>
+              )}
+            </div>
           )}
         </div>
       </div>

@@ -4,6 +4,8 @@ import { comprehensiveWhois, type WhoisResult, type DomainAgeResult } from './wh
 import { scanAllReputations } from './reputationChecker';
 import { detectScamTemplates, isKnownScamDomain, isHighRiskPhone } from './scamPatterns';
 import { isOfficialNumber, isOfficialEmail, isImpersonatingOfficial } from './knownContacts';
+import { getPhoneIntel } from './phoneIntel';
+import { getEmailIntel } from './emailIntel';
 
 const whoisCache = new Map<string, { result: WhoisLookupResult; expires: number }>();
 const WHOIS_CACHE_TTL = 300_000;
@@ -335,12 +337,26 @@ export function analyzeEmail(email: string) {
   let riskScore = 50;
 
   const [localPart, domain] = email.split('@');
-  if (!domain) return { riskScore: 0, detectedRisks, summary: 'Invalid email format.' };
+  if (!domain) return { riskScore: 0, detectedRisks, summary: 'Invalid email format.', provider: undefined, isDisposable: false, organization: undefined };
 
   const domainLower = domain.toLowerCase();
+  const intel = getEmailIntel(email);
+
+  if (intel.isDisposable) {
+    detectedRisks.push({ category: 'Disposable Email', severity: 'high', description: 'This is a temporary/disposable email address — commonly used by scammers to avoid traceability.' });
+    riskScore -= 25;
+  }
+
+  if (intel.provider) {
+    detectedRisks.push({ category: 'Email Provider', severity: 'low', description: `Provider: ${intel.provider}.` });
+  }
+  if (intel.organization) {
+    detectedRisks.push({ category: 'Email Organization', severity: 'low', description: `Domain category: ${intel.organization}.` });
+  }
+
   const freeEmailProviders = new Set(['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'mail.com', 'protonmail.com', 'proton.me']);
 
-  if (!freeEmailProviders.has(domainLower)) {
+  if (!freeEmailProviders.has(domainLower) && !intel.isDisposable) {
     detectedRisks.push({ category: 'Custom Domain Email', severity: 'low', description: 'Uses a custom domain. While not inherently suspicious, custom domains can be used for phishing.' });
     riskScore -= 5;
   }
@@ -391,7 +407,10 @@ export function analyzeEmail(email: string) {
   else if (riskScore >= 40) summary = 'This email has characteristics commonly associated with suspicious messages.';
   else summary = 'This email exhibits multiple risk indicators including known scam patterns. We recommend caution.';
 
-  return { riskScore, detectedRisks, summary };
+  if (intel.isDisposable) summary += ' This is a disposable/temporary email address.';
+  if (intel.provider) summary += ` Provider: ${intel.provider}.`;
+
+  return { riskScore, detectedRisks, summary, provider: intel.provider, isDisposable: intel.isDisposable, organization: intel.organization };
 }
 
 export function analyzePhoneNumber(phone: string) {
@@ -400,7 +419,23 @@ export function analyzePhoneNumber(phone: string) {
 
   const cleaned = phone.replace(/[\s\-().+]/g, '');
   if (cleaned.length < 7 || cleaned.length > 15) {
-    return { riskScore: 30, detectedRisks, summary: 'Phone number format is unusual.' };
+    return { riskScore: 30, detectedRisks, summary: 'Phone number format is unusual.', provider: undefined, country: undefined, isVirtual: false };
+  }
+
+  const intel = getPhoneIntel(phone);
+
+  if (intel.country) {
+    detectedRisks.push({ category: 'Location', severity: 'low', description: `Country: ${intel.country.name} (${intel.country.region}).` });
+  }
+  if (intel.provider) {
+    detectedRisks.push({ category: 'Provider', severity: 'low', description: `Carrier/Provider: ${intel.provider}.` });
+  }
+  if (intel.isVirtual) {
+    detectedRisks.push({ category: 'Virtual Number', severity: 'medium', description: 'This appears to be a virtual/VoIP/disposable number — often used by scammers to avoid traceability.' });
+    riskScore -= 15;
+  }
+  if (!intel.isMobile && !intel.isVirtual) {
+    detectedRisks.push({ category: 'Number Type', severity: 'low', description: 'This appears to be a landline/fixed-line number.' });
   }
 
   const officialCheck = isOfficialNumber(phone);
@@ -454,7 +489,11 @@ export function analyzePhoneNumber(phone: string) {
   else if (riskScore >= 40) summary = 'Shows some risk indicators. Exercise normal caution.';
   else summary = 'Multiple risk indicators including known scam patterns. Be cautious about engaging.';
 
-  return { riskScore, detectedRisks, summary };
+  if (intel.provider) summary += ` Provider: ${intel.provider}.`;
+  if (intel.country) summary += ` Location: ${intel.country.name}.`;
+  if (intel.isVirtual) summary += ' This is a virtual number.';
+
+  return { riskScore, detectedRisks, summary, provider: intel.provider, country: intel.country?.name, isVirtual: intel.isVirtual };
 }
 
 export function analyzeSmsContent(text: string) {

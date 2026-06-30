@@ -101,9 +101,7 @@ export async function upvoteCommunityReport(id: string) {
 }
 
 export async function createCommunityReport(formData: FormData) {
-  const { data } = await apiClient.post('/community', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  const { data } = await apiClient.post('/community', formData);
   return data.data;
 }
 

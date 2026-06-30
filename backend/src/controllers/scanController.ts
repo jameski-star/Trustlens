@@ -5,6 +5,7 @@ import { CommunityReport } from '../models/CommunityReport';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent, calculateFinalScore, generateRecommendations } from '../services/scanner';
 import { performAIAnalysis } from '../services/aiAnalysis';
 import { analyzeScreenshot } from '../services/screenshotAnalysis';
+import { comprehensiveWhois } from '../services/whoisFallback';
 import { logger } from '../utils/logger';
 
 const communityTypeMap: Record<string, string[]> = {
@@ -148,15 +149,37 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
   try {
     const { input } = req.body;
 
-    const [community, aiResult] = await Promise.all([
+    const [community, aiResult, whoisResult] = await Promise.all([
       getCommunityScore(input, 'email'),
       performAIAnalysis(input, 'email'),
+      (async () => {
+        const parts = input.split('@');
+        if (parts.length !== 2) return null;
+        try {
+          const result = await comprehensiveWhois(parts[1]);
+          return result;
+        } catch { return null; }
+      })(),
     ]);
     const analysis = analyzeEmail(input);
 
+    if (whoisResult?.domainAge) {
+      const { daysSinceCreation } = whoisResult.domainAge;
+      analysis.detectedRisks.push({
+        category: 'Domain Age',
+        severity: daysSinceCreation < 30 ? 'high' : daysSinceCreation < 90 ? 'medium' : 'low',
+        description: daysSinceCreation < 30
+          ? `Email domain was registered only ${daysSinceCreation} day${daysSinceCreation === 1 ? '' : 's'} ago — very new domains are frequently used for phishing.`
+          : daysSinceCreation < 90
+            ? `Email domain is ${daysSinceCreation} days old — relatively new.`
+            : `Email domain is ${daysSinceCreation} days old — established domain.`,
+      });
+      if (daysSinceCreation < 30) analysis.detectedRisks[analysis.detectedRisks.length - 1].severity = 'high';
+    }
+
     const finalScore = calculateFinalScore({
       ssl: 0,
-      domainAge: 0,
+      domainAge: whoisResult?.domainAge ? whoisResult.domainAge.daysSinceCreation : 0,
       blacklists: 0,
       aiAnalysis: aiResult.confidence,
       communityReports: community.score,
@@ -183,8 +206,8 @@ export async function scanEmail(req: Request, res: Response, next: NextFunction)
       summary: analysis.summary,
       details: {
         ssl: null,
-        domainAge: null,
-        whois: null,
+        domainAge: whoisResult?.domainAge ?? null,
+        whois: whoisResult?.whois ?? null,
         blacklists: [],
         aiAnalysis: {
           summary: aiResult.summary,

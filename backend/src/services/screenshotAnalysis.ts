@@ -1,5 +1,5 @@
 import Tesseract from 'tesseract.js';
-import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent } from './scanner';
+import { analyzeUrl, analyzeEmail, analyzePhoneNumber } from './scanner';
 import { performAIAnalysis } from './aiAnalysis';
 import { detectScamTemplates, isKnownScamDomain } from './scamPatterns';
 
@@ -46,8 +46,8 @@ export interface ScreenshotExtractedContent {
 export interface ScreenshotAnalysisResult {
   extracted: ScreenshotExtractedContent;
   urlResults: Array<{ url: string; riskScore: number; summary: string; risks: string[] }>;
-  emailResults: Array<{ email: string; riskScore: number; summary: string; risks: string[] }>;
-  phoneResults: Array<{ phone: string; riskScore: number; summary: string; risks: string[] }>;
+  emailResults: Array<{ email: string; riskScore: number; summary: string; risks: string[]; provider?: string; isDisposable: boolean; organization?: string }>;
+  phoneResults: Array<{ phone: string; riskScore: number; summary: string; risks: string[]; provider?: string; country?: string; isVirtual: boolean }>;
   aiSummary: string;
   overallRisk: number;
   detectedRisks: Array<{ category: string; severity: 'low' | 'medium' | 'high' | 'critical'; description: string }>;
@@ -114,9 +114,12 @@ export async function analyzeScreenshot(base64Data: string): Promise<ScreenshotA
           riskScore: isScamDomain ? Math.min(result.riskScore, 15) : result.riskScore,
           summary: result.summary,
           risks,
+          provider: (result as any).provider,
+          isDisposable: (result as any).isDisposable,
+          organization: (result as any).organization,
         };
       } catch {
-        return { email, riskScore: 50, summary: 'Could not analyze email.', risks: [] };
+        return { email, riskScore: 50, summary: 'Could not analyze email.', risks: [], provider: undefined, isDisposable: false, organization: undefined };
       }
     })
   );
@@ -134,9 +137,12 @@ export async function analyzeScreenshot(base64Data: string): Promise<ScreenshotA
           riskScore: isHighRisk ? 15 : result.riskScore,
           summary: result.summary,
           risks,
+          provider: (result as any).provider,
+          country: (result as any).country,
+          isVirtual: (result as any).isVirtual,
         };
       } catch {
-        return { phone, riskScore: 50, summary: 'Could not analyze phone number.', risks: [] };
+        return { phone, riskScore: 50, summary: 'Could not analyze phone number.', risks: [], provider: undefined, country: undefined, isVirtual: false };
       }
     })
   );
