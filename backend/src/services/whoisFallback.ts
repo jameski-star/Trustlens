@@ -4,7 +4,7 @@ import { cacheWrap } from '../utils/cache';
 const CACHE_TTL_WHOIS = 300_000;
 
 const ALTERNATE_RDAP: Record<string, string[]> = {
-  com: ['https://rdap.verisign.com/com/v1/domain/', 'https://rdap.verisign.com/com/v1/domain/'],
+  com: ['https://rdap.verisign.com/com/v1/domain/'],
   net: ['https://rdap.verisign.com/net/v1/domain/', 'https://rdap.verisign.com/net/v1/domain/'],
   org: ['https://rdap.publicinterestregistry.org/rdap/domain/'],
   xyz: ['https://rdap.nic.xyz/domain/'],
@@ -43,7 +43,7 @@ export interface DomainAgeResult {
 
 async function rdapFetch(server: string, domain: string): Promise<Record<string, unknown> | null> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 4000);
+  const timer = setTimeout(() => controller.abort(), 3000);
   try {
     const res = await fetch(`${server}${domain}`, {
       signal: controller.signal,
@@ -105,9 +105,12 @@ function parseRdapData(data: Record<string, unknown>): { domainAge: DomainAgeRes
 export async function tryAlternateRdap(domain: string): Promise<{ domainAge: DomainAgeResult | null; whois: WhoisResult | null } | null> {
   const tld = domain.split('.').pop() || '';
   const servers = ALTERNATE_RDAP[tld] || [];
-  for (const server of servers) {
-    const data = await rdapFetch(server, domain);
-    if (data) return parseRdapData(data);
+  if (servers.length === 0) return null;
+  const results = await Promise.allSettled(
+    servers.map(server => rdapFetch(server, domain))
+  );
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) return parseRdapData(r.value);
   }
   return null;
 }
@@ -136,44 +139,51 @@ export async function tryDnsAge(hostname: string): Promise<DomainAgeResult | nul
 }
 
 export async function tryWebWhois(domain: string): Promise<{ domainAge: DomainAgeResult | null; whois: WhoisResult | null } | null> {
-  for (const source of ALTERNATE_SOURCES) {
+  const fetches = ALTERNATE_SOURCES.map(async (source) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 4000);
     try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 5000);
       const res = await fetch(`${source}${domain}`, {
         signal: controller.signal,
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TrustLensBot/1.0)' },
       });
       const html = await res.text();
+      return html;
+    } finally {
       clearTimeout(timer);
+    }
+  });
+  const results = await Promise.allSettled(fetches);
+  for (const r of results) {
+    if (r.status !== 'fulfilled' || !r.value) continue;
+    const html = r.value;
 
-      const creationMatch = html.match(/Creation Date[:\s]*([^<\n]+)/i);
-      const expiryMatch = html.match(/(?:Registry )?Expir(?:ation|y) Date[:\s]*([^<\n]+)/i);
-      const registrarMatch = html.match(/Registrar[:\s]*([^<\n]+)/i);
-      const orgMatch = html.match(/(?:Registrant )?Organization[:\s]*([^<\n]+)/i);
-      const countryMatch = html.match(/(?:Registrant )?Country[:\s]*([^<\n]+)/i);
+    const creationMatch = html.match(/Creation Date[:\s]*([^<\n]+)/i);
+    const expiryMatch = html.match(/(?:Registry )?Expir(?:ation|y) Date[:\s]*([^<\n]+)/i);
+    const registrarMatch = html.match(/Registrar[:\s]*([^<\n]+)/i);
+    const orgMatch = html.match(/(?:Registrant )?Organization[:\s]*([^<\n]+)/i);
+    const countryMatch = html.match(/(?:Registrant )?Country[:\s]*([^<\n]+)/i);
 
-      const creationDate = creationMatch ? new Date(creationMatch[1].trim()) : null;
-      const expirationDate = expiryMatch ? new Date(expiryMatch[1].trim()) : null;
+    const creationDate = creationMatch ? new Date(creationMatch[1].trim()) : null;
+    const expirationDate = expiryMatch ? new Date(expiryMatch[1].trim()) : null;
 
-      let domainAge: DomainAgeResult | null = null;
-      if (creationDate && !isNaN(creationDate.getTime())) {
-        const diff = Date.now() - creationDate.getTime();
-        domainAge = { created: creationDate, daysSinceCreation: Math.floor(diff / 86400000), monthsSinceCreation: Math.floor(diff / 2629746000) };
-      }
+    let domainAge: DomainAgeResult | null = null;
+    if (creationDate && !isNaN(creationDate.getTime())) {
+      const diff = Date.now() - creationDate.getTime();
+      domainAge = { created: creationDate, daysSinceCreation: Math.floor(diff / 86400000), monthsSinceCreation: Math.floor(diff / 2629746000) };
+    }
 
-      return {
-        domainAge,
-        whois: {
-          registrar: registrarMatch ? registrarMatch[1].trim() : 'Unknown',
-          creationDate,
-          expirationDate,
-          lastUpdated: null,
-          country: countryMatch ? countryMatch[1].trim() : 'Unknown',
-          organization: orgMatch ? orgMatch[1].trim() : 'Unknown',
-        },
-      };
-    } catch { continue; }
+    return {
+      domainAge,
+      whois: {
+        registrar: registrarMatch ? registrarMatch[1].trim() : 'Unknown',
+        creationDate,
+        expirationDate,
+        lastUpdated: null,
+        country: countryMatch ? countryMatch[1].trim() : 'Unknown',
+        organization: orgMatch ? orgMatch[1].trim() : 'Unknown',
+      },
+    };
   }
   return null;
 }

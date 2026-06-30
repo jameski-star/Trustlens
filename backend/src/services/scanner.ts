@@ -74,9 +74,11 @@ async function lookupWhois(hostname: string): Promise<WhoisLookupResult> {
   const cached = whoisCache.get(domain);
   if (cached && cached.expires > Date.now()) return cached.result;
 
+  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 7000));
   const [rdapResult, whoisResult] = await Promise.allSettled([
     tryPrimaryRdap(domain),
     comprehensiveWhois(hostname),
+    timeout,
   ]);
 
   if (rdapResult.status === 'fulfilled' && rdapResult.value) {
@@ -105,7 +107,7 @@ async function tryPrimaryRdap(domain: string): Promise<WhoisLookupResult | null>
   const rdapUrl = RDAP_SERVERS[tld];
   if (!rdapUrl) return null;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
+  const timer = setTimeout(() => controller.abort(), 3000);
   try {
     const response = await fetch(`${rdapUrl}${domain}`, {
       signal: controller.signal,

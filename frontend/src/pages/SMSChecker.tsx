@@ -20,13 +20,12 @@ import { ShieldAlert, RefreshCw } from 'lucide-react';
 export default function SMSChecker() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const mutation = useScanSms();
+  const { mutate: scan, data: report, isPending, isError } = useScanSms();
   const queryParam = searchParams.get('q');
-  const report = mutation.data;
 
   useEffect(() => {
-    if (queryParam) mutation.mutate(queryParam);
-  }, [queryParam, mutation]);
+    if (queryParam) scan(queryParam);
+  }, [queryParam]);
 
   const handleSearch = (input: string) => {
     navigate(`/sms-checker?q=${encodeURIComponent(input)}`);
@@ -51,12 +50,12 @@ export default function SMSChecker() {
           <p className="text-[var(--text-secondary)] mb-6">
             Check if an SMS message, phone number, or WhatsApp message is part of a scam campaign.
           </p>
-          <SearchBar placeholder="Enter a phone number or SMS message text..." onSubmit={handleSearch} isLoading={mutation.isPending} />
+          <SearchBar placeholder="Enter a phone number or SMS message text..." onSubmit={handleSearch} isLoading={isPending} />
         </div>
 
-        {mutation.isPending && <div className="max-w-3xl mx-auto"><ScanAnimation type="sms" /></div>}
+        {isPending && <div className="max-w-3xl mx-auto"><ScanAnimation type="sms" /></div>}
 
-        {mutation.isError && (
+        {isError && (
           <div className="max-w-3xl mx-auto">
             <Card className="text-center py-10">
               <div className="w-12 h-12 mx-auto mb-4 bg-[#FEF2F2] rounded-2xl flex items-center justify-center">
@@ -64,7 +63,7 @@ export default function SMSChecker() {
               </div>
               <h3 className="font-heading font-600 text-lg text-[var(--text-primary)] mb-1">Analysis failed</h3>
               <p className="text-[var(--text-secondary)] text-sm mb-4">Unable to complete the scan. The service may be temporarily unavailable.</p>
-              <button onClick={() => mutation.mutate(queryParam!)} className="btn-primary gap-2">
+              <button onClick={() => scan(queryParam!)} className="btn-primary gap-2">
                 <RefreshCw className="w-4 h-4" />
                 Retry Scan
               </button>

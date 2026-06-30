@@ -20,13 +20,12 @@ import { ShieldAlert, RefreshCw } from 'lucide-react';
 export default function EmailChecker() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const mutation = useScanEmail();
+  const { mutate: scan, data: report, isPending, isError } = useScanEmail();
   const queryParam = searchParams.get('q');
-  const report = mutation.data;
 
   useEffect(() => {
-    if (queryParam) mutation.mutate(queryParam);
-  }, [queryParam, mutation]);
+    if (queryParam) scan(queryParam);
+  }, [queryParam]);
 
   const handleSearch = (input: string) => {
     navigate(`/email-checker?q=${encodeURIComponent(input)}`);
@@ -51,14 +50,14 @@ export default function EmailChecker() {
           <p className="text-[var(--text-secondary)] mb-6">
             Check if an email address or email message is part of a phishing attempt or scam campaign.
           </p>
-          <SearchBar placeholder="Enter an email address or email content..." onSubmit={handleSearch} isLoading={mutation.isPending} />
+          <SearchBar placeholder="Enter an email address or email content..." onSubmit={handleSearch} isLoading={isPending} />
         </div>
 
-        {mutation.isPending && (
+        {isPending && (
           <div className="max-w-3xl mx-auto"><ScanAnimation type="email" /></div>
         )}
 
-        {mutation.isError && (
+        {isError && (
           <div className="max-w-3xl mx-auto">
             <Card className="text-center py-10">
               <div className="w-12 h-12 mx-auto mb-4 bg-[#FEF2F2] rounded-2xl flex items-center justify-center">
@@ -66,7 +65,7 @@ export default function EmailChecker() {
               </div>
               <h3 className="font-heading font-600 text-lg text-[var(--text-primary)] mb-1">Analysis failed</h3>
               <p className="text-[var(--text-secondary)] text-sm mb-4">Unable to complete the scan. The service may be temporarily unavailable.</p>
-              <button onClick={() => mutation.mutate(queryParam!)} className="btn-primary gap-2">
+              <button onClick={() => scan(queryParam!)} className="btn-primary gap-2">
                 <RefreshCw className="w-4 h-4" />
                 Retry Scan
               </button>
