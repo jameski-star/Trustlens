@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Search, FileText, MessageSquare, Camera, QrCode, Flag } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import TrustIndicators from '../components/TrustIndicators';
+import { getBlogPosts, getTrendingScams } from '../api/client';
 
 const tools = [
   { icon: Search, title: 'URL Checker', desc: 'Check if a website is safe or fraudulent', href: '/url-checker', color: 'bg-[var(--bg-accent)] text-[var(--text-accent)]' },
@@ -13,13 +15,21 @@ const tools = [
   { icon: Flag, title: 'Community Reports', desc: 'See what others are reporting', href: '/community-reports', color: 'bg-[#ECFEFF] text-[#0891B2]' },
 ];
 
-const articles = [
-  { title: 'How to Spot Phishing Emails in 2024', category: 'Phishing', href: '/blog/how-to-spot-phishing-emails', date: 'Dec 15, 2024' },
-  { title: 'Crypto Scams: What to Look For', category: 'Crypto', href: '/blog/crypto-scams-what-to-look-for', date: 'Dec 12, 2024' },
-  { title: 'SMS Scams Are on the Rise: Stay Protected', category: 'Scam Alert', href: '/blog/sms-scams-are-on-the-rise', date: 'Dec 10, 2024' },
-];
-
 export default function Home() {
+  const { data: blogData } = useQuery({
+    queryKey: ['blog-posts', 'home'],
+    queryFn: () => getBlogPosts({ page: 1, limit: 3 }),
+    staleTime: 2 * 60 * 1000,
+  });
+  const { data: trends } = useQuery({
+    queryKey: ['trending-scams', 'home'],
+    queryFn: () => getTrendingScams(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const blogPosts = blogData?.items ?? [];
+  const popularSearches = trends?.length ? trends : [];
+
   return (
     <>
       <SEOHead
@@ -50,15 +60,20 @@ export default function Home() {
       <section className="container-page pb-12">
         <h2 className="font-heading font-700 text-2xl text-[var(--text-primary)] mb-6">Popular Searches</h2>
         <div className="flex flex-wrap gap-2">
-          {['paypal-security.com', 'bank-verify.net', 'amazon-support.xyz', 'netflix-login.tk', 'apple-id-verify.com', 'secure-update.ga'].map((url) => (
-            <Link
-              key={url}
-              to={`/url-checker?q=${encodeURIComponent(url)}`}
-              className="px-3 py-1.5 text-sm text-[var(--text-secondary)] bg-[var(--bg-subtle)] hover:text-[var(--text-accent)] hover:bg-[var(--bg-accent)] rounded-xl transition-colors truncate max-w-[200px] sm:max-w-none"
-            >
-              {url}
-            </Link>
-          ))}
+          {popularSearches.length > 0 ? popularSearches.map((item) => {
+            const label = (item as Record<string, string>)._id || (item as Record<string, string>).type || '';
+            return (
+              <Link
+                key={label}
+                to={`/url-checker?q=${encodeURIComponent(label)}`}
+                className="px-3 py-1.5 text-sm text-[var(--text-secondary)] bg-[var(--bg-subtle)] hover:text-[var(--text-accent)] hover:bg-[var(--bg-accent)] rounded-xl transition-colors truncate max-w-[200px] sm:max-w-none"
+              >
+                {label}
+              </Link>
+            );
+          }) : (
+            <span className="text-sm text-[var(--text-secondary)]">No search data yet</span>
+          )}
         </div>
       </section>
 
@@ -87,13 +102,15 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {articles.map((article) => (
-            <Link key={article.title} to={article.href} className="card hover:shadow-card-hover transition-all duration-200">
-              <span className="text-xs font-medium text-[var(--text-accent)]">{article.category}</span>
-              <h3 className="font-semibold text-[var(--text-primary)] mt-1 mb-2">{article.title}</h3>
-              <span className="text-sm text-[var(--text-secondary)]">{article.date}</span>
+          {blogPosts.length > 0 ? blogPosts.map((article) => (
+            <Link key={article._id as string} to={`/blog/${article.slug as string}`} className="card hover:shadow-card-hover transition-all duration-200">
+              <span className="text-xs font-medium text-[var(--text-accent)]">{article.category as string}</span>
+              <h3 className="font-semibold text-[var(--text-primary)] mt-1 mb-2">{article.title as string}</h3>
+              <span className="text-sm text-[var(--text-secondary)]">{new Date(article.createdAt as string).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
             </Link>
-          ))}
+          )) : (
+            <p className="text-sm text-[var(--text-secondary)] col-span-3">No articles yet</p>
+          )}
         </div>
       </section>
 

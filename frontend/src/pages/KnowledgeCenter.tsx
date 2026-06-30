@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, Briefcase, Heart } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { getKnowledgeArticles } from '../api/client';
 
-const categories = [
-  { icon: Shield, title: 'Phishing', desc: 'How to identify and avoid phishing attacks', href: '/knowledge-center/phishing-attacks' },
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, Briefcase, Heart,
+};
+
+const fallbackCategories = [
+  { icon: Shield, title: 'Phishing', desc: 'How to identify and avoid phishing attacks', href: '/knowledge-center/phishing' },
   { icon: CreditCard, title: 'Crypto Scams', desc: 'Cryptocurrency investment fraud awareness', href: '/knowledge-center/crypto-scams' },
   { icon: Briefcase, title: 'Job Scams', desc: 'Fake job offers and employment fraud', href: '/knowledge-center/job-scams' },
   { icon: MessageSquare, title: 'SMS Scams', desc: 'Text message and WhatsApp fraud', href: '/knowledge-center/sms-scams' },
@@ -15,6 +21,14 @@ const categories = [
 ];
 
 export default function KnowledgeCenter() {
+  const { data: articles } = useQuery({
+    queryKey: ['knowledge-articles'],
+    queryFn: () => getKnowledgeArticles(),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const items = articles?.length ? articles : [];
+
   return (
     <>
       <SEOHead title="Knowledge Center - Cybersecurity Education" description="Learn how to protect yourself from online scams, phishing, identity theft, and cybersecurity threats. Free educational resources." />
@@ -28,15 +42,31 @@ export default function KnowledgeCenter() {
           <p className="text-[var(--text-secondary)] mb-8">Learn how to protect yourself from online scams, phishing, identity theft, and other cybersecurity threats.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {categories.map((cat) => (
-              <Link key={cat.title} to={cat.href} className="card hover:shadow-card-hover transition-all duration-200 group">
-                <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
-                  <cat.icon className="w-5 h-5 text-[var(--text-accent)]" />
-                </div>
-                <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{cat.title}</h3>
-                <p className="text-sm text-[var(--text-secondary)]">{cat.desc}</p>
-              </Link>
-            ))}
+            {(items.length > 0 ? items : fallbackCategories).map((cat) => {
+              if ('slug' in cat) {
+                const article = cat as Record<string, unknown>;
+                const IconComp = iconMap[article.icon as string] || BookOpen;
+                return (
+                  <Link key={article.slug as string} to={`/knowledge-center/${article.slug as string}`} className="card hover:shadow-card-hover transition-all duration-200 group">
+                    <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
+                      <IconComp className="w-5 h-5 text-[var(--text-accent)]" />
+                    </div>
+                    <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{article.title as string}</h3>
+                    <p className="text-sm text-[var(--text-secondary)]">{article.excerpt as string}</p>
+                  </Link>
+                );
+              }
+              const fallbackCat = cat as { icon: React.ComponentType<{ className?: string }>; title: string; desc: string; href: string };
+              return (
+                <Link key={fallbackCat.title} to={fallbackCat.href} className="card hover:shadow-card-hover transition-all duration-200 group">
+                  <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
+                    <fallbackCat.icon className="w-5 h-5 text-[var(--text-accent)]" />
+                  </div>
+                  <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{fallbackCat.title}</h3>
+                  <p className="text-sm text-[var(--text-secondary)]">{fallbackCat.desc}</p>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

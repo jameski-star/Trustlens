@@ -1,6 +1,4 @@
 import dns from 'dns/promises';
-import { logger } from '../utils/logger';
-import { config } from '../config';
 import { scrapeSite } from './siteScraper';
 import { comprehensiveWhois, type WhoisResult, type DomainAgeResult } from './whoisFallback';
 import { scanAllReputations } from './reputationChecker';

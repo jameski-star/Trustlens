@@ -454,10 +454,7 @@ Security is not about being paranoid — it is about being prepared. Most cyber 
   },
 ];
 
-async function run() {
-  await mongoose.connect(config.mongodbUri);
-  logger.info('Seeding knowledge articles...');
-
+export async function seedKnowledgeArticles(): Promise<void> {
   for (const article of articles) {
     const existing = await KnowledgeArticle.findOne({ slug: article.slug });
     if (existing) {
@@ -467,7 +464,12 @@ async function run() {
     await KnowledgeArticle.create(article);
     logger.info({ slug: article.slug }, 'Created knowledge article');
   }
+}
 
+async function run() {
+  await mongoose.connect(config.mongodbUri);
+  logger.info('Seeding knowledge articles...');
+  await seedKnowledgeArticles();
   await mongoose.disconnect();
   logger.info('Done');
 }

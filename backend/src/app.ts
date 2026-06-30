@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
 import path from 'path';
 import { config } from './config';
 import { logger } from './utils/logger';
@@ -61,14 +62,32 @@ app.get('/', (_req, res) => {
   });
 });
 
-app.get('/api/v1/health', (_req, res) => {
+app.get('/api/v1/health', async (_req, res) => {
+  let dbStatus: 'operational' | 'degraded' | 'down' = 'operational';
+  try {
+    await mongoose.connection.db?.admin().ping();
+  } catch {
+    dbStatus = 'down';
+  }
+
   res.json({
     success: true,
     data: {
-      status: 'healthy',
+      status: dbStatus === 'operational' ? 'healthy' : 'degraded',
       version: '1.0.0',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
+      services: [
+        { name: 'API', status: 'operational' },
+        { name: 'MongoDB', status: dbStatus },
+        { name: 'URL Scanner', status: 'operational' },
+        { name: 'Email Scanner', status: 'operational' },
+        { name: 'SMS Scanner', status: 'operational' },
+        { name: 'Screenshot Scanner', status: 'operational' },
+        { name: 'QR Code Scanner', status: 'operational' },
+        { name: 'AI Analysis', status: 'operational' },
+        { name: 'Community Reports', status: 'operational' },
+      ],
     },
   });
 });

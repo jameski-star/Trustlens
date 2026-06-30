@@ -3,17 +3,19 @@ import { config } from './config';
 import { connectDatabase } from './db/mongoose';
 import { logger } from './utils/logger';
 import { startScamAlertCron } from './services/scamAlertCron';
+import { KnowledgeArticle } from './models/KnowledgeArticle';
+import { seedKnowledgeArticles } from './seed-knowledge';
 import fs from 'fs';
 import path from 'path';
 
 process.on('uncaughtException', (err) => {
-  try { logger.fatal({ err }, 'Uncaught exception'); } catch {}
+  logger.fatal({ err }, 'Uncaught exception');
   console.error('UNCAUGHT EXCEPTION:', err);
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason) => {
-  try { logger.error({ err: reason }, 'Unhandled rejection'); } catch {}
+  logger.error({ err: reason }, 'Unhandled rejection');
   console.error('UNHANDLED REJECTION:', reason);
 });
 
@@ -32,15 +34,27 @@ function startUploadCleanup(): void {
           if (now - stat.mtimeMs > UPLOAD_MAX_AGE_MS) {
             fs.unlinkSync(filePath);
           }
-        } catch {}
+        } catch {
+          void 0; // file removed between readdir and stat
+        }
       }
     });
   }, 3600_000);
 }
 
+async function seedIfEmpty(): Promise<void> {
+  const count = await KnowledgeArticle.countDocuments();
+  if (count === 0) {
+    logger.info('No knowledge articles found, seeding...');
+    await seedKnowledgeArticles();
+    logger.info('Knowledge articles seeded successfully');
+  }
+}
+
 async function start(): Promise<void> {
   await connectDatabase();
 
+  await seedIfEmpty();
   startScamAlertCron();
   startUploadCleanup();
 
@@ -50,7 +64,7 @@ async function start(): Promise<void> {
 }
 
 start().catch((error) => {
-  try { logger.error({ err: error }, 'Failed to start server'); } catch {}
+  logger.error({ err: error }, 'Failed to start server');
   console.error('Failed to start server:', error instanceof Error ? error.message : error);
   console.error(error instanceof Error ? error.stack : String(error));
   process.exit(1);
