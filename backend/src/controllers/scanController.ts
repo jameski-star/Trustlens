@@ -4,6 +4,7 @@ import { SearchHistory } from '../models/SearchHistory';
 import { CommunityReport } from '../models/CommunityReport';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber, analyzeSmsContent, calculateFinalScore, generateRecommendations } from '../services/scanner';
 import { performAIAnalysis } from '../services/aiAnalysis';
+import { analyzeScreenshot } from '../services/screenshotAnalysis';
 import { logger } from '../utils/logger';
 
 const communityTypeMap: Record<string, string[]> = {
@@ -38,7 +39,7 @@ async function getCommunityScore(input: string, scanType: string): Promise<{ sco
 
     const target = communityTarget(input, scanType);
     const escaped = target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const filter = { target: { $regex: escaped, $options: 'i' }, type: { $in: types }, status: 'published' };
+    const filter = { target: { $regex: escaped, $options: 'i' }, type: { $in: types }, status: { $in: ['published', 'scam_alert'] } };
 
     const [total, malicious, safe] = await Promise.all([
       CommunityReport.countDocuments(filter),
@@ -369,42 +370,61 @@ export async function getTrendingScams(_req: Request, res: Response, next: NextF
 export async function scanScreenshot(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { input } = req.body;
-    const aiResult = await performAIAnalysis(input || 'screenshot uploaded for analysis', 'screenshot');
 
-    const finalScore = calculateFinalScore({
-      ssl: 0,
-      domainAge: 0,
-      blacklists: 0,
-      aiAnalysis: aiResult.confidence,
-      communityReports: 50,
-    });
+    let summary = '';
+    let riskScore = 50;
+    let riskLevel: 'safe' | 'low' | 'medium' | 'high' | 'critical' = 'medium';
+    let detectedRisks: Array<{ category: string; severity: string; description: string }> = [];
+    let details: Record<string, unknown> = {};
 
-    const riskLevel = getRiskLevel(finalScore);
-    const recommendations = generateRecommendations(aiResult.riskFactors.map(r => ({ category: 'screenshot', severity: 'medium' as const, description: r })), finalScore);
+    if (input && input.length > 100) {
+      const result = await analyzeScreenshot(input);
+      detectedRisks = result.detectedRisks;
+      riskScore = result.overallRisk;
+      riskLevel = getRiskLevel(riskScore);
+      summary = result.extracted.fullText.length > 0
+        ? `Found ${result.extracted.urls.length} URL(s), ${result.extracted.emails.length} email(s), ${result.extracted.phones.length} phone number(s), ${result.extracted.scamPatterns.length} scam pattern(s).`
+        : 'No readable text could be extracted from this image.';
 
-    const report = await Report.create({
-      type: 'screenshot',
-      input: (input || 'uploaded screenshot').substring(0, 500),
-      riskScore: finalScore,
-      riskLevel,
-      status: 'completed',
-      summary: aiResult.summary,
-      details: {
+      details = {
         ssl: null,
         domainAge: null,
         whois: null,
         blacklists: [],
-        aiAnalysis: {
-          summary: aiResult.summary,
-          riskFactors: aiResult.riskFactors,
-          confidence: aiResult.confidence,
-          modelVersion: aiResult.modelVersion,
-        },
+        aiAnalysis: { summary: result.aiSummary, riskFactors: detectedRisks.map(r => r.description), confidence: riskScore, modelVersion: 'trustlens-ocr-v1.0' },
         communityReports: 0,
-        detectedRisks: aiResult.riskFactors,
-      },
+        detectedRisks,
+        ocrText: result.extracted.fullText.substring(0, 2000),
+        urlsFound: result.urlResults,
+        emailsFound: result.emailResults,
+        phonesFound: result.phoneResults,
+        scamPatterns: result.extracted.scamPatterns,
+      };
+    } else {
+      summary = 'No image data provided for analysis.';
+      riskLevel = 'low';
+      details = {
+        ssl: null, domainAge: null, whois: null, blacklists: [],
+        aiAnalysis: { summary, riskFactors: [], confidence: 50, modelVersion: 'trustlens-ocr-v1.0' },
+        communityReports: 0, detectedRisks: [],
+      };
+    }
+
+    const recommendations = generateRecommendations(
+      detectedRisks.map(r => ({ category: r.category, severity: r.severity as 'low' | 'medium' | 'high' | 'critical', description: r.description })),
+      riskScore
+    );
+
+    const report = await Report.create({
+      type: 'screenshot',
+      input: (input || 'uploaded screenshot').substring(0, 500),
+      riskScore,
+      riskLevel,
+      status: 'completed',
+      summary,
+      details,
       recommendations,
-      confidenceScore: aiResult.confidence,
+      confidenceScore: riskScore,
       shareId: generateShareId(),
     });
 
