@@ -34,12 +34,15 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-y: scroll;
+    font-size: 16px;
   }
 
   body {
     background-color: var(--bg-page);
     color: var(--text-primary);
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     overflow-x: hidden;
     @apply font-body leading-relaxed;
   }
