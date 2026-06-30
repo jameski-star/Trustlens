@@ -474,7 +474,15 @@ async function run() {
   logger.info('Done');
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+const isMainModule = process.argv[1] && (
+  process.argv[1].endsWith('seed-knowledge') ||
+  process.argv[1].endsWith('seed-knowledge.ts') ||
+  process.argv[1].endsWith('seed-knowledge.js')
+);
+
+if (isMainModule) {
+  run().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
