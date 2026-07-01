@@ -31,6 +31,16 @@ export default function Terms() {
           <h2>Changes</h2>
           <p>We reserve the right to update these terms. Continued use after changes constitutes acceptance.</p>
         </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'Terms of Service - TrustLens',
+          description: 'TrustLens terms of service. By using our security analysis tools, you agree to these terms and conditions.',
+          url: 'https://trustlens.app/terms',
+          about: { '@type': 'Thing', name: 'Terms of Service' },
+        }),
+      }} />
       </div>
     </>
   );

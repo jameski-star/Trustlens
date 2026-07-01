@@ -63,6 +63,16 @@ export default function TrendingScams() {
             </div>
           )}
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'DataFeed',
+            name: 'Trending Scams - Current Cybersecurity Threats',
+            description: 'See the latest trending scams and cybersecurity threats being reported in real-time.',
+            url: 'https://trustlens.app/trending-scams',
+          }),
+        }} />
       </div>
     </>
   );

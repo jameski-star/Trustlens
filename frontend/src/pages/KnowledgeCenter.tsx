@@ -69,6 +69,17 @@ export default function KnowledgeCenter() {
             })}
           </div>
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'CollectionPage',
+            name: 'Knowledge Center - Cybersecurity Education',
+            description: 'Learn how to protect yourself from online scams, phishing, identity theft, and cybersecurity threats. Free educational resources.',
+            url: 'https://trustlens.app/knowledge-center',
+            about: { '@type': 'Thing', name: 'Cybersecurity Education' },
+          }),
+        }} />
       </div>
     </>
   );

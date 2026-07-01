@@ -60,6 +60,21 @@ export default function KnowledgeArticle() {
               <div className="prose prose-sm md:prose-base max-w-none text-[var(--text-secondary)]" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }} />
             </Card>
 
+            <script type="application/ld+json" dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'TechArticle',
+                headline: article.title,
+                description: article.excerpt,
+                author: { '@type': 'Organization', name: 'TrustLens' },
+                publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: 'https://trustlens.app/favicon.svg' } },
+                datePublished: article.createdAt,
+                dateModified: article.updatedAt || article.createdAt,
+                mainEntityOfPage: { '@type': 'WebPage', '@id': `https://trustlens.app/knowledge-center/${article.slug}` },
+                about: article.category,
+                proficiencyLevel: 'Beginner',
+              }),
+            }} />
             <div className="text-center py-8 border-t border-[var(--border)]">
               <Link to="/knowledge-center" className="text-sm font-medium text-[var(--text-accent)] hover:text-[#1D4ED8] flex items-center justify-center gap-1">
                 <ArrowLeft className="w-4 h-4" /> Back to Knowledge Center

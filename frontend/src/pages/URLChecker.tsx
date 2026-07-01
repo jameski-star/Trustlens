@@ -241,6 +241,18 @@ export default function URLChecker() {
           </div>
         )}
       </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'URL Checker - Free Phishing & Malware Scanner',
+          description: 'Check if a website is safe or fraudulent. Free URL security analysis with SSL check, domain age, blacklist status, and AI-powered threat detection.',
+          url: 'https://trustlens.app/url-checker',
+          applicationCategory: 'SecurityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        }),
+      }} />
       </ErrorBoundary>
     </>
   );

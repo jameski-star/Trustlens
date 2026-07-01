@@ -38,6 +38,16 @@ export default function Privacy() {
           <h2>Contact</h2>
           <p>For privacy-related inquiries, contact us through our <a href="/contact" className="text-[var(--text-accent)]">contact page</a>.</p>
         </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'Privacy Policy - TrustLens',
+          description: 'TrustLens privacy policy. Learn how we protect your data and what information we collect.',
+          url: 'https://trustlens.app/privacy',
+          about: { '@type': 'Thing', name: 'Privacy Policy' },
+        }),
+      }} />
       </div>
     </>
   );

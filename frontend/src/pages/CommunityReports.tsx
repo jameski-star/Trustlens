@@ -460,6 +460,16 @@ export default function CommunityReports() {
             )}
           </div>
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'DataCatalog',
+            name: 'Community Reports - TrustLens',
+            description: 'Browse community-submitted reports about scam websites, phishing emails, fake phone numbers, and fraudulent investment platforms.',
+            url: 'https://trustlens.app/community-reports',
+          }),
+        }} />
       </div>
     </>
   );

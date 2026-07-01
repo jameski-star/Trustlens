@@ -71,6 +71,16 @@ export default function Status() {
             )}
           </div>
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: 'TrustLens System Status',
+            description: 'Real-time status of TrustLens security analysis services and API.',
+            url: 'https://trustlens.app/status',
+          }),
+        }} />
       </div>
     </>
   );

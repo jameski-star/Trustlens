@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /api/
 
 Sitemap: https://trustlens.app/sitemap.xml
+Sitemap: https://trustlens.app/sitemap-dynamic.xml

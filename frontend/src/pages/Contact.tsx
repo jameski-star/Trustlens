@@ -70,6 +70,26 @@ export default function Contact() {
             </form>
           </Card>
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'ContactPage',
+            '@id': 'https://trustlens.app/contact',
+            name: 'Contact TrustLens Support',
+            description: 'Get in touch with the TrustLens team for support, questions, or feedback about our cybersecurity analysis tools.',
+            mainEntity: {
+              '@type': 'Organization',
+              name: 'TrustLens',
+              contactPoint: {
+                '@type': 'ContactPoint',
+                contactType: 'customer support',
+                email: 'support@trustlens.app',
+                url: 'https://trustlens.app/contact',
+              },
+            },
+          }),
+        }} />
       </div>
     </>
   );

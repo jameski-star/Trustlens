@@ -130,6 +130,24 @@ export default function Blog() {
             </div>
           )}
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: allItems.map((post, i) => ({
+              '@type': 'ListItem',
+              position: i + 1,
+              item: {
+                '@type': 'BlogPosting',
+                headline: post.title,
+                url: `https://trustlens.app/blog/${post.slug}`,
+                author: post.author,
+                datePublished: post.publishedAt,
+              },
+            })),
+          }),
+        }} />
       </div>
     </>
   );

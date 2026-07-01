@@ -11,27 +11,46 @@ interface BreadcrumbsProps {
 }
 
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
+  const itemListElements = [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://trustlens.app/' },
+    ...items.map((item, i) => ({
+      '@type': 'ListItem' as const,
+      position: i + 2,
+      name: item.label,
+      ...(item.href ? { item: `https://trustlens.app${item.href}` } : {}),
+    })),
+  ];
+
   return (
-    <nav aria-label="Breadcrumb" className="mb-6">
-      <ol className="flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
-        <li>
-          <Link to="/" className="hover:text-[var(--text-accent)] transition-colors">
-            <Home className="w-4 h-4" />
-          </Link>
-        </li>
-        {items.map((item, i) => (
-          <li key={i} className="flex items-center gap-1.5">
-            <ChevronRight className="w-3.5 h-3.5" />
-            {item.href ? (
-              <Link to={item.href} className="hover:text-[var(--text-accent)] transition-colors">
-                {item.label}
-              </Link>
-            ) : (
-              <span className="text-[var(--text-primary)] font-medium">{item.label}</span>
-            )}
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: itemListElements,
+        }),
+      }} />
+      <nav aria-label="Breadcrumb" className="mb-6">
+        <ol className="flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
+          <li>
+            <Link to="/" className="hover:text-[var(--text-accent)] transition-colors">
+              <Home className="w-4 h-4" />
+            </Link>
           </li>
-        ))}
-      </ol>
-    </nav>
+          {items.map((item, i) => (
+            <li key={i} className="flex items-center gap-1.5">
+              <ChevronRight className="w-3.5 h-3.5" />
+              {item.href ? (
+                <Link to={item.href} className="hover:text-[var(--text-accent)] transition-colors">
+                  {item.label}
+                </Link>
+              ) : (
+                <span className="text-[var(--text-primary)] font-medium">{item.label}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </>
   );
 }

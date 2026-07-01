@@ -119,8 +119,14 @@ export default function BlogPostPage() {
                 '@type': 'BlogPosting',
                 headline: post.title,
                 description: post.excerpt,
+                image: post.coverImage || undefined,
                 author: { '@type': 'Person', name: post.author },
+                publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: 'https://trustlens.app/favicon.svg' } },
                 datePublished: post.publishedAt,
+                dateModified: post.updatedAt || post.publishedAt,
+                mainEntityOfPage: { '@type': 'WebPage', '@id': `https://trustlens.app/blog/${post.slug}` },
+                keywords: post.tags?.join(', ') || post.category,
+                articleSection: post.category,
               }),
             }} />
           </article>

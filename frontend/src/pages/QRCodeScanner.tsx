@@ -95,6 +95,18 @@ export default function QRCodeScanner() {
           )}
         </div>
       </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'QR Code Scanner - Free QR Security Checker',
+          description: 'Scan and analyze QR codes for malicious URLs and threats before opening them. Free QR code security scanner.',
+          url: 'https://trustlens.app/qr-scanner',
+          applicationCategory: 'SecurityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        }),
+      }} />
       </ErrorBoundary>
     </>
   );

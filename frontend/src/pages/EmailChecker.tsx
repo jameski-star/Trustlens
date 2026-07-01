@@ -160,6 +160,18 @@ export default function EmailChecker() {
           </div>
         )}
       </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'Email Checker - Free Phishing Email Scanner',
+          description: 'Analyze emails for phishing attempts and scam indicators. Free AI-powered email security checker.',
+          url: 'https://trustlens.app/email-checker',
+          applicationCategory: 'SecurityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        }),
+      }} />
       </ErrorBoundary>
     </>
   );

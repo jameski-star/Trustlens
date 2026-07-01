@@ -87,6 +87,16 @@ export default function ScamAlerts() {
             </div>
           )}
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'DataFeed',
+            name: 'Active Scam Alerts - TrustLens',
+            description: 'Real-time scam alerts and verified community reports about phishing, fraud, and cybersecurity threats.',
+            url: 'https://trustlens.app/scam-alerts',
+          }),
+        }} />
       </div>
     </>
   );

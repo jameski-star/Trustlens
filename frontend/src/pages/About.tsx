@@ -57,6 +57,25 @@ export default function About() {
             </ol>
           </Card>
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            '@id': 'https://trustlens.app/about',
+            name: 'About TrustLens - Our Mission',
+            description: 'TrustLens is a free cybersecurity analysis platform that helps you determine if websites, emails, SMS messages, and online offers are safe or potentially fraudulent.',
+            mainContentOfPage: {
+              '@type': 'WebPageElement',
+              about: {
+                '@type': 'Organization',
+                name: 'TrustLens',
+                description: 'Free cybersecurity analysis platform providing URL, email, SMS, and screenshot security scanning.',
+                foundingDate: '2024',
+              },
+            },
+          }),
+        }} />
       </div>
     </>
   );

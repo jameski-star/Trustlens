@@ -62,6 +62,16 @@ export default function APIDocs() {
             <p className="text-sm text-[var(--text-secondary)]">Free API: 100 requests per minute. Contact us for higher limits.</p>
           </Card>
         </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'APIReference',
+            name: 'TrustLens API Documentation',
+            description: 'REST API for URL, email, SMS, and phone number security analysis. Free tier available.',
+            url: 'https://trustlens.app/api-docs',
+          }),
+        }} />
       </div>
     </>
   );

@@ -336,6 +336,18 @@ export default function ScreenshotScanner() {
           )}
         </div>
       </div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'Screenshot Scanner - Free OCR Security Scanner',
+          description: 'Upload screenshots for AI-powered threat analysis. Extract and analyze text from images for phishing and scam detection.',
+          url: 'https://trustlens.app/screenshot-scanner',
+          applicationCategory: 'SecurityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        }),
+      }} />
       </ErrorBoundary>
     </>
   );
