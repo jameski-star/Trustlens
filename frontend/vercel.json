@@ -3,11 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
-    { "source": "/sitemap-dynamic.xml", "destination": "/sitemap-dynamic.xml" },
-    { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/favicon.svg", "destination": "/favicon.svg" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!sitemap\\.xml|sitemap-dynamic\\.xml|robots\\.txt|favicon\\.svg).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
