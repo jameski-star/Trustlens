@@ -62,7 +62,7 @@ export default function About() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'AboutPage',
-            '@id': 'https://trustlens.app/about',
+            '@id': 'https://www.trustlens.website/about',
             name: 'About TrustLens - Our Mission',
             description: 'TrustLens is a free cybersecurity analysis platform that helps you determine if websites, emails, SMS messages, and online offers are safe or potentially fraudulent.',
             mainContentOfPage: {

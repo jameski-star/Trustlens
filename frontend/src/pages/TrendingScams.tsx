@@ -70,7 +70,7 @@ export default function TrendingScams() {
             '@type': 'DataFeed',
             name: 'Trending Scams - Current Cybersecurity Threats',
             description: 'See the latest trending scams and cybersecurity threats being reported in real-time.',
-            url: 'https://trustlens.app/trending-scams',
+            url: 'https://www.trustlens.website/trending-scams',
           }),
         }} />
       </div>

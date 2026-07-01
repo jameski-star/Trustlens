@@ -12,12 +12,12 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
   const itemListElements = [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://trustlens.app/' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.trustlens.website/' },
     ...items.map((item, i) => ({
       '@type': 'ListItem' as const,
       position: i + 2,
       name: item.label,
-      ...(item.href ? { item: `https://trustlens.app${item.href}` } : {}),
+      ...(item.href ? { item: `https://www.trustlens.website${item.href}` } : {}),
     })),
   ];
 

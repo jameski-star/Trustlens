@@ -166,7 +166,7 @@ export default function EmailChecker() {
           '@type': 'WebApplication',
           name: 'Email Checker - Free Phishing Email Scanner',
           description: 'Analyze emails for phishing attempts and scam indicators. Free AI-powered email security checker.',
-          url: 'https://trustlens.app/email-checker',
+          url: 'https://www.trustlens.website/email-checker',
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

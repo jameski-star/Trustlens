@@ -266,7 +266,7 @@ export default function SMSChecker() {
           '@type': 'WebApplication',
           name: 'SMS Checker - Free SMS Scam Detector',
           description: 'Verify SMS messages and WhatsApp texts for scams. Free SMS security checker with AI analysis.',
-          url: 'https://trustlens.app/sms-checker',
+          url: 'https://www.trustlens.website/sms-checker',
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

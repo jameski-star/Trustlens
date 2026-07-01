@@ -141,7 +141,7 @@ export default function Blog() {
               item: {
                 '@type': 'BlogPosting',
                 headline: post.title,
-                url: `https://trustlens.app/blog/${post.slug}`,
+                url: `https://www.trustlens.website/blog/${post.slug}`,
                 author: post.author,
                 datePublished: post.publishedAt,
               },

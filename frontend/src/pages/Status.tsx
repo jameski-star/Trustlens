@@ -78,7 +78,7 @@ export default function Status() {
             '@type': 'WebPage',
             name: 'TrustLens System Status',
             description: 'Real-time status of TrustLens security analysis services and API.',
-            url: 'https://trustlens.app/status',
+            url: 'https://www.trustlens.website/status',
           }),
         }} />
       </div>

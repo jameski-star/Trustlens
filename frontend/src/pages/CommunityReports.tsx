@@ -467,7 +467,7 @@ export default function CommunityReports() {
             '@type': 'DataCatalog',
             name: 'Community Reports - TrustLens',
             description: 'Browse community-submitted reports about scam websites, phishing emails, fake phone numbers, and fraudulent investment platforms.',
-            url: 'https://trustlens.app/community-reports',
+            url: 'https://www.trustlens.website/community-reports',
           }),
         }} />
       </div>

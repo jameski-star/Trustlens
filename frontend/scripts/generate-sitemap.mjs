@@ -6,7 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(__dirname, '..', 'dist');
 const PUBLIC = resolve(__dirname, '..', 'public');
 
-const SITE = process.env.SITE_URL || 'https://trustlens.app';
+const SITE = process.env.SITE_URL || 'https://www.trustlens.website';
 const API = process.env.API_URL || (process.env.VITE_API_URL || 'http://localhost:5000/api/v1');
 
 async function fetchJson(url) {

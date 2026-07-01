@@ -138,15 +138,15 @@ export default function Home() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebApplication',
-          '@id': 'https://trustlens.app/#webapplication',
+          '@id': 'https://www.trustlens.website/#webapplication',
           name: 'TrustLens - Online Security Analyzer',
           description: 'Free security analysis tool for websites, emails, SMS messages, screenshots, QR codes, and phone numbers. Detect phishing, scams, and fraud.',
-          url: 'https://trustlens.app/',
+          url: 'https://www.trustlens.website/',
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           browserRequirements: 'Requires JavaScript',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-          author: { '@id': 'https://trustlens.app/#organization' },
+          author: { '@id': 'https://www.trustlens.website/#organization' },
         }),
       }} />
     </>

@@ -44,7 +44,7 @@ export default function Privacy() {
           '@type': 'WebPage',
           name: 'Privacy Policy - TrustLens',
           description: 'TrustLens privacy policy. Learn how we protect your data and what information we collect.',
-          url: 'https://trustlens.app/privacy',
+          url: 'https://www.trustlens.website/privacy',
           about: { '@type': 'Thing', name: 'Privacy Policy' },
         }),
       }} />

@@ -69,7 +69,7 @@ export default function APIDocs() {
             '@type': 'APIReference',
             name: 'TrustLens API Documentation',
             description: 'REST API for URL, email, SMS, and phone number security analysis. Free tier available.',
-            url: 'https://trustlens.app/api-docs',
+            url: 'https://www.trustlens.website/api-docs',
           }),
         }} />
       </div>

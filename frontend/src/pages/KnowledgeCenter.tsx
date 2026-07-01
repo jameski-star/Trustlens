@@ -76,7 +76,7 @@ export default function KnowledgeCenter() {
             '@type': 'CollectionPage',
             name: 'Knowledge Center - Cybersecurity Education',
             description: 'Learn how to protect yourself from online scams, phishing, identity theft, and cybersecurity threats. Free educational resources.',
-            url: 'https://trustlens.app/knowledge-center',
+            url: 'https://www.trustlens.website/knowledge-center',
             about: { '@type': 'Thing', name: 'Cybersecurity Education' },
           }),
         }} />

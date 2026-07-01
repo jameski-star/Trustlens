@@ -5,5 +5,5 @@ Disallow: /login
 Disallow: /register
 Disallow: /api/
 
-Sitemap: https://trustlens.app/sitemap.xml
-Sitemap: https://trustlens.app/sitemap-dynamic.xml
+Sitemap: https://www.trustlens.website/sitemap.xml
+Sitemap: https://www.trustlens.website/sitemap-dynamic.xml

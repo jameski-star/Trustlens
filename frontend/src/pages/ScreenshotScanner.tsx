@@ -342,7 +342,7 @@ export default function ScreenshotScanner() {
           '@type': 'WebApplication',
           name: 'Screenshot Scanner - Free OCR Security Scanner',
           description: 'Upload screenshots for AI-powered threat analysis. Extract and analyze text from images for phishing and scam detection.',
-          url: 'https://trustlens.app/screenshot-scanner',
+          url: 'https://www.trustlens.website/screenshot-scanner',
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

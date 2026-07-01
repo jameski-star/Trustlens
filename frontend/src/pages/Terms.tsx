@@ -37,7 +37,7 @@ export default function Terms() {
           '@type': 'WebPage',
           name: 'Terms of Service - TrustLens',
           description: 'TrustLens terms of service. By using our security analysis tools, you agree to these terms and conditions.',
-          url: 'https://trustlens.app/terms',
+          url: 'https://www.trustlens.website/terms',
           about: { '@type': 'Thing', name: 'Terms of Service' },
         }),
       }} />

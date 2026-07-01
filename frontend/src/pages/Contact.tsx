@@ -75,7 +75,7 @@ export default function Contact() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'ContactPage',
-            '@id': 'https://trustlens.app/contact',
+            '@id': 'https://www.trustlens.website/contact',
             name: 'Contact TrustLens Support',
             description: 'Get in touch with the TrustLens team for support, questions, or feedback about our cybersecurity analysis tools.',
             mainEntity: {
@@ -85,7 +85,7 @@ export default function Contact() {
                 '@type': 'ContactPoint',
                 contactType: 'customer support',
                 email: 'support@trustlens.app',
-                url: 'https://trustlens.app/contact',
+                url: 'https://www.trustlens.website/contact',
               },
             },
           }),
