@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Camera, Upload, X, ExternalLink, Mail, Phone, AlertTriangle, FileText, Shield, CheckCircle2, Link } from 'lucide-react';
+import { Camera, Upload, X, ExternalLink, Mail, Phone, AlertTriangle, FileText, Shield, CheckCircle2, Link, Info } from 'lucide-react';
 import { scanScreenshot } from '../api/client';
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
@@ -49,10 +49,10 @@ interface ScannedPattern {
 }
 
 const severityColors: Record<string, string> = {
-  critical: 'bg-red-100 text-red-800',
-  high: 'bg-orange-100 text-orange-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  low: 'bg-blue-100 text-blue-800',
+  critical: 'bg-[var(--trust-danger-bg)] text-[var(--trust-danger)]',
+  high: 'bg-[var(--trust-danger-bg)] text-[var(--trust-danger)]',
+  medium: 'bg-[var(--trust-warning-bg)] text-[var(--trust-warning)]',
+  low: 'bg-[var(--trust-safe-bg)] text-[var(--trust-safe)]',
 };
 
 export default function ScreenshotScanner() {
@@ -121,7 +121,7 @@ export default function ScreenshotScanner() {
         <Breadcrumbs items={[{ label: 'Screenshot Scanner' }]} />
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#FEF2F2] rounded-xl flex items-center justify-center"><Camera className="w-5 h-5 text-[#DC2626]" /></div>
+            <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-lg flex items-center justify-center"><Camera className="w-5 h-5 text-[var(--text-accent)]" /></div>
             <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Screenshot Scanner</h1>
           </div>
           <p className="text-[var(--text-secondary)] mb-6">Upload a screenshot to scan for phishing attempts, scam content, and suspicious text using OCR technology.</p>
@@ -147,12 +147,15 @@ export default function ScreenshotScanner() {
             <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
           </div>
 
-          <div className="flex items-start gap-2 mt-4 p-3 bg-[#F0FDF4] rounded-xl">
-            <Shield className="w-4 h-4 text-[#16A34A] mt-0.5 shrink-0" />
-            <p className="text-xs text-[#166534] leading-relaxed">
-              <strong>Your privacy is protected.</strong> Screenshots are processed entirely in-memory and deleted immediately after analysis. We do not store, cache, or share your images.
+          <details className="mt-4">
+            <summary className="flex items-center gap-2 text-xs text-[var(--text-secondary)] cursor-pointer hover:text-[var(--text-accent)] transition-colors">
+              <Info className="w-4 h-4 shrink-0" />
+              Privacy details
+            </summary>
+            <p className="text-xs text-[var(--text-secondary)] mt-2 leading-relaxed">
+              Screenshots are processed entirely in-memory and deleted immediately after analysis. We do not store, cache, or share your images.
             </p>
-          </div>
+          </details>
 
           {file && !result && !analyzing && (
             <button onClick={handleAnalyze} className="btn-primary mt-6 w-full">
@@ -178,7 +181,7 @@ export default function ScreenshotScanner() {
               {risks.length > 0 && (
                 <Card>
                   <div className="flex items-center gap-2 mb-3">
-                    <AlertTriangle className="w-5 h-5 text-[#D97706]" />
+                    <AlertTriangle className="w-5 h-5 text-[var(--trust-danger)]" />
                     <h3 className="font-heading font-600">Detected Risks ({risks.length})</h3>
                   </div>
                   <div className="space-y-2">
@@ -197,7 +200,7 @@ export default function ScreenshotScanner() {
               {urls.length > 0 && (
                 <Card>
                   <div className="flex items-center gap-2 mb-3">
-                    <Link className="w-5 h-5 text-[#2563EB]" />
+                    <Link className="w-5 h-5 text-[var(--text-accent)]" />
                     <h3 className="font-heading font-600">URLs Found ({urls.length})</h3>
                   </div>
                   <div className="space-y-2">
@@ -212,7 +215,7 @@ export default function ScreenshotScanner() {
                         {item.risks.length > 0 && (
                           <ul className="mt-1 space-y-0.5">
                             {item.risks.map((risk, j) => (
-                              <li key={j} className="flex items-start gap-1.5 text-xs text-[#DC2626]">
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-[var(--trust-danger)]">
                                 <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
                                 <span>{risk}</span>
                               </li>
@@ -228,7 +231,7 @@ export default function ScreenshotScanner() {
               {emails.length > 0 && (
                 <Card>
                   <div className="flex items-center gap-2 mb-3">
-                    <Mail className="w-5 h-5 text-[#2563EB]" />
+                    <Mail className="w-5 h-5 text-[var(--text-accent)]" />
                     <h3 className="font-heading font-600">Emails Found ({emails.length})</h3>
                   </div>
                   <div className="space-y-2">
@@ -241,14 +244,14 @@ export default function ScreenshotScanner() {
                         </div>
                         <div className="flex flex-wrap gap-1.5 mt-1">
                           {item.provider && <span className="text-xs text-[var(--text-secondary)]">Provider: {item.provider}</span>}
-                          {item.organization && <span className="text-xs text-[#2563EB]">{item.organization}</span>}
-                          {item.isDisposable && <span className="text-xs text-[#D97706] font-medium">Disposable/Temp Email</span>}
+                          {item.organization && <span className="text-xs text-[var(--text-accent)]">{item.organization}</span>}
+                          {item.isDisposable && <span className="text-xs text-[var(--trust-warning)] font-medium">Disposable/Temp Email</span>}
                         </div>
                         <p className="text-xs text-[var(--text-secondary)]">{item.summary}</p>
                         {item.risks.length > 0 && (
                           <ul className="mt-1 space-y-0.5">
                             {item.risks.map((risk, j) => (
-                              <li key={j} className="flex items-start gap-1.5 text-xs text-[#DC2626]">
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-[var(--trust-danger)]">
                                 <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
                                 <span>{risk}</span>
                               </li>
@@ -264,7 +267,7 @@ export default function ScreenshotScanner() {
               {phones.length > 0 && (
                 <Card>
                   <div className="flex items-center gap-2 mb-3">
-                    <Phone className="w-5 h-5 text-[#2563EB]" />
+                    <Phone className="w-5 h-5 text-[var(--text-accent)]" />
                     <h3 className="font-heading font-600">Phone Numbers Found ({phones.length})</h3>
                   </div>
                   <div className="space-y-2">
@@ -277,12 +280,12 @@ export default function ScreenshotScanner() {
                         </div>
                         {item.country && <span className="inline-block text-xs text-[var(--text-secondary)]">Location: {item.country}</span>}
                         {item.provider && <span className="inline-block text-xs text-[var(--text-secondary)] ml-2">Provider: {item.provider}</span>}
-                        {item.isVirtual && <span className="inline-block text-xs text-[#D97706] ml-2 font-medium">Virtual/VoIP Number</span>}
+                        {item.isVirtual && <span className="inline-block text-xs text-[var(--trust-warning)] ml-2 font-medium">Virtual/VoIP Number</span>}
                         <p className="text-xs text-[var(--text-secondary)]">{item.summary}</p>
                         {item.risks.length > 0 && (
                           <ul className="mt-1 space-y-0.5">
                             {item.risks.map((risk, j) => (
-                              <li key={j} className="flex items-start gap-1.5 text-xs text-[#DC2626]">
+                              <li key={j} className="flex items-start gap-1.5 text-xs text-[var(--trust-danger)]">
                                 <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
                                 <span>{risk}</span>
                               </li>
@@ -298,13 +301,13 @@ export default function ScreenshotScanner() {
               {patterns.length > 0 && (
                 <Card>
                   <div className="flex items-center gap-2 mb-3">
-                    <Shield className="w-5 h-5 text-[#D97706]" />
+                    <Shield className="w-5 h-5 text-[var(--trust-warning)]" />
                     <h3 className="font-heading font-600">Scam Patterns Detected ({patterns.length})</h3>
                   </div>
                   <div className="space-y-1.5">
                     {patterns.map((p, i) => (
                       <div key={i} className="text-xs p-2 rounded-lg bg-[var(--bg-subtle)] flex items-center gap-2">
-                        <AlertTriangle className="w-3 h-3 text-[#DC2626] shrink-0" />
+                        <AlertTriangle className="w-3 h-3 text-[var(--trust-danger)] shrink-0" />
                         <span className="text-[var(--text-primary)]">{p.label}</span>
                         {p.matched && <code className="text-[var(--text-secondary)] truncate">"{p.matched}"</code>}
                       </div>
@@ -328,8 +331,8 @@ export default function ScreenshotScanner() {
               {risks.length === 0 && urls.length === 0 && emails.length === 0 && phones.length === 0 && patterns.length === 0 && (
                 <Card>
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-[#16A34A]" />
-                    <span className="font-medium text-[#16A34A]">No threats detected</span>
+                    <CheckCircle2 className="w-5 h-5 text-[var(--trust-safe)]" />
+                    <span className="font-medium text-[var(--trust-safe)]">No threats detected</span>
                   </div>
                 </Card>
               )}
@@ -341,12 +344,11 @@ export default function ScreenshotScanner() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebApplication',
-          name: 'Screenshot Scanner - Free OCR Security Scanner',
-          description: 'Upload screenshots for AI-powered threat analysis. Extract and analyze text from images for phishing and scam detection.',
+          name: 'Screenshot Scanner - OCR Security Scanner',
+          description: 'Upload screenshots for threat analysis. Extract and analyze text from images.',
           url: `${SITE_URL}/screenshot-scanner`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
-          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         }),
       }} />
       </ErrorBoundary>

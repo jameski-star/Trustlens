@@ -26,44 +26,63 @@ export default function Status() {
     <>
       <SEOHead title="System Status" description="TrustLens system status page. Check the current operational status of all TrustLens services." />
       <div className="container-page py-8">
-        <Breadcrumbs items={[{ label: 'Status' }]} />
-        <div className="max-w-2xl mx-auto">
-          <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)] mb-2">System Status</h1>
-          <p className="text-[var(--text-secondary)] mb-8">Current operational status of all TrustLens services.</p>
+        <Breadcrumbs items={[{ label: 'System Status' }]} />
+        <div className="mx-auto max-w-4xl">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">System Status</h1>
+            <span className="official-stamp">
+              {isLoading ? 'Checking...' : allOperational ? '✓ All Systems Operational' : '⚠ Some Systems Degraded'}
+            </span>
+          </div>
+          <p className="text-[var(--text-secondary)] mb-6">Current operational status of all TrustLens services. Updated every 60 seconds.</p>
 
           <Card className="mb-6">
-            <div className="flex items-center gap-3 mb-1">
+            <div className="flex items-center gap-4">
               {isLoading ? (
-                <AlertTriangle className="w-5 h-5 text-[#D97706]" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--trust-warning-bg)] flex items-center justify-center">
+                  <AlertTriangle className="w-6 h-6 text-[var(--trust-warning)]" />
+                </div>
               ) : allOperational ? (
-                <CheckCircle className="w-5 h-5 text-[#16A34A]" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--trust-safe-bg)] flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-[var(--trust-safe)]" />
+                </div>
               ) : (
-                <XCircle className="w-5 h-5 text-[#DC2626]" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--trust-danger-bg)] flex items-center justify-center">
+                  <XCircle className="w-6 h-6 text-[var(--trust-danger)]" />
+                </div>
               )}
-              <span className={`font-semibold ${isLoading ? 'text-[#D97706]' : allOperational ? 'text-[#16A34A]' : 'text-[#DC2626]'}`}>
-                {isLoading ? 'Checking...' : allOperational ? 'All Systems Operational' : 'Some Systems Degraded'}
-              </span>
+              <div>
+                <span className={`font-heading font-700 text-lg ${isLoading ? 'text-[var(--trust-warning)]' : allOperational ? 'text-[var(--trust-safe)]' : 'text-[var(--trust-danger)]'}`}>
+                  {isLoading ? 'Checking Status...' : allOperational ? 'All Systems Operational' : 'Some Systems Degraded'}
+                </span>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {data ? `Last checked: ${new Date(data.timestamp).toLocaleString()}` : 'Fetching status...'}
+                </p>
+              </div>
             </div>
-            <p className="text-sm text-[var(--text-secondary)]">
-              {data ? `Last checked: ${new Date(data.timestamp).toLocaleString()}` : 'Fetching status...'}
-            </p>
           </Card>
 
-          <div className="space-y-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {isLoading ? (
               <p className="text-sm text-[var(--text-secondary)]">Loading services...</p>
             ) : (
               services.map((s) => (
                 <Card key={s.name}>
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-[var(--text-primary)]">{s.name}</span>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        s.status === 'operational' ? 'bg-[var(--trust-safe)]' :
+                        s.status === 'degraded' ? 'bg-[var(--trust-warning)]' : 'bg-[var(--trust-danger)]'
+                      }`} />
+                      <span className="font-medium text-[var(--text-primary)]">{s.name}</span>
+                    </div>
                     <div className="flex items-center gap-2">
                       {s.status === 'operational' ? (
-                        <><CheckCircle className="w-4 h-4 text-[#16A34A]" /><span className="text-sm text-[#16A34A]">Operational</span></>
+                        <span className="text-sm text-[var(--trust-safe)] font-medium">Operational</span>
                       ) : s.status === 'degraded' ? (
-                        <><AlertTriangle className="w-4 h-4 text-[#D97706]" /><span className="text-sm text-[#D97706]">Degraded</span></>
+                        <span className="text-sm text-[var(--trust-warning)] font-medium">Degraded</span>
                       ) : (
-                        <><XCircle className="w-4 h-4 text-[#DC2626]" /><span className="text-sm text-[#DC2626]">Issues</span></>
+                        <span className="text-sm text-[var(--trust-danger)] font-medium">Issues</span>
                       )}
                     </div>
                   </div>

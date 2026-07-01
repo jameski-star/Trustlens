@@ -23,13 +23,13 @@ export default function FAQ() {
       <SEOHead title="Frequently Asked Questions" description="Find answers to common questions about TrustLens, our security analysis tools, privacy practices, and how to stay safe online." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'FAQ' }]} />
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-4xl">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center"><HelpCircle className="w-5 h-5 text-[var(--text-accent)]" /></div>
             <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Frequently Asked Questions</h1>
           </div>
 
-          <div className="space-y-3">
+          <div className="grid gap-3">
             {faqs.map((faq, i) => (
               <Card key={i}>
                 <button onClick={() => setOpenIndex(openIndex === i ? null : i)} className="w-full flex items-center justify-between text-left">

@@ -38,7 +38,7 @@ export default function KnowledgeCenter() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center"><BookOpen className="w-5 h-5 text-[var(--text-accent)]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Knowledge Center</h1>
+            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)] text-wrap: balance">Knowledge Center</h1>
           </div>
           <p className="text-[var(--text-secondary)] mb-8">Learn how to protect yourself from online scams, phishing, identity theft, and other cybersecurity threats.</p>
 
@@ -48,23 +48,23 @@ export default function KnowledgeCenter() {
                 const article = cat;
                 const IconComp = iconMap[article.icon as string] || BookOpen;
                 return (
-                  <Link key={article.slug as string} to={`/knowledge-center/${article.slug as string}`} className="card hover:shadow-card-hover transition-all duration-200 group">
-                    <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
+                  <Link key={article.slug as string} to={`/knowledge-center/${article.slug as string}`} className="card hover:shadow-card-hover transition-all duration-200 group cursor-pointer">
+                    <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3 transition-transform duration-150 group-hover:scale-105">
                       <IconComp className="w-5 h-5 text-[var(--text-accent)]" />
                     </div>
-                    <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{article.title as string}</h3>
-                    <p className="text-sm text-[var(--text-secondary)]">{article.excerpt as string}</p>
+                    <h3 className="font-heading font-600 text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{article.title as string}</h3>
+                    <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{article.excerpt as string}</p>
                   </Link>
                 );
               }
               const fallbackCat = cat as { icon: React.ComponentType<{ className?: string }>; title: string; desc: string; href: string };
               return (
-                <Link key={fallbackCat.title} to={fallbackCat.href} className="card hover:shadow-card-hover transition-all duration-200 group">
-                  <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3">
+                <Link key={fallbackCat.title} to={fallbackCat.href} className="card hover:shadow-card-hover transition-all duration-200 group cursor-pointer">
+                  <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center mb-3 transition-transform duration-150 group-hover:scale-105">
                     <fallbackCat.icon className="w-5 h-5 text-[var(--text-accent)]" />
                   </div>
-                  <h3 className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{fallbackCat.title}</h3>
-                  <p className="text-sm text-[var(--text-secondary)]">{fallbackCat.desc}</p>
+                  <h3 className="font-heading font-600 text-[var(--text-primary)] group-hover:text-[var(--text-accent)] transition-colors mb-1">{fallbackCat.title}</h3>
+                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{fallbackCat.desc}</p>
                 </Link>
               );
             })}

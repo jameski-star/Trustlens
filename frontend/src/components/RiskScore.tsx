@@ -6,9 +6,9 @@ interface RiskScoreProps {
 
 export default function RiskScore({ score, size = 'md', showLabel = true }: RiskScoreProps) {
   const getColor = () => {
-    if (score >= 80) return { bg: '#16A34A', text: 'Safe', level: 'safe' as const };
-    if (score >= 60) return { bg: '#22C55E', text: 'Low Risk', level: 'low' as const };
-    if (score >= 40) return { bg: '#D97706', text: 'Medium Risk', level: 'medium' as const };
+    if (score >= 80) return { bg: '#2563EB', text: 'Safe', level: 'safe' as const };
+    if (score >= 60) return { bg: '#2563EB', text: 'Low Risk', level: 'low' as const };
+    if (score >= 40) return { bg: '#0F172A', text: 'Medium Risk', level: 'medium' as const };
     if (score >= 20) return { bg: '#DC2626', text: 'High Risk', level: 'high' as const };
     return { bg: '#991B1B', text: 'Critical', level: 'critical' as const };
   };
@@ -24,7 +24,7 @@ export default function RiskScore({ score, size = 'md', showLabel = true }: Risk
   return (
     <div className="flex flex-col items-center gap-2">
       <div className={`relative ${containerSize}`}>
-        <svg className="w-full h-full -rotate-90" viewBox={`0 0 ${(radius + 8) * 2} ${(radius + 8) * 2}`}>
+        <svg className="w-full h-full -rotate-90" viewBox={`0 ${(radius + 8) * 2} ${0} ${(radius + 8) * 2}`}>
           <circle
             cx={radius + 8}
             cy={radius + 8}

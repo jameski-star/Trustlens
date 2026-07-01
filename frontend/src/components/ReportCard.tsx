@@ -17,17 +17,17 @@ interface ReportCardProps {
 
 export default function ReportCard({ report }: ReportCardProps) {
   const getColor = (score: number) => {
-    if (score >= 80) return 'text-[#16A34A]';
-    if (score >= 60) return 'text-[#22C55E]';
-    if (score >= 40) return 'text-[#D97706]';
+    if (score >= 80) return 'text-[#2563EB]';
+    if (score >= 60) return 'text-[#2563EB]';
+    if (score >= 40) return 'text-[#0F172A]';
     return 'text-[#DC2626]';
   };
 
   const getIcon = (level: string) => {
     switch (level) {
-      case 'safe': return <CheckCircle className="w-5 h-5 text-[#16A34A]" />;
-      case 'low': return <CheckCircle className="w-5 h-5 text-[#22C55E]" />;
-      case 'medium': return <Info className="w-5 h-5 text-[#D97706]" />;
+      case 'safe': return <CheckCircle className="w-5 h-5 text-[#2563EB]" />;
+      case 'low': return <CheckCircle className="w-5 h-5 text-[#2563EB]" />;
+      case 'medium': return <Info className="w-5 h-5 text-[#0F172A]" />;
       default: return <AlertCircle className="w-5 h-5 text-[#DC2626]" />;
     }
   };

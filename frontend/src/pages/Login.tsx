@@ -47,12 +47,12 @@ export default function Login() {
           <div className="bg-[var(--bg-surface)] rounded-2xl shadow-card border border-[var(--border)] p-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Email</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Email</label>
                 <input {...register('email')} type="email" className="input-field" placeholder="you@example.com" />
                 {errors.email && <p className="text-sm text-[#DC2626] mt-1">{errors.email.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1">Password</label>
+                <label className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Password</label>
                 <div className="relative">
                   <input {...register('password')} type={showPassword ? 'text' : 'password'} className="input-field pr-10" placeholder="Your password" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">

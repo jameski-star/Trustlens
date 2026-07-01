@@ -60,7 +60,7 @@ export default function Blog() {
       <SEOHead title="Blog - Cybersecurity News & Scam Alerts" description="Latest cybersecurity news, scam alerts, phishing warnings, and tips to stay safe online. Updated regularly by TrustLens security experts." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Blog' }]} />
-        <div className="max-w-5xl mx-auto">
+        <div className="mx-auto max-w-6xl">
           <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)] mb-2">Blog</h1>
           <p className="text-[var(--text-secondary)] mb-6">Cybersecurity news, scam alerts, and tips to stay safe online.</p>
 

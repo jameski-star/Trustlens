@@ -46,20 +46,20 @@ export default function QRCodeScanner() {
 
   return (
     <>
-      <SEOHead title="QR Code Scanner - Check QR Codes Before Scanning" description="Scan QR codes for security threats before opening them. Free QR code security analysis." />
+      <SEOHead title="QR Code Scanner - Check QR Codes Before Scanning" description="Scan QR codes for security threats before opening them. QR code security analysis." />
       <ErrorBoundary>
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'QR Code Scanner' }]} />
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-[#F5F3FF] rounded-xl flex items-center justify-center"><QrCode className="w-5 h-5 text-[#7C3AED]" /></div>
+            <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-lg flex items-center justify-center"><QrCode className="w-5 h-5 text-[var(--text-accent)]" /></div>
             <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">QR Code Scanner</h1>
           </div>
           <p className="text-[var(--text-secondary)] mb-6">Upload a QR code image to extract and analyze the embedded URL or content before you scan it.</p>
 
           <div
             onClick={() => inputRef.current?.click()}
-            className="border-2 border-dashed border-[var(--border)] rounded-2xl p-12 text-center hover:border-[#7C3AED] transition-colors cursor-pointer"
+            className="border-2 border-dashed border-[var(--border)] rounded-2xl p-12 text-center hover:border-[var(--border-accent)] transition-colors cursor-pointer"
           >
             {preview ? (
               <div className="relative">
@@ -89,7 +89,7 @@ export default function QRCodeScanner() {
             <Card className="mt-6">
               <h3 className="font-semibold mb-2">Analysis Result</h3>
               <p className="text-sm text-[var(--text-secondary)] mb-3">{result.text}</p>
-              <span className={`inline-block text-xs font-medium px-2 py-1 rounded-lg ${result.risk === 'safe' || result.risk === 'low' ? 'text-[#16A34A] bg-[#F0FDF4]' : 'text-[#DC2626] bg-[#FEF2F2]'}`}>
+              <span className={`inline-block text-xs font-medium px-2 py-1 rounded-lg ${result.risk === 'safe' || result.risk === 'low' ? 'text-[var(--trust-safe)] bg-[var(--trust-safe-bg)]' : 'text-[var(--trust-danger)] bg-[var(--trust-danger-bg)]'}`}>
                 {result.risk === 'safe' || result.risk === 'low' ? 'No threats detected' : 'Potential risks detected'}
               </span>
             </Card>
@@ -100,12 +100,11 @@ export default function QRCodeScanner() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebApplication',
-          name: 'QR Code Scanner - Free QR Security Checker',
-          description: 'Scan and analyze QR codes for malicious URLs and threats before opening them. Free QR code security scanner.',
+          name: 'QR Code Scanner - QR Security Checker',
+          description: 'Scan and analyze QR codes for malicious URLs and threats.',
           url: `${SITE_URL}/qr-scanner`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
-          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         }),
       }} />
       </ErrorBoundary>

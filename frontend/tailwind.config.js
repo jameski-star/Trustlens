@@ -5,9 +5,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        heading: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
+        heading: ['Lexend', 'system-ui', 'sans-serif'],
+        body: ['"Source Sans 3"', 'system-ui', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
       },
       colors: {
         primary: {
@@ -21,12 +21,6 @@ export default {
           700: '#1E40AF',
           800: '#1E3A8A',
           900: '#172554',
-        },
-        accent: {
-          green: '#16A34A',
-          warning: '#D97706',
-          danger: '#DC2626',
-          success: '#15803D',
         },
       },
       lineHeight: {

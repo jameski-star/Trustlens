@@ -20,7 +20,7 @@ export default function SchemaOrg() {
         '@id': `${SITE_URL}/#website`,
         url: `${SITE_URL}/`,
         name: 'TrustLens - Know Before You Click',
-        description: 'Free security analysis tool for websites, emails, SMS messages, screenshots, and QR codes.',
+        description: 'Security analysis tool for websites, emails, SMS messages, screenshots, and QR codes.',
         publisher: { '@id': `${SITE_URL}/#organization` },
         potentialAction: {
           '@type': 'SearchAction',

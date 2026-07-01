@@ -5,7 +5,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { Calendar, User, Tag, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Calendar, User, ArrowLeft, ExternalLink, Shield } from 'lucide-react';
 import { SITE_URL } from '../config';
 
 export default function BlogPostPage() {
@@ -19,6 +19,10 @@ export default function BlogPostPage() {
   });
 
   const isFromRss = post?.author === 'TrustLens Security Team';
+  
+  const readingTime = post?.content 
+    ? Math.max(1, Math.ceil(post.content.split(/\s+/).length / 200))
+    : null;
 
   return (
     <>
@@ -46,21 +50,35 @@ export default function BlogPostPage() {
 
         {post && (
           <article className="max-w-3xl mx-auto">
-            <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)] mb-4">{post.title}</h1>
-
-            <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--text-secondary)] mb-2">
-              <span className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
-                {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unpublished'}
-              </span>
+            <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)] mb-5 text-wrap: balance">{post.title}</h1>
+            
+            <div className="editorial-meta mb-6">
               <span className="flex items-center gap-1.5">
                 <User className="w-4 h-4" />
                 {post.author}
               </span>
+              <span className="separator">&middot;</span>
               <span className="flex items-center gap-1.5">
-                <Tag className="w-4 h-4" />
-                {post.category}
+                <Calendar className="w-4 h-4" />
+                {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unpublished'}
               </span>
+              {readingTime && (
+                <>
+                  <span className="separator">&middot;</span>
+                  <span className="reading-time">{readingTime} min read</span>
+                </>
+              )}
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mb-8">
+              <span className="editorial-badge editorial-badge-trust">
+                <Shield className="w-3 h-3" />
+                Verified Content
+              </span>
+              <span className="editorial-badge trust-badge-neutral">TrustLens Editorial</span>
+              {post.category && (
+                <span className="text-xs bg-[var(--bg-subtle)] px-2 py-1 rounded-lg text-[var(--text-secondary)]">{post.category}</span>
+              )}
             </div>
 
             {post.tags?.length > 0 && (
@@ -72,7 +90,7 @@ export default function BlogPostPage() {
             )}
 
             {post.coverImage && (
-              <img src={post.coverImage} alt={post.title} className="w-full h-64 md:h-96 object-cover rounded-2xl mb-8" />
+              <img src={post.coverImage} alt={post.title} className="w-full h-64 md:h-96 object-cover rounded-2xl mb-8" loading="lazy" />
             )}
 
             <Card className="mb-8 overflow-hidden border border-[var(--border)] shadow-sm">
@@ -81,9 +99,9 @@ export default function BlogPostPage() {
                   prose prose-slate max-w-none dark:prose-invert
                   text-[var(--text-secondary)] leading-relaxed antialiased
 
-                  prose-headings:font-heading prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-[var(--text-primary)]
-                  prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4 md:prose-h2:text-3xl
-                  prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+                  prose-headings:font-heading prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-[var(--text-primary)]
+                  prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 md:prose-h2:text-2xl
+                  prose-h3:text-lg prose-h3:mt-8 prose-h3:mb-3
 
                   prose-p:text-base prose-p:mb-5 prose-p:leading-8
 
@@ -95,7 +113,7 @@ export default function BlogPostPage() {
                   prose-ol:list-decimal prose-ol:pl-5 prose-ol:mb-5
                   prose-ul:list-disc prose-ul:pl-5 prose-ul:mb-5
                   prose-li:my-1.5 prose-li:text-[var(--text-secondary)]
-                  prose-blockquote:border-l-4 prose-blockquote:border-[var(--text-accent)] prose-blockquote:bg-[var(--bg-muted)] prose-blockquote:px-4 prose-blockquote:py-1 prose-blockquote:rounded-r-xl
+                  prose-blockquote:border-l-4 prose-blockquote:border-[var(--text-accent)] prose-blockquote:bg-[var(--bg-muted)] prose-blockquote:px-4 prose-blockquote:py-3 prose-blockquote:rounded-r-xl
                 "
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
@@ -114,6 +132,15 @@ export default function BlogPostPage() {
               )}
             </Card>
 
+            <div className="flex items-center justify-between py-6 border-t border-[var(--border)] text-sm text-[var(--text-secondary)]">
+              <span>Published by TrustLens Security Team</span>
+              {post.updatedAt && (
+                <span className="last-reviewed">
+                  Last updated: {new Date(post.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+
             <script type="application/ld+json" dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 '@context': 'https://schema.org',
@@ -121,7 +148,7 @@ export default function BlogPostPage() {
                 headline: post.title,
                 description: post.excerpt,
                 image: post.coverImage || undefined,
-                author: { '@type': 'Person', name: post.author },
+                author: { '@type': 'Organization', name: post.author },
                 publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` } },
                 datePublished: post.publishedAt,
                 dateModified: post.updatedAt || post.publishedAt,

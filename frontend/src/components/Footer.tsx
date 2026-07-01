@@ -8,13 +8,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-[var(--text-accent)] rounded-lg flex items-center justify-center">
                 <Shield className="w-4 h-4 text-white" />
               </div>
               <span className="font-heading font-800 text-lg">TrustLens</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed mb-4">
-              Know before you click. Free security analysis for websites, emails, and messages.
+              Security analysis platform. Know before you click.
             </p>
           </div>
 

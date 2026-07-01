@@ -325,19 +325,19 @@ export default function CommunityReports() {
                   <div className="card hover:shadow-card-hover transition-all duration-200 group-open:ring-2 group-open:ring-[#2563EB]/20 group-open:shadow-md">
                     <div className="flex items-start gap-3 sm:gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        item.status === 'scam_alert' ? 'bg-[#FEF2F2]' :
-                        item.status === 'published' ? 'bg-[#F0FDF4]' :
-                        'bg-[#FFFBEB]'
+                        item.status === 'scam_alert' ? 'bg-[var(--trust-danger-bg)]' :
+                        item.status === 'published' ? 'bg-[var(--trust-safe-bg)]' :
+                        'bg-[var(--trust-warning-bg)]'
                       }`}>
                         <Flag className={`w-5 h-5 ${
-                          item.status === 'scam_alert' ? 'text-[#DC2626]' :
-                          item.status === 'published' ? 'text-[#16A34A]' :
-                          'text-[#D97706]'
+                          item.status === 'scam_alert' ? 'text-[var(--trust-danger)]' :
+                          item.status === 'published' ? 'text-[var(--trust-safe)]' :
+                          'text-[var(--trust-warning)]'
                         }`} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-semibold text-[var(--text-primary)] leading-snug">{item.title}</h3>
+                          <h3 className="font-heading font-600 text-[var(--text-primary)] leading-snug">{item.title}</h3>
                           <ChevronDown className="w-4 h-4 text-[var(--text-secondary)] shrink-0 mt-1 transition-transform duration-200 group-open:rotate-180" />
                         </div>
                         <div className="flex flex-wrap items-center gap-1.5 mt-2">
@@ -346,11 +346,11 @@ export default function CommunityReports() {
                             <span className="text-xs font-mono text-[var(--text-secondary)] max-w-[200px] truncate" title={item.target}>{item.target}</span>
                           )}
                           <span className="text-xs text-[var(--text-secondary)]">&middot;</span>
-                          <span className="text-xs text-[var(--text-secondary)]">{item.reports} reports</span>
+                          <span className="text-xs text-[var(--text-secondary)] tabular-nums">{item.reports} reports</span>
                           {item.isVerified && (
                             <>
                               <span className="text-xs text-[var(--text-secondary)]">&middot;</span>
-                              <span className="text-xs font-medium text-[#16A34A]">Verified</span>
+                              <span className="text-xs font-medium text-[var(--trust-safe)]">Verified</span>
                             </>
                           )}
                         </div>
@@ -363,16 +363,16 @@ export default function CommunityReports() {
                         />
                         <div className="flex flex-wrap items-center gap-2 mt-3">
                           {item.status === 'scam_alert' && (
-                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#DC2626]">Scam Alert</span>
+                            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[var(--trust-danger-bg)] text-[var(--trust-danger)]">Scam Alert</span>
                           )}
                           {item.status === 'published' && (
-                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#16A34A]">Published</span>
+                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[var(--trust-safe-bg)] text-[var(--trust-safe)]">Published</span>
                           )}
                           {item.status === 'rejected' && (
-                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#F1F5F9] text-[#94A3B8]">Rejected</span>
+                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--text-secondary)]">Rejected</span>
                           )}
                           {item.status === 'pending' && (
-                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#FFFBEB] text-[#D97706]">Pending</span>
+                            <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-[var(--trust-warning-bg)] text-[var(--trust-warning)]">Pending</span>
                           )}
                           {item.screenshots?.length > 0 && (
                             <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1">
@@ -383,15 +383,15 @@ export default function CommunityReports() {
                           {item.scanStatus === 'completed' && item.scanResult && (
                             <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${
                               item.scanResult.riskLevel === 'safe' || item.scanResult.riskLevel === 'low'
-                                ? 'bg-[#F0FDF4] text-[#16A34A]'
-                                : 'bg-[#FEF2F2] text-[#DC2626]'
+                                ? 'bg-[var(--trust-safe-bg)] text-[var(--trust-safe)]'
+                                : 'bg-[var(--trust-danger-bg)] text-[var(--trust-danger)]'
                             }`}>
                               <Shield className="w-3 h-3" />
-                              {item.scanResult.riskScore}/100
+                              <span className="tabular-nums">{item.scanResult.riskScore}/100</span>
                             </span>
                           )}
                           {item.scanStatus === 'scanning' && (
-                            <span className="text-xs text-[#D97706] flex items-center gap-1">
+                            <span className="text-xs text-[var(--trust-warning)] flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               Scanning
                             </span>

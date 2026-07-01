@@ -108,7 +108,7 @@ export default function ScanAnimation({ type = 'content' }: { type?: string }) {
             className="w-12 h-12 md:w-16 md:h-16 bg-[#EFF6FF] rounded-2xl flex items-center justify-center shadow-lg shadow-[#2563EB]/10"
           >
             {completed ? (
-              <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-[#16A34A]" />
+              <CheckCircle2 className="w-6 h-6 md:w-8 md:h-8 text-[#2563EB]" />
             ) : (
               <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-[#2563EB]" />
             )}
@@ -128,8 +128,8 @@ export default function ScanAnimation({ type = 'content' }: { type?: string }) {
           >
             <div className="flex items-center justify-center gap-2 mb-1">
               {steps.slice(0, step).map((s, i) => (
-                <div key={i} className="w-5 h-5 rounded-full bg-[#16A34A]/10 flex items-center justify-center">
-                  <CheckCircle2 className="w-3 h-3 text-[#16A34A]" />
+                <div key={i} className="w-5 h-5 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-3 h-3 text-[#2563EB]" />
                 </div>
               ))}
             </div>

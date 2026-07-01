@@ -34,12 +34,30 @@ export default function Contact() {
       <SEOHead title="Contact Us" description="Get in touch with TrustLens. Contact our team for support, partnership inquiries, or report an issue." />
       <div className="container-page py-8">
         <Breadcrumbs items={[{ label: 'Contact' }]} />
-        <div className="max-w-2xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-[var(--bg-accent)] rounded-xl flex items-center justify-center"><MessageSquare className="w-5 h-5 text-[var(--text-accent)]" /></div>
-            <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Contact Us</h1>
+            <div>
+              <h1 className="font-heading font-700 text-xl md:text-3xl text-[var(--text-primary)]">Contact Us</h1>
+              <p className="text-xs text-[var(--text-secondary)] hidden sm:block">Response within 24 hours</p>
+            </div>
           </div>
           <p className="text-[var(--text-secondary)] mb-8">Have a question, suggestion, or need help? Send us a message and we will get back to you within 24 hours.</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+            <div className="card text-center py-4">
+              <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1">Response Time</p>
+              <p className="font-heading font-700 text-[var(--text-primary)]">24 Hours</p>
+            </div>
+            <div className="card text-center py-4">
+              <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1">Support</p>
+              <p className="font-heading font-700 text-[var(--text-primary)]">Free</p>
+            </div>
+            <div className="card text-center py-4">
+              <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mb-1">Availability</p>
+              <p className="font-heading font-700 text-[var(--text-primary)]">Always</p>
+            </div>
+          </div>
 
           <Card>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">

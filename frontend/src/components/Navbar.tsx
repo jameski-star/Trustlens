@@ -34,10 +34,10 @@ export default function Navbar() {
       <nav className="container-page">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-[#2563EB] rounded-xl flex items-center justify-center transition-transform duration-150 group-hover:scale-105">
+            <div className="w-9 h-9 bg-[var(--text-accent)] rounded-xl flex items-center justify-center transition-colors duration-150 group-hover:bg-[var(--text-primary)]">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="font-heading font-800 text-xl text-[var(--text-primary)]">TrustLens</span>
+            <span className="font-heading font-700 text-lg text-[var(--text-primary)]">TrustLens</span>
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">

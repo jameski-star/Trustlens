@@ -13,12 +13,18 @@ interface ScoreBreakdownProps {
   totalScore: number;
 }
 
-const BAR_COLORS = ['#2563EB', '#7C3AED', '#D97706', '#16A34A', '#DC2626'];
+const BAR_COLORS = ['#2563EB', '#3B82F6', '#1D4ED8', '#0F172A', '#DC2626'];
 
 export default function ScoreBreakdown({ factors, totalScore }: ScoreBreakdownProps) {
   if (!factors?.length) return null;
 
   const totalFactorSum = factors.reduce((s, f) => s + f.contribution, 0);
+
+  const getTotalColor = () => {
+    if (totalScore >= 60) return '#2563EB';
+    if (totalScore >= 40) return '#0F172A';
+    return '#DC2626';
+  };
 
   return (
     <div className="p-4 sm:p-6 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border)]">
@@ -63,7 +69,7 @@ export default function ScoreBreakdown({ factors, totalScore }: ScoreBreakdownPr
         <span className="text-sm font-semibold text-[var(--text-primary)]">Total Score</span>
         <motion.span
           className="text-lg font-heading font-800"
-          style={{ color: totalScore >= 60 ? '#16A34A' : totalScore >= 40 ? '#D97706' : '#DC2626' }}
+          style={{ color: getTotalColor() }}
           initial={{ scale: 0.8 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.4, delay: 0.5 }}

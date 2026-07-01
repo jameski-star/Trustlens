@@ -5,7 +5,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
-import { ArrowLeft, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Shield } from 'lucide-react';
 import { renderMarkdown } from '../utils/markdown';
 import { SITE_URL } from '../config';
 
@@ -19,6 +19,10 @@ export default function KnowledgeArticle() {
     retry: 2,
     staleTime: 30000,
   });
+  
+  const readingTime = article?.content 
+    ? Math.max(1, Math.ceil(article.content.split(/\s+/).length / 200))
+    : null;
 
   return (
     <>
@@ -54,12 +58,30 @@ export default function KnowledgeArticle() {
 
         {article && (
           <article className="max-w-3xl mx-auto">
-            <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)] mb-4">{article.title}</h1>
-            <p className="text-lg text-[var(--text-secondary)] mb-8">{article.excerpt}</p>
+            <h1 className="font-heading font-700 text-xl md:text-4xl text-[var(--text-primary)] mb-5 text-wrap: balance">{article.title}</h1>
+            <p className="text-lg text-[var(--text-secondary)] mb-6 leading-relaxed">{article.excerpt}</p>
+            
+            <div className="editorial-meta mb-8">
+              <span className="editorial-badge editorial-badge-trust">
+                <Shield className="w-3 h-3" />
+                Verified Content
+              </span>
+              <span className="editorial-badge trust-badge-neutral">TrustLens Editorial</span>
+              <span className="reading-time">{readingTime} min read</span>
+            </div>
 
-            <Card className="mb-8">
-              <div className="prose prose-sm md:prose-base max-w-none text-[var(--text-secondary)]" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }} />
+            <Card className="mb-8 overflow-hidden border border-[var(--border)] shadow-sm">
+              <div className="prose-editorial" dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }} />
             </Card>
+
+            <div className="flex items-center justify-between py-6 border-t border-[var(--border)] text-sm text-[var(--text-secondary)]">
+              <span>Published by TrustLens Security Team</span>
+              {article.updatedAt && (
+                <span className="last-reviewed">
+                  Last updated: {new Date(article.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+              )}
+            </div>
 
             <script type="application/ld+json" dangerouslySetInnerHTML={{
               __html: JSON.stringify({
