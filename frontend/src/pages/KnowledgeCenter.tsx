@@ -4,6 +4,7 @@ import { BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, Briefcase, H
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { getKnowledgeArticles } from '../api/client';
+import { SITE_URL } from '../config';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   BookOpen, Shield, CreditCard, Users, Globe, MessageSquare, Briefcase, Heart,
@@ -76,7 +77,7 @@ export default function KnowledgeCenter() {
             '@type': 'CollectionPage',
             name: 'Knowledge Center - Cybersecurity Education',
             description: 'Learn how to protect yourself from online scams, phishing, identity theft, and cybersecurity threats. Free educational resources.',
-            url: 'https://www.trustlens.website/knowledge-center',
+            url: `${SITE_URL}/knowledge-center`,
             about: { '@type': 'Thing', name: 'Cybersecurity Education' },
           }),
         }} />

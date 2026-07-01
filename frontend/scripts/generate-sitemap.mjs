@@ -6,8 +6,42 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(__dirname, '..', 'dist');
 const PUBLIC = resolve(__dirname, '..', 'public');
 
-const SITE = process.env.SITE_URL || 'https://www.trustlens.website';
-const API = process.env.API_URL || (process.env.VITE_API_URL || 'http://localhost:5000/api/v1');
+const SITE = process.env.SITE_URL || process.env.VITE_SITE_URL || 'https://www.trustlens.website';
+const API = process.env.API_URL || (process.env.VITE_API_URL || `${SITE}/api/v1`);
+
+const TODAY = new Date().toISOString().slice(0, 10);
+
+const STATIC_URLS = [
+  { loc: `${SITE}/`, priority: '1.0', changefreq: 'weekly' },
+  { loc: `${SITE}/url-checker`, priority: '0.9', changefreq: 'monthly' },
+  { loc: `${SITE}/email-checker`, priority: '0.9', changefreq: 'monthly' },
+  { loc: `${SITE}/sms-checker`, priority: '0.9', changefreq: 'monthly' },
+  { loc: `${SITE}/screenshot-scanner`, priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/qr-scanner`, priority: '0.8', changefreq: 'monthly' },
+  { loc: `${SITE}/scam-alerts`, priority: '0.9', changefreq: 'daily' },
+  { loc: `${SITE}/trending-scams`, priority: '0.8', changefreq: 'daily' },
+  { loc: `${SITE}/community-reports`, priority: '0.8', changefreq: 'daily' },
+  { loc: `${SITE}/blog`, priority: '0.8', changefreq: 'weekly' },
+  { loc: `${SITE}/knowledge-center`, priority: '0.7', changefreq: 'weekly' },
+  { loc: `${SITE}/about`, priority: '0.6', changefreq: 'monthly' },
+  { loc: `${SITE}/faq`, priority: '0.6', changefreq: 'monthly' },
+  { loc: `${SITE}/contact`, priority: '0.5', changefreq: 'monthly' },
+  { loc: `${SITE}/privacy`, priority: '0.4', changefreq: 'yearly' },
+  { loc: `${SITE}/terms`, priority: '0.4', changefreq: 'yearly' },
+  { loc: `${SITE}/api-docs`, priority: '0.5', changefreq: 'monthly' },
+  { loc: `${SITE}/status`, priority: '0.4', changefreq: 'weekly' },
+  { loc: `${SITE}/login`, priority: '0.3', changefreq: 'monthly' },
+  { loc: `${SITE}/register`, priority: '0.3', changefreq: 'monthly' },
+];
+
+function xmlUrl(loc, { lastmod, changefreq, priority } = {}) {
+  let s = `  <url>\n    <loc>${loc}</loc>\n`;
+  if (lastmod) s += `    <lastmod>${lastmod}</lastmod>\n`;
+  if (changefreq) s += `    <changefreq>${changefreq}</changefreq>\n`;
+  if (priority) s += `    <priority>${priority}</priority>\n`;
+  s += `  </url>`;
+  return s;
+}
 
 async function fetchJson(url) {
   try {
@@ -19,59 +53,73 @@ async function fetchJson(url) {
   }
 }
 
-function xmlUrl(loc, { lastmod, changefreq, priority } = {}) {
-  let s = `  <url>\n    <loc>${loc}</loc>\n`;
-  if (lastmod) s += `    <lastmod>${lastmod}</lastmod>\n`;
-  if (changefreq) s += `    <changefreq>${changefreq}</changefreq>\n`;
-  if (priority) s += `    <priority>${priority}</priority>\n`;
-  s += `  </url>`;
-  return s;
+function lastmod(item) {
+  const d = item.updatedAt || item.publishedAt || item.createdAt;
+  return d ? d.slice(0, 10) : TODAY;
 }
 
 async function generate() {
-  const entries = [];
+  const entries = STATIC_URLS.map(u =>
+    xmlUrl(u.loc, { lastmod: TODAY, changefreq: u.changefreq, priority: u.priority })
+  );
 
-  // Fetch blog posts
-  const blogData = await fetchJson(`${API}/blog?limit=1000`);
+  const [blogData, kaData, repData] = await Promise.all([
+    fetchJson(`${API}/blog?limit=1000`),
+    fetchJson(`${API}/knowledge`),
+    fetchJson(`${API}/community?limit=1000&status=published`),
+  ]);
+
   const posts = blogData?.data?.items ?? [];
   for (const post of posts) {
-    const pub = post.publishedAt || post.updatedAt || post.createdAt;
-    const d = pub ? pub.slice(0, 10) : new Date().toISOString().slice(0, 10);
-    entries.push(xmlUrl(`${SITE}/blog/${post.slug}`, { lastmod: d, changefreq: 'monthly', priority: '0.6' }));
+    if (post.slug) {
+      entries.push(xmlUrl(`${SITE}/blog/${post.slug}`, { lastmod: lastmod(post), changefreq: 'monthly', priority: '0.6' }));
+    }
   }
 
-  // Fetch knowledge articles
-  const kaData = await fetchJson(`${API}/knowledge`);
   const articles = kaData?.data?.items ?? [];
   for (const art of articles) {
-    const mod = art.updatedAt || art.createdAt;
-    const d = mod ? mod.slice(0, 10) : new Date().toISOString().slice(0, 10);
-    entries.push(xmlUrl(`${SITE}/knowledge-center/${art.slug}`, { lastmod: d, changefreq: 'monthly', priority: '0.6' }));
+    if (art.slug) {
+      entries.push(xmlUrl(`${SITE}/knowledge-center/${art.slug}`, { lastmod: lastmod(art), changefreq: 'monthly', priority: '0.6' }));
+    }
   }
 
-  // Fetch community reports (published + scam alerts)
-  const repData = await fetchJson(`${API}/community?limit=1000&status=published`);
   const reports = repData?.data?.reports ?? [];
   for (const rep of reports) {
-    const mod = rep.updatedAt || rep.createdAt;
-    const d = mod ? mod.slice(0, 10) : new Date().toISOString().slice(0, 10);
     const slug = rep.slug || rep._id;
-    entries.push(xmlUrl(`${SITE}/community-reports/${slug}`, { lastmod: d, changefreq: 'weekly', priority: '0.5' }));
+    if (slug) {
+      entries.push(xmlUrl(`${SITE}/community-reports/${slug}`, { lastmod: lastmod(rep), changefreq: 'weekly', priority: '0.5' }));
+    }
   }
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n\n')}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries.join('\n\n')}
+</urlset>
+`;
 
-  // Write to both dist (for build output) and public (for dev)
+  const robotsTxt = `User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /api/
+
+Sitemap: ${SITE}/sitemap.xml
+`;
+
   const targets = [DIST, PUBLIC];
   for (const dir of targets) {
     try { mkdirSync(dir, { recursive: true }); } catch {}
-    writeFileSync(resolve(dir, 'sitemap-dynamic.xml'), xml, 'utf-8');
+    writeFileSync(resolve(dir, 'sitemap.xml'), xml, 'utf-8');
+    writeFileSync(resolve(dir, 'robots.txt'), robotsTxt, 'utf-8');
   }
 
-  console.log(`Generated sitemap-dynamic.xml with ${entries.length} dynamic URLs`);
+  const dynCount = entries.length - STATIC_URLS.length;
+  console.log(`Generated sitemap.xml with ${entries.length} URLs (${STATIC_URLS.length} static + ${dynCount} dynamic)`);
+  console.log(`Generated robots.txt pointing to ${SITE}/sitemap.xml`);
 }
 
 generate().catch(err => {
   console.error('Sitemap generation failed:', err.message);
-  process.exit(0); // don't fail the build
+  process.exit(0);
 });

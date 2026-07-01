@@ -4,6 +4,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import apiClient from '../api/client';
+import { SITE_URL } from '../config';
 
 export default function Status() {
   const { data, isLoading } = useQuery({
@@ -78,7 +79,7 @@ export default function Status() {
             '@type': 'WebPage',
             name: 'TrustLens System Status',
             description: 'Real-time status of TrustLens security analysis services and API.',
-            url: 'https://www.trustlens.website/status',
+            url: `${SITE_URL}/status`,
           }),
         }} />
       </div>

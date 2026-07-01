@@ -1,5 +1,6 @@
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { SITE_URL } from '../config';
 
 export default function Terms() {
   return (
@@ -37,7 +38,7 @@ export default function Terms() {
           '@type': 'WebPage',
           name: 'Terms of Service - TrustLens',
           description: 'TrustLens terms of service. By using our security analysis tools, you agree to these terms and conditions.',
-          url: 'https://www.trustlens.website/terms',
+          url: `${SITE_URL}/terms`,
           about: { '@type': 'Thing', name: 'Terms of Service' },
         }),
       }} />

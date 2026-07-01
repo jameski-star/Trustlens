@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, Home } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 interface BreadcrumbItem {
   label: string;
@@ -12,12 +13,12 @@ interface BreadcrumbsProps {
 
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
   const itemListElements = [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.trustlens.website/' },
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
     ...items.map((item, i) => ({
       '@type': 'ListItem' as const,
       position: i + 2,
       name: item.label,
-      ...(item.href ? { item: `https://www.trustlens.website${item.href}` } : {}),
+      ...(item.href ? { item: `${SITE_URL}${item.href}` } : {}),
     })),
   ];
 

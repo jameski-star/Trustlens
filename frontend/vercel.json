@@ -3,7 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/((?!sitemap\\.xml|sitemap-dynamic\\.xml|robots\\.txt|favicon\\.svg).*)", "destination": "/index.html" }
+    { "source": "/((?!sitemap\\.xml|robots\\.txt|favicon\\.svg).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -14,12 +14,6 @@
     },
     {
       "source": "/sitemap.xml",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
-      ]
-    },
-    {
-      "source": "/sitemap-dynamic.xml",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=3600" }
       ]

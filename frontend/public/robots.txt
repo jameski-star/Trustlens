@@ -6,4 +6,3 @@ Disallow: /register
 Disallow: /api/
 
 Sitemap: https://www.trustlens.website/sitemap.xml
-Sitemap: https://www.trustlens.website/sitemap-dynamic.xml

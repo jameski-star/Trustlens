@@ -6,6 +6,7 @@ import Card from '../components/Card';
 import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { SITE_URL } from '../config';
 
 export default function QRCodeScanner() {
   const [result, setResult] = useState<null | { text: string; risk: string }>(null);
@@ -101,7 +102,7 @@ export default function QRCodeScanner() {
           '@type': 'WebApplication',
           name: 'QR Code Scanner - Free QR Security Checker',
           description: 'Scan and analyze QR codes for malicious URLs and threats before opening them. Free QR code security scanner.',
-          url: 'https://www.trustlens.website/qr-scanner',
+          url: `${SITE_URL}/qr-scanner`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

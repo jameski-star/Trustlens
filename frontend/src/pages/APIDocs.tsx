@@ -1,6 +1,7 @@
 import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { SITE_URL } from '../config';
 
 const endpoints = [
   { method: 'POST', path: '/api/v1/scan/url', desc: 'Analyze a URL for security threats', body: '{ "input": "https://example.com" }' },
@@ -69,7 +70,7 @@ export default function APIDocs() {
             '@type': 'APIReference',
             name: 'TrustLens API Documentation',
             description: 'REST API for URL, email, SMS, and phone number security analysis. Free tier available.',
-            url: 'https://www.trustlens.website/api-docs',
+            url: `${SITE_URL}/api-docs`,
           }),
         }} />
       </div>

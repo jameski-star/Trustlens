@@ -1,5 +1,6 @@
 import SEOHead from '../components/SEOHead';
 import Breadcrumbs from '../components/Breadcrumbs';
+import { SITE_URL } from '../config';
 
 export default function Privacy() {
   return (
@@ -44,7 +45,7 @@ export default function Privacy() {
           '@type': 'WebPage',
           name: 'Privacy Policy - TrustLens',
           description: 'TrustLens privacy policy. Learn how we protect your data and what information we collect.',
-          url: 'https://www.trustlens.website/privacy',
+          url: `${SITE_URL}/privacy`,
           about: { '@type': 'Thing', name: 'Privacy Policy' },
         }),
       }} />

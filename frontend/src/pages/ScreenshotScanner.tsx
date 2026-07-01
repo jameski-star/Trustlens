@@ -7,6 +7,7 @@ import ScanAnimation from '../components/ScanAnimation';
 import ErrorBoundary from '../components/ErrorBoundary';
 import Breadcrumbs from '../components/Breadcrumbs';
 import RiskScore from '../components/RiskScore';
+import { SITE_URL } from '../config';
 
 interface DetectedRisk {
   category: string;
@@ -342,7 +343,7 @@ export default function ScreenshotScanner() {
           '@type': 'WebApplication',
           name: 'Screenshot Scanner - Free OCR Security Scanner',
           description: 'Upload screenshots for AI-powered threat analysis. Extract and analyze text from images for phishing and scam detection.',
-          url: 'https://www.trustlens.website/screenshot-scanner',
+          url: `${SITE_URL}/screenshot-scanner`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

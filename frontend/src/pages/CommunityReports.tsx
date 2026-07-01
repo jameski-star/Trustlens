@@ -8,6 +8,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import { CardSkeleton } from '../components/Skeleton';
 import { Flag, Plus, X, Loader2, ThumbsUp, ThumbsDown, Image as ImageIcon, Upload, ShieldCheck, Eye, EyeOff, Shield, Clock, ChevronDown, ExternalLink } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { SITE_URL } from '../config';
 import { useAuth } from '../hooks/useAuth';
 import { formatText, wordSafeTruncate } from '../utils/textFormatter';
 
@@ -467,7 +468,7 @@ export default function CommunityReports() {
             '@type': 'DataCatalog',
             name: 'Community Reports - TrustLens',
             description: 'Browse community-submitted reports about scam websites, phishing emails, fake phone numbers, and fraudulent investment platforms.',
-            url: 'https://www.trustlens.website/community-reports',
+            url: `${SITE_URL}/community-reports`,
           }),
         }} />
       </div>

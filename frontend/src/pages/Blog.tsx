@@ -7,6 +7,7 @@ import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { BlogSkeleton } from '../components/Skeleton';
 import { Loader2 } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 interface BlogPostItem {
   _id: string;
@@ -141,7 +142,7 @@ export default function Blog() {
               item: {
                 '@type': 'BlogPosting',
                 headline: post.title,
-                url: `https://www.trustlens.website/blog/${post.slug}`,
+                url: `${SITE_URL}/blog/${post.slug}`,
                 author: post.author,
                 datePublished: post.publishedAt,
               },

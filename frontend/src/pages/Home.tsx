@@ -5,6 +5,7 @@ import SEOHead from '../components/SEOHead';
 import SearchBar from '../components/SearchBar';
 import TrustIndicators from '../components/TrustIndicators';
 import { getBlogPosts, getTrendingScams } from '../api/client';
+import { SITE_URL } from '../config';
 
 const tools = [
   { icon: Search, title: 'URL Checker', desc: 'Check if a website is safe or fraudulent', href: '/url-checker', color: 'bg-[var(--bg-accent)] text-[var(--text-accent)]' },
@@ -138,15 +139,15 @@ export default function Home() {
         __html: JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebApplication',
-          '@id': 'https://www.trustlens.website/#webapplication',
+          '@id': `${SITE_URL}/#webapplication`,
           name: 'TrustLens - Online Security Analyzer',
           description: 'Free security analysis tool for websites, emails, SMS messages, screenshots, QR codes, and phone numbers. Detect phishing, scams, and fraud.',
-          url: 'https://www.trustlens.website/',
+          url: `${SITE_URL}/`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           browserRequirements: 'Requires JavaScript',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-          author: { '@id': 'https://www.trustlens.website/#organization' },
+          author: { '@id': `${SITE_URL}/#organization` },
         }),
       }} />
     </>

@@ -6,6 +6,7 @@ import Card from '../components/Card';
 import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { Calendar, User, Tag, ArrowLeft, ExternalLink } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -121,10 +122,10 @@ export default function BlogPostPage() {
                 description: post.excerpt,
                 image: post.coverImage || undefined,
                 author: { '@type': 'Person', name: post.author },
-                publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: 'https://www.trustlens.website/favicon.svg' } },
+                publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` } },
                 datePublished: post.publishedAt,
                 dateModified: post.updatedAt || post.publishedAt,
-                mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.trustlens.website/blog/${post.slug}` },
+                mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${post.slug}` },
                 keywords: post.tags?.join(', ') || post.category,
                 articleSection: post.category,
               }),

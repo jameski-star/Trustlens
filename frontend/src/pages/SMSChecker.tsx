@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { MessageSquare, Phone, MapPin, Wifi, Building2 } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 interface RiskItem {
   category: string;
@@ -266,7 +267,7 @@ export default function SMSChecker() {
           '@type': 'WebApplication',
           name: 'SMS Checker - Free SMS Scam Detector',
           description: 'Verify SMS messages and WhatsApp texts for scams. Free SMS security checker with AI analysis.',
-          url: 'https://www.trustlens.website/sms-checker',
+          url: `${SITE_URL}/sms-checker`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

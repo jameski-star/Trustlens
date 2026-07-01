@@ -7,6 +7,7 @@ import { ReportSkeleton } from '../components/Skeleton';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 import { renderMarkdown } from '../utils/markdown';
+import { SITE_URL } from '../config';
 
 export default function KnowledgeArticle() {
   const { slug } = useParams<{ slug: string }>();
@@ -67,10 +68,10 @@ export default function KnowledgeArticle() {
                 headline: article.title,
                 description: article.excerpt,
                 author: { '@type': 'Organization', name: 'TrustLens' },
-                publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: 'https://www.trustlens.website/favicon.svg' } },
+                publisher: { '@type': 'Organization', name: 'TrustLens', logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` } },
                 datePublished: article.createdAt,
                 dateModified: article.updatedAt || article.createdAt,
-                mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.trustlens.website/knowledge-center/${article.slug}` },
+                mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/knowledge-center/${article.slug}` },
                 about: article.category,
                 proficiencyLevel: 'Beginner',
               }),

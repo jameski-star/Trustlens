@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Bell } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 interface ScamAlertItem {
   _id: string;
@@ -94,7 +95,7 @@ export default function ScamAlerts() {
             '@type': 'DataFeed',
             name: 'Active Scam Alerts - TrustLens',
             description: 'Real-time scam alerts and verified community reports about phishing, fraud, and cybersecurity threats.',
-            url: 'https://www.trustlens.website/scam-alerts',
+            url: `${SITE_URL}/scam-alerts`,
           }),
         }} />
       </div>

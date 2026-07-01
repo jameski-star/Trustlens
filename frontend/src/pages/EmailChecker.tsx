@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, ShieldCheck } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 interface RiskItem {
   category: string;
@@ -166,7 +167,7 @@ export default function EmailChecker() {
           '@type': 'WebApplication',
           name: 'Email Checker - Free Phishing Email Scanner',
           description: 'Analyze emails for phishing attempts and scam indicators. Free AI-powered email security checker.',
-          url: 'https://www.trustlens.website/email-checker',
+          url: `${SITE_URL}/email-checker`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

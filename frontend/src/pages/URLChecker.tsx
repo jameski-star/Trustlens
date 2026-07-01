@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
+import { SITE_URL } from '../config';
 
 interface BlacklistItem {
   name: string;
@@ -247,7 +248,7 @@ export default function URLChecker() {
           '@type': 'WebApplication',
           name: 'URL Checker - Free Phishing & Malware Scanner',
           description: 'Check if a website is safe or fraudulent. Free URL security analysis with SSL check, domain age, blacklist status, and AI-powered threat detection.',
-          url: 'https://www.trustlens.website/url-checker',
+          url: `${SITE_URL}/url-checker`,
           applicationCategory: 'SecurityApplication',
           operatingSystem: 'All',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

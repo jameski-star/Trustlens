@@ -5,6 +5,7 @@ import SEOHead from '../components/SEOHead';
 import Card from '../components/Card';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { ReportSkeleton } from '../components/Skeleton';
+import { SITE_URL } from '../config';
 
 const iconMap: Record<string, { icon: typeof Globe; label: string }> = {
   url: { icon: Globe, label: 'Phishing URLs' },
@@ -70,7 +71,7 @@ export default function TrendingScams() {
             '@type': 'DataFeed',
             name: 'Trending Scams - Current Cybersecurity Threats',
             description: 'See the latest trending scams and cybersecurity threats being reported in real-time.',
-            url: 'https://www.trustlens.website/trending-scams',
+            url: `${SITE_URL}/trending-scams`,
           }),
         }} />
       </div>
