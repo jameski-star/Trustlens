@@ -2,10 +2,47 @@ import Tesseract from 'tesseract.js';
 import { analyzeUrl, analyzeEmail, analyzePhoneNumber } from './scanner';
 import { performAIAnalysis } from './aiAnalysis';
 import { detectScamTemplates, isKnownScamDomain } from './scamPatterns';
+import { logger } from '../utils/logger';
 
 const URL_REGEX = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)/gi;
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi;
 const PHONE_REGEX = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/g;
+
+const OCR_TIMEOUT_MS = 20_000;
+
+let ocrWorker: Awaited<ReturnType<typeof Tesseract.createWorker>> | null = null;
+let workerInitAttempted = false;
+
+async function getWorker(): Promise<Awaited<ReturnType<typeof Tesseract.createWorker>> | null> {
+  if (ocrWorker) return ocrWorker;
+  if (workerInitAttempted) return null;
+  workerInitAttempted = true;
+  try {
+    const worker = await Tesseract.createWorker('eng', 1, { logger: () => void 0 });
+    ocrWorker = worker;
+    return worker;
+  } catch (err) {
+    logger.warn({ err }, 'Failed to initialize OCR worker');
+    return null;
+  }
+}
+
+async function extractText(imageBuffer: Buffer): Promise<string> {
+  try {
+    const worker = await getWorker();
+    if (!worker) return '';
+    const result = await Promise.race([
+      worker.recognize(imageBuffer),
+      new Promise<string>((_, reject) =>
+        setTimeout(() => reject(new Error('OCR timeout')), OCR_TIMEOUT_MS)
+      ),
+    ]) as Awaited<ReturnType<typeof worker.recognize>>;
+    return result.data.text.trim();
+  } catch (err) {
+    logger.warn({ err }, 'OCR extraction failed');
+    return '';
+  }
+}
 
 function extractUrls(text: string): string[] {
   const matches = text.match(URL_REGEX);
@@ -58,8 +95,7 @@ export async function analyzeScreenshot(base64Data: string): Promise<ScreenshotA
   let overallRisk = 50;
 
   const imageBuffer = Buffer.from(base64Data.replace(/^data:image\/\w+;base64,/, ''), 'base64');
-  const ocrResult = await Tesseract.recognize(imageBuffer, 'eng', { logger: () => void 0 });
-  const fullText = ocrResult.data.text.trim();
+  const fullText = await extractText(imageBuffer);
 
   if (!fullText) {
     return {
