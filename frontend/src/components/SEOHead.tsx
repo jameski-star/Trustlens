@@ -32,12 +32,6 @@ export default function SEOHead({ title, description, canonical, ogImage, ogType
       el.setAttribute('content', content);
     };
 
-    const removeMeta = (name: string, property = false) => {
-      const attr = property ? 'property' : 'name';
-      const el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (el) el.remove();
-    };
-
     setMeta('description', description);
     setMeta('keywords', keywords || 'cybersecurity, scam detection, phishing checker, URL checker, email security, SMS scam, online safety, fraud detection, trust analysis, security scanner');
     setMeta('robots', noIndex ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large');
